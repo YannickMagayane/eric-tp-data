@@ -2,6 +2,7 @@
 \begin{columns}[T]
         \begin{column}{0.48\textwidth}
             \begin{block}{Infrastructure Docker \& PostgreSQL}
+\scriptsize
 \begin{verbatim}
 ./bin/launch.sh          # Build + Up + Validate
 docker compose ps        # Etat et healthchecks
@@ -14,6 +15,7 @@ docker compose down      # Arret (volumes gardes)
         \end{column}
         \begin{column}{0.48\textwidth}
             \begin{exampleblock}{Pipelines, Rapports, Tests \& Sauvegarde}
+\scriptsize
 \begin{verbatim}
 make generate-data       # Jeu conforme examen
 make pipeline            # UNIX ETL + Audit iragi
@@ -25,6 +27,6 @@ make pdf && make slides  # Rapports LaTeX
             \end{exampleblock}
         \end{column}
     \end{columns}
-    \vspace{0.2cm}
+    \vspace{0.18cm}
     \centering
-    \small\textbf{Tableau de bord Metabase :} \texttt{http://metabase.localhost:8080/dashboard/2} \hspace{0.5cm} \textbf{Traefik :} \texttt{http://127.0.0.1:8081}
+    \footnotesize\textbf{Tableau de bord Metabase :} \texttt{http://metabase.localhost:8080/dashboard/2} \hspace{0.4cm} \textbf{Traefik :} \texttt{http://127.0.0.1:8081}

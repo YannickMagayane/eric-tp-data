@@ -34,12 +34,13 @@
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{blocks}[rounded][shadow=false]
 
-% Justify text across all frames and inside every Beamer block/card
+% Strict justification and overflow prevention inside all frames and cards
+\sloppy
+\setlength{\emergencystretch}{3em}
 \apptocmd{\frame}{}{\justifying}{}
-\addtobeamertemplate{block begin}{}{\justifying}
-\addtobeamertemplate{block example begin}{}{\justifying}
-\addtobeamertemplate{block alerted begin}{}{\justifying}
-\setlength{\emergencystretch}{2.5em}
+\addtobeamertemplate{block begin}{}{\justifying\sloppy}
+\addtobeamertemplate{block example begin}{}{\justifying\sloppy}
+\addtobeamertemplate{block alerted begin}{}{\justifying\sloppy}
 
 \title[Projet Final --- Syst\`emes UNIX]{Analyse de Donn\'ees avec Pipeline UNIX}
 \subtitle{D\'eploiement, Traitement, Visualisation et Reporting}
@@ -55,33 +56,33 @@
 \begin{frame}[plain]
     \begin{tikzpicture}[remember picture, overlay]
         \fill[unilublue] (current page.north west) rectangle ([yshift=-1.1cm]current page.north east);
-        \fill[accentblue] ([yshift=-1.1cm]current page.north west) rectangle ([yshift=-1.22cm]current page.north east);
+        \fill[accentblue] ([yshift=-1.1cm]current page.north west) rectangle ([yshift=-1.24cm]current page.north east);
         \fill[unilublue] (current page.south west) rectangle ([yshift=0.6cm]current page.south east);
     \end{tikzpicture}
-    \vspace*{0.9cm}
+    \vspace*{0.85cm}
     \begin{center}
         {\small\bfseries\textcolor{accentblue}{UNIVERSIT\'E DE LUBUMBASHI --- FACULT\'E DES SCIENCES --- M1 INFORMATIQUE}}\\[0.35cm]
         \begin{tikzpicture}
-            \node[fill=slatebg, draw=unilublue, line width=1.2pt, rounded corners=6pt, inner sep=16pt, text width=0.86\textwidth, align=center] {
+            \node[fill=slatebg, draw=unilublue, line width=1.3pt, rounded corners=6pt, inner sep=16pt, text width=0.86\textwidth, align=center] {
                 {\Large\bfseries\textcolor{unilublue}{Analyse de Donn\'ees avec Pipeline UNIX}}\\[0.25cm]
                 {\normalsize\itshape D\'eploiement, Traitement, Visualisation et Reporting}
             };
         \end{tikzpicture}
-        \vspace{0.5cm}
+        \vspace{0.45cm}
 
-        {\normalsize\textbf{\'Etudiant :} Lutumba Miteo Eric \hspace{1.2cm} \textbf{Enseignant :} Prof. Patrick Mukala}\\[0.2cm]
-        {\small\textcolor{tealaccent}{\textbf{Architecture :} Docker Multi-Stage \textbullet\ Traefik v3.6 \textbullet\ Bash/AWK/jq \textbullet\ \texttt{iragi} \textbullet\ PostgreSQL 16 \textbullet\ Metabase \textbullet\ Gnuplot}}
+        {\normalsize\textbf{\'Etudiant :} Lutumba Miteo Eric \hspace{1.2cm} \textbf{Enseignant :} Prof. Patrick Mukala}\\[0.25cm]
+        {\footnotesize\textcolor{tealaccent}{\textbf{Architecture :} Docker Multi-Stage \textbullet\ Traefik v3.6 \textbullet\ Bash/AWK/jq \textbullet\ \texttt{iragi} \textbullet\ PostgreSQL 16 \textbullet\ Metabase \textbullet\ Gnuplot}}
     \end{center}
 \end{frame}
 
 % ============================================================================
-% SLIDE 2 : CAHIER DES CHARGES & JUSTIFICATION DES CHOIX TECHNIQUES
+% SLIDE 2 : CAHIER DES CHARGES & JUSTIFICATION DES CHOIX
 % ============================================================================
 \begin{frame}{1. Cahier des Charges et Justification des Choix Techniques}
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
             \begin{block}{Exigences de l'\'Enonc\'e Respect\'ees}
-                \justifying
+                \footnotesize\justifying
                 Les donn\'ees couvrent \textbf{3 mois} (\texttt{2026-09-01} au \texttt{2026-11-29}) sur les \textbf{9 villes fran\c{c}aises impos\'ees} (Paris, Lyon, Marseille, Lille, Bordeaux, Toulouse, Nantes, Nice, Strasbourg) :
                 \begin{itemize}
                     \item \texttt{livraisons.csv} : 2\,555 brutes $\rightarrow$ \textbf{2\,510 valides} (cible : 1\,000--5\,000).
@@ -91,12 +92,12 @@
             \end{block}
         \end{column}
         \begin{column}{0.48\textwidth}
-            \begin{exampleblock}{Justification de l'Architecture Retenue}
-                \justifying
+            \begin{exampleblock}{Justification de l'Architecture}
+                \footnotesize\justifying
                 \begin{itemize}
-                    \item \textbf{Docker multi-stage non-root} : r\'eduit la taille de l'image, garantit la reproductibilit\'e et prot\`ege les volumes partag\'es via \texttt{appuser} (UID 1000).
-                    \item \textbf{Filtres UNIX (\texttt{sed}, \texttt{awk}, \texttt{join}, \texttt{jq})} : traitement en flux continu \`a faible empreinte m\'emoire, d\'eterministe sous \texttt{LC\_ALL=C}.
-                    \item \textbf{Traefik + PostgreSQL + Metabase} : s\'epare stockage transactionnel, routage s\'ecuris\'e et BI interactive.
+                    \item \textbf{Docker multi-stage non-root} : r\'eduit la taille de l'image, isole les outils et prot\`ege les volumes via \texttt{appuser} (UID 1000).
+                    \item \textbf{Filtres UNIX (\texttt{sed}, \texttt{awk}, \texttt{join}, \texttt{jq})} : traitement en flux continu sobre en m\'emoire et d\'eterministe sous \texttt{LC\_ALL=C}.
+                    \item \textbf{Traefik + PostgreSQL + Metabase} : s\'epare stockage relationnel, routage s\'ecuris\'e et analyse BI.
                 \end{itemize}
             \end{exampleblock}
         \end{column}
@@ -104,19 +105,19 @@
 \end{frame}
 
 % ============================================================================
-% SLIDE 3 : ARCHITECTURE DOCKER & ORGANISATION DES DONNEES
+% SLIDE 3 : ARCHITECTURE DOCKER & CYCLE DE VIE DES DONNEES
 % ============================================================================
-\begin{frame}{2. Architecture Conteneuris\'ee et Cycle de Vie des Donn\'ees}
+\begin{frame}{2. Architecture Conteneuris\'ee et Organisation des Donn\'ees}
     \begin{center}
         \begin{tikzpicture}[
-            node distance=0.8cm and 1.0cm,
-            box/.style={rectangle, draw=unilublue, fill=slatebg, rounded corners=4pt, minimum width=2.45cm, minimum height=0.95cm, align=center, font=\scriptsize\bfseries},
-            arrow/.style={-{Stealth[length=2.3mm]}, thick, color=unilublue}
+            node distance=0.65cm and 0.85cm,
+            box/.style={rectangle, draw=unilublue, fill=slatebg, rounded corners=4pt, minimum width=2.4cm, minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
+            arrow/.style={-{Stealth[length=2.2mm]}, thick, color=unilublue}
         ]
             \node[box] (raw) {\texttt{data/raw/}\\CSV, JSON, Logs};
-            \node[box, right=of raw, fill=blue!8] (unix) {\texttt{dev} (UID 1000)\\Pipelines UNIX + \texttt{iragi}};
+            \node[box, right=of raw, fill=blue!8] (unix) {\texttt{dev} (UID 1000)\\Pipelines + \texttt{iragi}};
             \node[box, right=of unix, fill=teal!10] (proc) {\texttt{data/processed/}\\Clean, DLQ, \texttt{.dat}};
-            \node[box, below=0.75cm of unix, fill=amberwarn!10] (db) {\texttt{db} (PostgreSQL 16)\\3 tables + Index};
+            \node[box, below=0.65cm of unix, fill=amberwarn!10] (db) {\texttt{db} (PostgreSQL 16)\\3 tables + Index};
             \node[box, right=of db, fill=green!10] (mb) {\texttt{dashboard}\\Metabase BI};
             \node[box, right=of mb, fill=unilublue!12] (tr) {\texttt{traefik:v3.6}\\Reverse Proxy (:8080)};
 
@@ -128,26 +129,26 @@
         \end{tikzpicture}
     \end{center}
     \vspace{0.1cm}
-    \begin{block}{Justification du Stockage et de la Tra\c{c}abilit\'e}
-        \justifying\scriptsize
-        Chaque \'etape \'ecrit dans un r\'epertoire unique sans copie redondante (\texttt{raw/} $\rightarrow$ \texttt{processed/} $\rightarrow$ \texttt{reports/} et \texttt{visualizations/}). Le script \texttt{run\_pipeline.sh} g\'en\`ere \texttt{lineage\_manifest.json} (empreintes SHA-256) et \texttt{./bin/backup.sh} prot\`ege la base PostgreSQL et les donn\'ees critiques par archive v\'erifi\'ee.
+    \begin{block}{Organisation du Stockage et Tra\c{c}abilit\'e}
+        \scriptsize\justifying
+        Chaque \'etape \'ecrit dans un r\'epertoire d\'edi\'e sans duplication inutile (\texttt{raw/} $\rightarrow$ \texttt{processed/} $\rightarrow$ \texttt{reports/} et \texttt{visualizations/}). Le script \texttt{run\_pipeline.sh} produit \texttt{lineage\_manifest.json} (empreintes SHA-256) et \texttt{./bin/backup.sh} exporte la base PostgreSQL et les donn\'ees avec v\'erification \texttt{sha256sum}.
     \end{block}
 \end{frame}
 
 % ============================================================================
-% SLIDE 4 : JUSTIFICATION & ACTION D'IRAGI
+% SLIDE 4 : IRAGI - CE QU'IL APPORTE, COMMENT ET POURQUOI
 % ============================================================================
-\begin{frame}{3. Justification Scientifique et Action d'\texttt{iragi} (\texttt{v0.6.4})}
+\begin{frame}{3. Module \texttt{iragi} (\texttt{v0.6.4}) : Apport, Intervention et Justification}
     \begin{center}
         \begin{tikzpicture}[
-            node distance=0.4cm and 0.55cm,
-            stepbox/.style={rectangle, draw=tealaccent, fill=teal!6, rounded corners=4pt, text width=2.45cm, minimum height=1.25cm, align=center, font=\scriptsize},
-            unixbox/.style={rectangle, draw=unilublue, fill=slatebg, rounded corners=4pt, text width=2.45cm, minimum height=1.25cm, align=center, font=\scriptsize},
-            arr/.style={-{Stealth[length=2.2mm]}, thick, color=unilublue}
+            node distance=0.25cm and 0.32cm,
+            stepbox/.style={rectangle, draw=tealaccent, fill=teal!6, rounded corners=4pt, text width=2.25cm, minimum height=1.2cm, align=center, font=\tiny},
+            unixbox/.style={rectangle, draw=unilublue, fill=slatebg, rounded corners=4pt, text width=2.25cm, minimum height=1.2cm, align=center, font=\tiny},
+            arr/.style={-{Stealth[length=2mm]}, thick, color=unilublue}
         ]
-            \node[stepbox] (s1) {\textbf{1. Inspection}\\\texttt{iragi.scan}\\Score initial :\\99,29 / 100};
-            \node[stepbox, right=of s1] (s2) {\textbf{2. Contrat M\'etier}\\\texttt{DataContract}\\12 violations\\d\'etect\'ees};
-            \node[stepbox, right=of s2] (s3) {\textbf{3. Quarantaine DLQ}\\\texttt{auto\_clean}\\10 lignes isol\'ees\\(0 imputation)};
+            \node[stepbox] (s1) {\textbf{1. Inspection}\\\texttt{iragi.scan}\\Score brut :\\99,29 / 100};
+            \node[stepbox, right=of s1] (s2) {\textbf{2. Contrat}\\\texttt{DataContract}\\12 violations\\d\'etect\'ees};
+            \node[stepbox, right=of s2] (s3) {\textbf{3. Quarantaine}\\\texttt{auto\_clean}\\10 lignes DLQ\\(0 imputation)};
             \node[unixbox, right=of s3] (s4) {\textbf{4. Filtres UNIX}\\\texttt{clean\_data.sh}\\\texttt{sed | sort | awk}\\2\,510 propres};
             \node[stepbox, right=of s4] (s5) {\textbf{5. Certification}\\\texttt{compare\_scans}\\+ \texttt{reconcile}\\99,75/100 \& 139 HTTP};
 
@@ -157,18 +158,18 @@
             \draw[arr] (s4) -- (s5);
         \end{tikzpicture}
     \end{center}
-    \vspace{0.15cm}
+    \vspace{0.1cm}
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
             \begin{alertblock}{Pourquoi UNIX seul ne suffit pas}
-                \justifying\scriptsize
-                Les filtres textuels (\texttt{awk}/\texttt{sed}) ne calculent pas de score global normalis\'e, n'offrent pas de quarantaine DLQ structur\'ee et ne r\'econcilient pas nativement des cl\'es h\'et\'erog\`enes (\texttt{id} vs \texttt{/api/livraisons/LIV-<id>}).
+                \scriptsize\justifying
+                Les filtres textuels (\texttt{sed}, \texttt{awk}) ne produisent pas de score normalis\'e sur 100, ne g\`erent pas nativement une file de quarantaine DLQ sans imputation aveugle et ne r\'econcilient pas des cl\'es h\'et\'erog\`enes (\texttt{id} vs \texttt{/api/livraisons/LIV-<id>}).
             \end{alertblock}
         \end{column}
         \begin{column}{0.48\textwidth}
-            \begin{exampleblock}{Apport prouv\'e de la synergie UNIX + \texttt{iragi}}
-                \justifying\scriptsize
-                \textbf{0 violation} restante, parit\'e exacte (\texttt{2\,510 == 2\,510}), tra\c{c}abilit\'e compl\`ete des rejets dans \texttt{quarantine\_livraisons.csv} et identification de \textbf{139 appels HTTP 404 orphelins}.
+            \begin{exampleblock}{Ce qu'\texttt{iragi} apporte concr\`etement}
+                \scriptsize\justifying
+                Il intervient \textbf{avant} (diagnostic et contrat anti-ReDoS) et \textbf{apr\`es} le pipeline UNIX (certification \`a \textbf{99,75/100}, \textbf{0 violation}, parit\'e exacte \texttt{2\,510 == 2\,510}, d\'etection d'outliers MAD et identification de \textbf{139 appels HTTP 404 orphelins}).
             \end{exampleblock}
         \end{column}
     \end{columns}
@@ -179,11 +180,11 @@
 % ============================================================================
 \begin{frame}{4. Preuve Visuelle : Brut vs Nettoyage Classique vs UNIX + \texttt{iragi}}
     \centering
-    \includegraphics[height=0.72\textheight]{../data/visualizations/08_anomalies_avant_apres.png}
-    \vspace{0.1cm}
-    \begin{block}{Justification du Gain Qualit\'e}
-        \justifying\scriptsize
-        Contrairement \`a un nettoyage na\"if qui laisse 10 violations actives et ignore les 139 erreurs HTTP orphelines, l'alliance des filtres UNIX et d'\texttt{iragi} ram\`ene l'ensemble des d\'efauts non ma\^itris\'es \`a z\'ero.
+    \includegraphics[height=0.68\textheight]{../data/visualizations/08_anomalies_avant_apres.png}
+    \vspace{0.08cm}
+    \begin{block}{Justification du Gain de Qualit\'e}
+        \scriptsize\justifying
+        Contrairement \`a un nettoyage classique na\"if qui laisse subsister 10 violations m\'etier, fabrique 3 valeurs par moyenne et ignore 139 erreurs HTTP 404 orphelines, l'alliance des filtres UNIX et d'\texttt{iragi} ram\`ene tous les d\'efauts non ma\^itris\'es \`a z\'ero.
     \end{block}
 \end{frame}
 
@@ -192,19 +193,19 @@
 % ============================================================================
 \begin{frame}{5. Analyse G\'eographique sur les 9 Villes Fran\c{c}aises}
     \begin{columns}[T]
-        \begin{column}{0.49\textwidth}
+        \begin{column}{0.48\textwidth}
             \centering
             \includegraphics[width=\textwidth]{../data/visualizations/01_livraisons_par_ville.png}
         \end{column}
-        \begin{column}{0.49\textwidth}
+        \begin{column}{0.48\textwidth}
             \centering
             \includegraphics[width=\textwidth]{../data/visualizations/03_taux_retard_par_ville.png}
         \end{column}
     \end{columns}
     \vspace{0.1cm}
     \begin{block}{Interpr\'etation Op\'erationnelle}
-        \justifying\scriptsize
-        Paris concentre le premier volume (377 colis, 14,59 \% de retard) suivi de Lyon (320) et Marseille (307). Strasbourg (6,75 \%) et Toulouse (7,46 \%) affichent les meilleurs taux de ponctualit\'e et servent de r\'ef\'erence pour r\'e\'equilibrer la flotte.
+        \scriptsize\justifying
+        Paris concentre le premier volume national (377 colis, 14,59 \% de retard) devant Lyon (320) et Marseille (307). Strasbourg (6,75 \%) et Toulouse (7,46 \%) offrent la meilleure ponctualit\'e et servent de mod\`ele de r\'eallocation de flotte.
     \end{block}
 \end{frame}
 
@@ -213,42 +214,43 @@
 % ============================================================================
 \begin{frame}{6. Corr\'elation Distance/Temps ($r = 0,9296$) et Distribution des Dur\'ees}
     \begin{columns}[T]
-        \begin{column}{0.49\textwidth}
+        \begin{column}{0.48\textwidth}
             \centering
             \includegraphics[width=\textwidth]{../data/visualizations/05_distance_vs_temps.png}
         \end{column}
-        \begin{column}{0.49\textwidth}
+        \begin{column}{0.48\textwidth}
             \centering
             \includegraphics[width=\textwidth]{../data/visualizations/04_distribution_temps.png}
         \end{column}
     \end{columns}
     \vspace{0.1cm}
     \begin{block}{Lecture Statistique Rigoureuse}
-        \justifying\scriptsize
-        L'association lin\'eaire distance/temps est forte ($r = 0,9296$) sans confondre corr\'elation et causalit\'e unique : la dur\'ee d\'epend conjointement de la distance, du type de v\'ehicule et de la zone urbaine (10--60 km) ou interurbaine (jusqu'\`a 500 km).
+        \scriptsize\justifying
+        La corr\'elation distance/temps atteint $r = 0,9296$ (et $r = 0,8647$ pour distance/co\^ut) sans confondre corr\'elation et causalit\'e unique : la dur\'ee d\'epend conjointement de la distance, du type de v\'ehicule et de la zone urbaine ou interurbaine.
     \end{block}
 \end{frame}
 
 % ============================================================================
-% SLIDE 8 : METABASE & POSTGRESQL
+% SLIDE 8 : METABASE & POSTGRESQL (AVEC IDENTIFIANTS SANS DEBORDEMENT)
 % ============================================================================
 \begin{frame}{7. Exploitation BI sous Metabase et PostgreSQL 16}
     \begin{columns}[T]
-        \begin{column}{0.46\textwidth}
+        \begin{column}{0.47\textwidth}
             \begin{block}{Acc\`es \& Identifiants Metabase}
-                \justifying\scriptsize
-                Metabase est expos\'e via Traefik et connect\'e \`a \texttt{db:5432/logistics\_db} (35 livreurs, 2\,510 livraisons, 1\,200 logs HTTP) :
+                \scriptsize\justifying
+                Metabase est expos\'e via Traefik et connect\'e \`a PostgreSQL (\texttt{db:5432/logistics\_db}) avec parit\'e exacte des donn\'ees (35 livreurs, 2\,510 livraisons, 1\,200 logs HTTP) :
                 \begin{itemize}
                     \item \textbf{Dashboard :} \texttt{http://metabase.localhost:8080/dashboard/2}
-                    \item \textbf{Email admin :} \texttt{eric.lutumba@unilu.ac.cd}
-                    \item \textbf{Mot de passe :} \texttt{UnixPipeline2026!}
-                    \item \textbf{Traefik UI :} \texttt{http://127.0.0.1:8081}
+                    \item \textbf{Admin :} \texttt{eric.lutumba@unilu.ac.cd}
+                    \item \textbf{Passe :} \texttt{UnixPipeline2026!}
+                    \item \textbf{Traefik :} \texttt{http://127.0.0.1:8081}
                 \end{itemize}
             \end{block}
         \end{column}
-        \begin{column}{0.50\textwidth}
+        \begin{column}{0.49\textwidth}
             \begin{exampleblock}{6 Cartes SQL Natives \'Epingl\'ees}
-                \justifying\scriptsize
+                \scriptsize\justifying
+                Requ\^etes issues de \texttt{sql/queries.sql} et v\'erifi\'ees en direct :
                 \begin{enumerate}
                     \item Livraisons et Retard par Ville (\texttt{bar})
                     \item \'Evolution Mensuelle des Livraisons (\texttt{bar})
@@ -269,6 +271,7 @@
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
             \begin{block}{Infrastructure Docker \& PostgreSQL}
+\scriptsize
 \begin{verbatim}
 ./bin/launch.sh          # Build + Up + Validate
 docker compose ps        # Etat et healthchecks
@@ -281,6 +284,7 @@ docker compose down      # Arret (volumes gardes)
         \end{column}
         \begin{column}{0.48\textwidth}
             \begin{exampleblock}{Pipelines, Rapports, Tests \& Sauvegarde}
+\scriptsize
 \begin{verbatim}
 make generate-data       # Jeu conforme examen
 make pipeline            # UNIX ETL + Audit iragi
@@ -292,9 +296,9 @@ make pdf && make slides  # Rapports LaTeX
             \end{exampleblock}
         \end{column}
     \end{columns}
-    \vspace{0.2cm}
+    \vspace{0.18cm}
     \centering
-    \small\textbf{Tableau de bord Metabase :} \texttt{http://metabase.localhost:8080/dashboard/2} \hspace{0.5cm} \textbf{Traefik :} \texttt{http://127.0.0.1:8081}
+    \footnotesize\textbf{Tableau de bord Metabase :} \texttt{http://metabase.localhost:8080/dashboard/2} \hspace{0.4cm} \textbf{Traefik :} \texttt{http://127.0.0.1:8081}
 \end{frame}
 
 % ============================================================================
@@ -302,11 +306,11 @@ make pdf && make slides  # Rapports LaTeX
 % ============================================================================
 \begin{frame}{9. Bilan Final, Recommandations et Conclusion}
     \begin{block}{Synth\`ese de la Solution D\'elivr\'ee}
-        \justifying
+        \footnotesize\justifying
         \begin{itemize}
             \item \textbf{Cha\^ine UNIX compl\`ete et reproductible} : filtres standards (\texttt{sed}, \texttt{awk}, \texttt{sort}, \texttt{uniq}, \texttt{join}, \texttt{jq}) ex\'ecut\'es dans un conteneur \textbf{Docker non-root} sous \textbf{Traefik v3.6}.
-            \item \textbf{Qualit\'e certifi\'ee par \texttt{iragi}} : contrats m\'etier stricts, quarantaine DLQ, d\'etection d'outliers et r\'econciliation inter-sources.
-            \item \textbf{Validation rigoureuse} : \textbf{17/17 tests TDD passants}, \textbf{0 alerte \texttt{shellcheck}}, base PostgreSQL aliment\'ee, dashboard Metabase op\'erationnel et documentation synchronis\'ee.
+            \item \textbf{Qualit\'e certifi\'ee par \texttt{iragi}} : contrats m\'etier stricts, quarantaine DLQ sans imputation destructive, d\'etection d'outliers MAD et r\'econciliation HTTP.
+            \item \textbf{Validation rigoureuse} : \textbf{17/17 tests TDD passants}, \textbf{0 alerte \texttt{shellcheck}}, base PostgreSQL aliment\'ee, dashboard Metabase conforme \`a 100 \% et documentation synchronis\'ee.
         \end{itemize}
     \end{block}
     \vspace{0.2cm}
