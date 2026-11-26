@@ -81,7 +81,8 @@ cd /home/yannick-magayane/Bureau/projet/eric
 
 # Option locale Python (optionnel pour executer pytest sur l'hote)
 python3 -m venv .venv
-.venv/bin/pip install --upgrade pip iragi pytest
+.venv/bin/pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
 ```
 
 ## 9. Configuration

@@ -374,8 +374,10 @@ L'asym\'etrie entre moyenne (136,00 km) et m\'ediane (53,00 km) de la distance s
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{../data/visualizations/08_anomalies_avant_apres.png}
-    \caption{Comparaison des anomalies restantes : Brut vs Nettoyage classique vs Pipeline UNIX + \texttt{iragi}.}
+    \caption{Comparaison des anomalies restantes : donn\'ees brutes vs nettoyage classique vs Pipeline UNIX + \texttt{iragi}.}
 \end{figure}
+
+\textbf{Explication et justification de la Figure 8} : cet histogramme group\'e met en \'evidence l'\'ecart entre trois niveaux de traitement. Sur les donn\'ees brutes (barres rouges), \texttt{iragi} recense 35 doublons, 12 violations de contrat m\'etier, 3 cellules vides et 139 requ\^etes HTTP 404 orphelines. Un nettoyage classique na\"if (barres orange) supprime les doublons, mais laisse subsister 10 violations actives, fabrique 3 valeurs par moyenne et ignore les 139 appels HTTP orphelins. En associant les filtres UNIX \`a la gouvernance \texttt{iragi} (barres vertes), l'ensemble des d\'efauts non ma\^itris\'es tombe \`a z\'ero.
 
 \begin{figure}[H]
     \centering
@@ -383,7 +385,7 @@ L'asym\'etrie entre moyenne (136,00 km) et m\'ediane (53,00 km) de la distance s
     \caption{Impact visuel direct sur les donn\'ees : AVANT \texttt{iragi} (gauche, avec hors-contrats) vs APR\`ES Pipeline UNIX + Contrat \texttt{iragi} (droite).}
 \end{figure}
 
-\textbf{Justification sur les donn\'ees (Figure 9)} : \`a gauche, sans contrat m\'etier \texttt{iragi}, les enregistrements aberrants (jusqu'\`a $820\text{ km}$ et $490\text{ min}$) franchissent les plafonds r\'eglementaires en pointill\'es rouges ($500\text{ km}$ et $300\text{ min}$) et \'etirent l'\'echelle de plus de 60 \%. \`A droite, apr\`es mise en quarantaine DLQ et filtrage UNIX, les \textbf{2\,510 livraisons certifi\'ees} respectent strictement le domaine contractuel et r\'ev\`elent une tendance propre ($r = 0,9296$).
+\textbf{Explication et justification sur les donn\'ees (Figure 9)} : \`a gauche, sans contrat m\'etier \texttt{iragi}, les enregistrements aberrants (jusqu'\`a $820\text{ km}$ et $490\text{ min}$) franchissent les plafonds r\'eglementaires en pointill\'es rouges ($500\text{ km}$ et $300\text{ min}$) et \'etirent l'\'echelle de plus de 60 \%. \`A droite, apr\`es mise en quarantaine DLQ et filtrage UNIX, les \textbf{2\,510 livraisons certifi\'ees} respectent strictement le domaine contractuel et r\'ev\`elent une tendance lin\'eaire propre ($r = 0,9296$).
 
 % ============================================================================
 % 15. DASHBOARD METABASE

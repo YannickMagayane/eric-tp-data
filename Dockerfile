@@ -9,8 +9,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
 
+COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir iragi pytest
+    pip install --no-cache-dir -r /tmp/requirements.txt
 
 
 FROM python:3.14-slim-bookworm AS runtime

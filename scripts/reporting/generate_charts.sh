@@ -221,29 +221,31 @@ plot proc_dir . "/iragi_before_after.dat" using 2:xtic(1) lc rgb "#dc2626" title
 
 # 9. Side-by-Side Data Impact: BEFORE Iragi (Raw with outliers) vs AFTER UNIX + Iragi Contract
 reset
-set terminal png size 1400,660 noenhanced
+set terminal png size 1440,720 noenhanced
 set output vis_dir . "/09_impact_donnees_avant_apres_iragi.png"
 set multiplot layout 1,2 title "Impact reel sur les donnees : AVANT Iragi (Brut) vs APRES Pipeline UNIX + Contrat Iragi (Sept - Nov 2026)"
 
-set tmargin 5.2
-set bmargin 5.2
+set tmargin 5.0
+set bmargin 7.5
 set lmargin 10
 set rmargin 3
-set title "AVANT Iragi : Donnees brutes avec hors-contrats (>500km / >300min)" offset 0,0.8
-set xlabel "Distance (km)"
+set title "AVANT Iragi : Donnees brutes avec hors-contrats (>500km / >300min)" offset 0,0.6
+set xlabel "Distance (km)" offset 0,0.4
 set ylabel "Temps de livraison (minutes)"
 set xrange [0:900]
 set yrange [0:540]
 set grid
-set key outside top center horizontal
+set key outside bottom center horizontal
 set arrow 1 from 500,0 to 500,540 nohead dt 2 lw 2 lc rgb "#dc2626"
 set arrow 2 from 0,300 to 900,300 nohead dt 2 lw 2 lc rgb "#dc2626"
 plot proc_dir . "/raw_distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.55 lc rgb "#dc2626" title "Brut (incl. hors-contrats 820km/490min)"
 
 unset arrow 1
 unset arrow 2
-set title "APRES UNIX + Iragi : 2510 livraisons conformes (DLQ isolee)" offset 0,0.8
-set xlabel "Distance (km) [Contrat : 10..500 km]"
+set tmargin 5.0
+set bmargin 7.5
+set title "APRES UNIX + Iragi : 2510 livraisons conformes (DLQ isolee)" offset 0,0.6
+set xlabel "Distance (km) [Contrat : 10..500 km]" offset 0,0.4
 set ylabel "Temps (minutes) [Contrat : 30..300 min]"
 set xrange [0:530]
 set yrange [0:330]
@@ -252,7 +254,7 @@ set fit quiet
 set fit logfile "/dev/null"
 g(x) = m*x + c
 fit g(x) proc_dir . "/distance_vs_temps.dat" using 1:2 via m,c
-set key outside top center horizontal
+set key outside bottom center horizontal
 plot proc_dir . "/distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.50 lc rgb "#0f766e" title "Certifiees (0 violation)", \
      g(x) with lines lw 3 lc rgb "#1d4ed8" title sprintf("Tendance (r=0.9296)")
 
