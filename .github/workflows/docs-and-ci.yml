@@ -1,4 +1,4 @@
-name: CI and Auto-Update Documentation
+name: CI and Auto-Update README
 
 on:
   push:
@@ -11,26 +11,13 @@ permissions:
 
 jobs:
   validate-and-update-docs:
-    name: Validate Scripts, Run Tests, and Update Docs
+    name: Validate Scripts, Run Tests, and Sync README
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Detect whether PDF sources changed
-        id: docs_changes
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "rebuild_pdf=true" >> "$GITHUB_OUTPUT"
-          elif git diff --name-only HEAD~1 HEAD | grep -qE '^(docs/.*\.tex|data/visualizations/|scripts/reporting/)'; then
-            echo "rebuild_pdf=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "rebuild_pdf=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
@@ -46,18 +33,6 @@ jobs:
             jq \
             shellcheck
 
-      - name: Install LaTeX packages (only when doc sources changed)
-        if: steps.docs_changes.outputs.rebuild_pdf == 'true'
-        run: |
-          sudo apt-get install -y --no-install-recommends \
-            lmodern \
-            texlive-latex-base \
-            texlive-latex-recommended \
-            texlive-latex-extra \
-            texlive-pictures \
-            texlive-fonts-recommended \
-            texlive-lang-french
-
       - name: Install Python dependencies
         run: |
           python3 -m pip install --upgrade pip
@@ -72,24 +47,14 @@ jobs:
       - name: Auto-update ordered repository tree in README.md
         run: python3 -m scripts.reporting.update_readme_tree
 
-      - name: Recompile LaTeX report and Beamer slides (only when doc sources changed)
-        if: steps.docs_changes.outputs.rebuild_pdf == 'true'
-        run: |
-          cd docs
-          pdflatex -interaction=nonstopmode -halt-on-error rapport.tex
-          pdflatex -interaction=nonstopmode -halt-on-error rapport.tex
-          pdflatex -interaction=nonstopmode -halt-on-error slides.tex
-          pdflatex -interaction=nonstopmode -halt-on-error slides.tex
-          rm -f *.aux *.log *.nav *.out *.snm *.toc *.vrb
-
-      - name: Commit and push updated documentation if changed
+      - name: Commit and push README.md if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md docs/rapport.pdf docs/slides.pdf
+          git add README.md
           if ! git diff --cached --quiet; then
-            git commit -m "docs(ci): auto-update repository tree and PDF deliverables [skip ci]"
+            git commit -m "docs(ci): auto-update repository tree in README.md [skip ci]"
             git push
           else
-            echo "Documentation is already up to date."
+            echo "README.md is already up to date."
           fi
