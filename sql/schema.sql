@@ -39,6 +39,17 @@ CREATE TABLE IF NOT EXISTS web_access_logs (
     response_bytes INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS iragi_audit_metrics (
+    categorie VARCHAR(64) PRIMARY KEY,
+    donnees_brutes INTEGER NOT NULL,
+    approche_classique_naive INTEGER NOT NULL,
+    pipeline_unix_iragi INTEGER NOT NULL,
+    score_avant NUMERIC(5, 2) NOT NULL,
+    score_apres NUMERIC(5, 2) NOT NULL,
+    quarantaine_dlq INTEGER NOT NULL,
+    orphelins_http_404 INTEGER NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_deliveries_ville ON deliveries(ville);
 CREATE INDEX IF NOT EXISTS idx_deliveries_date ON deliveries(delivery_date);
 CREATE INDEX IF NOT EXISTS idx_deliveries_statut ON deliveries(statut);

@@ -180,17 +180,31 @@ def provision_metabase_dashboard(
         session_token=session_id,
     )
 
-    dash = _api_request(
-        base_url,
-        host_header,
-        "/api/dashboard",
-        method="POST",
-        session_token=session_id,
-        payload={
-            "name": "Analyse Logistique - Pipeline UNIX",
-            "description": "Tableau de bord connecte a PostgreSQL (livraisons, livreurs, logs Apache).",
-        },
+    dash = None
+    existing_dashes = _api_request(
+        base_url, host_header, "/api/dashboard", session_token=session_id
     )
+    dash_items = (
+        existing_dashes.get("data", existing_dashes)
+        if isinstance(existing_dashes, dict)
+        else existing_dashes
+    )
+    for item in dash_items:
+        if item.get("name") == "Analyse Logistique - Pipeline UNIX":
+            dash = item
+            break
+    if dash is None:
+        dash = _api_request(
+            base_url,
+            host_header,
+            "/api/dashboard",
+            method="POST",
+            session_token=session_id,
+            payload={
+                "name": "Analyse Logistique - Pipeline UNIX",
+                "description": "Tableau de bord connecte a PostgreSQL (livraisons, livreurs, logs Apache et audit iragi).",
+            },
+        )
     dash_id = int(dash["id"])
 
     questions = [
@@ -229,6 +243,18 @@ def provision_metabase_dashboard(
             "bar",
             "SELECT http_status::TEXT AS code_http, COUNT(*) AS requetes FROM web_access_logs GROUP BY http_status ORDER BY requetes DESC;",
             {"row": 12, "col": 14, "size_x": 10, "size_y": 6},
+        ),
+        (
+            "Audit Iragi : Brut vs Classique vs UNIX+Iragi",
+            "bar",
+            "SELECT categorie, donnees_brutes, approche_classique_naive, pipeline_unix_iragi FROM iragi_audit_metrics;",
+            {"row": 18, "col": 0, "size_x": 14, "size_y": 6},
+        ),
+        (
+            "Certification Qualite Iragi & DLQ",
+            "table",
+            "SELECT MAX(score_avant) AS score_brut_100, MAX(score_apres) AS score_certifie_100, MAX(quarantaine_dlq) AS lignes_quarantaine_dlq, MAX(orphelins_http_404) AS appels_http_404_orphelins FROM iragi_audit_metrics;",
+            {"row": 18, "col": 14, "size_x": 10, "size_y": 6},
         ),
     ]
 

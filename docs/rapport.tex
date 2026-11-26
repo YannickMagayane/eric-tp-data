@@ -399,14 +399,16 @@ Metabase est d\'eploy\'e dans le conteneur \texttt{dashboard}, expos\'e via Trae
     \item \textbf{Interface Traefik (supervision)} : \url{http://127.0.0.1:8081}
 \end{itemize}
 
-Six cartes SQL natives issues de \texttt{sql/queries.sql} ont \'et\'e cr\'e\'ees et \'epingl\'ees sur le tableau de bord :
+Six cartes SQL natives issues de \texttt{sql/queries.sql} et deux cartes d'audit \texttt{iragi} ont \'et\'e cr\'e\'ees et \'epingl\'ees sur le tableau de bord :
 \begin{enumerate}
     \item \textbf{Livraisons et Retard par Ville} (\texttt{bar}) ;
     \item \textbf{\'Evolution Mensuelle des Livraisons} (\texttt{bar}) ;
     \item \textbf{R\'epartition des Statuts} (\texttt{pie}) ;
     \item \textbf{Comparaison par Type de V\'ehicule} (\texttt{table}) ;
     \item \textbf{Performance des Livreurs} (\texttt{table}) ;
-    \item \textbf{Anomalies HTTP Apache (\texttt{access.log})} (\texttt{bar}).
+    \item \textbf{Anomalies HTTP Apache (\texttt{access.log})} (\texttt{bar}) ;
+    \item \textbf{Audit \texttt{iragi} : Brut vs Classique vs UNIX+\texttt{iragi}} (\texttt{bar}) --- montre la r\'eduction \`a z\'ero des violations m\'etier et des orphelins HTTP compar\'ee \`a un nettoyage na\"if ;
+    \item \textbf{Certification Qualit\'e \texttt{iragi} \& DLQ} (\texttt{table}) --- synth\'etise le passage du score de 99,29 \`a 99,75/100, les 10 lignes en quarantaine et les 139 appels 404 orphelins.
 \end{enumerate}
 
 % ============================================================================
