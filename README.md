@@ -262,10 +262,10 @@ Exporte un dump SQL `pg_dump` de PostgreSQL, archive `data/` et `sql/` dans `bac
 
 ## 23. Limites du Projet
 
-- Les jeux de donnees sont synthetiques (regles metier simulees).
-- La configuration initiale de Metabase (creation du premier compte administrateur via assistant web) reste manuelle au premier lancement.
+- Les jeux de donnees sont synthetiques (regles metier simulees pour reproduire des distributions plausibles).
+- Le tableau de bord Metabase est deja provisionne automatiquement (`http://metabase.localhost:8080/dashboard/2`, compte `eric.lutumba@unilu.ac.cd` / `UnixPipeline2026!`) ; seule l'activation d'un lien de partage public ou l'export PDF dans l'interface web reste a la main de l'utilisateur.
 
 ## 24. Perspectives d'Evolution
 
-- Orchestration planifiee via `cron` ou Airflow/Dagster pour l'ingestion quotidienne.
-- Stockage en format colonne Apache Parquet (supporte par `iragi[parquet]`) et alertes automatiques sur derive de qualite (`iragi.compare_scans`).
+- Planification automatique des pipelines UNIX via `cron` ou un ordonnanceur (Airflow / Dagster) pour une execution quotidienne.
+- Integration continue (CI/CD) executant automatiquement `shellcheck`, `./bin/test.sh` et la compilation LaTeX a chaque mise a jour du depot.
