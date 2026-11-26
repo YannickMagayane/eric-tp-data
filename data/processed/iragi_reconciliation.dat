@@ -1,0 +1,4 @@
+# categorie	nombre	pourcentage
+"Livraisons suivies (CSV + Log)"	751	29.92
+"Appels HTTP 404 orphelins"	139	15.62
+"Livraisons sans trace HTTP"	1759	70.08

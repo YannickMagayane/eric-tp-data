@@ -17,6 +17,7 @@ REQUIRED_DATS=(
     "${PROCESSED_DIR}/par_statut.dat"
     "${PROCESSED_DIR}/perf_livreurs.dat"
     "${PROCESSED_DIR}/iragi_before_after.dat"
+    "${PROCESSED_DIR}/iragi_reconciliation.dat"
 )
 
 for dat_file in "${REQUIRED_DATS[@]}"; do
@@ -259,7 +260,27 @@ plot proc_dir . "/distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.50 lc r
      g(x) with lines lw 3 lc rgb "#1d4ed8" title sprintf("Tendance (r=0.9296)")
 
 unset multiplot
+
+# 10. Cross-Source Reconciliation (iragi.reconcile: CSV vs Apache access.log)
+reset
+set terminal png size 1240,680 noenhanced
+set output vis_dir . "/10_reconciliation_http_iragi.png"
+set title "Reconciliation inter-sources par iragi.reconcile : livraisons.csv vs access.log (Sept - Nov 2026)" offset 0,1.2
+set tmargin 5.5
+set bmargin 6.0
+set lmargin 11
+set rmargin 5
+set style fill solid 0.86 border -1
+set boxwidth 0.48
+set grid ytics
+set xlabel "Resultat du rapprochement par cle regex LIV-<id>"
+set ylabel "Nombre d'enregistrements / requetes"
+set yrange [0:*]
+set offsets 0.5, 0.5, 180, 0
+set key outside top center horizontal
+plot proc_dir . "/iragi_reconciliation.dat" using 0:2:xtic(1) with boxes lc rgb "#0f766e" title "Effectif rapproche par iragi.reconcile", \
+     "" using 0:2:(sprintf("%d", $2)) with labels offset 0,1.0 notitle
 EOF
 
 run_gnuplot_script "${GP_COMMANDS}" "${DATA_DIR}"
-log_info "${STAGE}" "All 9 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."
+log_info "${STAGE}" "All 10 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."

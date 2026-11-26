@@ -270,3 +270,13 @@ Exporte un dump SQL `pg_dump` de PostgreSQL, archive `data/` et `sql/` dans `bac
 
 - Planification automatique des pipelines UNIX via `cron` ou un ordonnanceur (Airflow / Dagster) pour une execution quotidienne.
 - Integration continue (CI/CD) executant automatiquement `shellcheck`, `./bin/test.sh` et la compilation LaTeX a chaque mise a jour du depot.
+
+## 25. Conclusion et Bilan de l'Apport d'`iragi`
+
+Ce projet demontre la synergie entre une infrastructure UNIX/Docker robuste et une gouvernance rigoureuse de la qualite des donnees. Tandis que les scripts UNIX (`sed`, `awk`, `sort`, `uniq`, `join`, `jq`) assurent le traitement rapide des fichiers texte, **`iragi` (`0.6.4`)** a joue le role de controleur qualite et de certificateur dans `scripts/etl/audit_quality.py` sur cinq points precis :
+
+1. **Mesure objective de la qualite (`iragi.scan` + `iragi.compare_scans`)** : attribution d'un score chiffre aux donnees brutes (`99.29 / 100`), puis certification de la sortie de `clean_data.sh` a `99.75 / 100` (`+0.46 pt`, aucune cellule manquante).
+2. **Application d'un contrat metier strict (`iragi.DataContract`)** : controle automatise des 9 villes francaises, des dates ISO, des bornes physiques (`poids`, `distance`, `temps`) et des statuts, confirmant **0 violation restante** apres le pipeline UNIX.
+3. **Quarantaine DLQ sans corruption statistique (`iragi.auto_clean`)** : au lieu d'imputer aveuglement les champs vides par une moyenne, isolement des **10 lignes fautives** dans `data/processed/quarantine_livraisons.csv` avec parite exacte (`2 510 == 2 510` lignes).
+4. **Detection robuste d'outliers temporels (`detect_outliers_modified_zscore`)** : reperage des temps anormaux via le Z-score modifie base sur la mediane (MAD), adapte aux distributions asymetriques.
+5. **Reconciliation inter-sources (`iragi.reconcile`)** : liaison par regex `key_transform=r"(\d+)"` entre `id` (CSV) et `/api/livraisons/LIV-<id>` (`access.log`), permettant de retrouver **751 livraisons suivies sur le web** et de decouvrir **139 appels HTTP 404 orphelins**.

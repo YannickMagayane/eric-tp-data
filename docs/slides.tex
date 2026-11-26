@@ -311,25 +311,33 @@ make pdf && make slides  # Rapports LaTeX
 \end{frame}
 
 % ============================================================================
-% SLIDE 10 : CONCLUSION & VALIDATION FINALE
+% SLIDE 10 : RECONCILIATION HTTP & CONCLUSION GENERALE
 % ============================================================================
-\begin{frame}{9. Bilan Final, Recommandations et Conclusion}
-    \begin{block}{Synth\`ese de la Solution D\'elivr\'ee}
-        \footnotesize\justifying
-        \begin{itemize}
-            \item \textbf{Cha\^ine UNIX compl\`ete et reproductible} : filtres standards (\texttt{sed}, \texttt{awk}, \texttt{sort}, \texttt{uniq}, \texttt{join}, \texttt{jq}) ex\'ecut\'es dans un conteneur \textbf{Docker non-root} sous \textbf{Traefik v3.6}.
-            \item \textbf{Qualit\'e certifi\'ee par \texttt{iragi}} : contrats m\'etier stricts, quarantaine DLQ sans imputation destructive, d\'etection d'outliers MAD et r\'econciliation HTTP.
-            \item \textbf{Validation rigoureuse} : \textbf{17/17 tests TDD passants}, \textbf{0 alerte \texttt{shellcheck}}, base PostgreSQL aliment\'ee, dashboard Metabase conforme \`a 100 \% et documentation synchronis\'ee.
-        \end{itemize}
-    \end{block}
-    \vspace{0.15cm}
-    \begin{block}{Pr\'esentation Vid\'eo (Livrable YouTube --- 10 \`a 15 min)}
-        \scriptsize\justifying
-        \textbf{Lien YouTube :} \texttt{[A COMPLETER : https://youtu.be/VOTRE\_LIEN\_YOUTUBE]}
-    \end{block}
-    \vspace{0.12cm}
-    \centering
-    \textbf{\textcolor{unilublue}{Merci de votre attention --- D\'emonstration en direct \& Questions}}
+\begin{frame}{9. R\'econciliation HTTP (\texttt{iragi.reconcile}) et Bilan Final}
+    \begin{columns}[T]
+        \begin{column}{0.46\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{../data/visualizations/10_reconciliation_http_iragi.png}
+            \vspace{0.08cm}
+            \begin{block}{Pr\'esentation Vid\'eo (YouTube)}
+                \scriptsize\raggedright
+                \textbf{Lien :} \texttt{[A COMPLETER : https://youtu.be/VOTRE\_LIEN\_YOUTUBE]}
+            \end{block}
+        \end{column}
+        \begin{column}{0.51\textwidth}
+            \begin{exampleblock}{5 Apports Cl\'es d'\texttt{iragi} en Compl\'ement d'UNIX}
+                \scriptsize\justifying
+                Tandis qu'UNIX (\texttt{sed}, \texttt{awk}, \texttt{join}, \texttt{jq}) traite rapidement les flux texte, \texttt{iragi} (\texttt{v0.6.4}) certifie l'ensemble :
+                \begin{enumerate}
+                    \item \textbf{Score objectif} (\texttt{scan}/\texttt{compare\_scans}) : \textbf{99,29} $\rightarrow$ \textbf{99,75/100} (\texttt{+0,46 pt}, 0 manque).
+                    \item \textbf{Contrat m\'etier} (\texttt{DataContract}) : \textbf{0 violation} restante apr\`es \texttt{clean\_data.sh}.
+                    \item \textbf{Quarantaine DLQ} (\texttt{auto\_clean}) : \textbf{10 lignes isol\'ees}, parit\'e exacte (\texttt{2\,510 == 2\,510}).
+                    \item \textbf{Outliers MAD} (\texttt{modified\_zscore}) : d\'etection fiable sur donn\'ees asym\'etriques.
+                    \item \textbf{R\'econciliation} (\texttt{reconcile}) : \textbf{751 livraisons suivies} et \textbf{139 appels HTTP 404 orphelins} d\'etect\'es.
+                \end{enumerate}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \end{document}

@@ -387,6 +387,14 @@ L'asym\'etrie entre moyenne (136,00 km) et m\'ediane (53,00 km) de la distance s
 
 \textbf{Explication et justification sur les donn\'ees (Figure 9)} : \`a gauche, sans contrat m\'etier \texttt{iragi}, les enregistrements aberrants (jusqu'\`a $820\text{ km}$ et $490\text{ min}$) franchissent les plafonds r\'eglementaires en pointill\'es rouges ($500\text{ km}$ et $300\text{ min}$) et \'etirent l'\'echelle de plus de 60 \%. \`A droite, apr\`es mise en quarantaine DLQ et filtrage UNIX, les \textbf{2\,510 livraisons certifi\'ees} respectent strictement le domaine contractuel et r\'ev\`elent une tendance lin\'eaire propre ($r = 0,9296$).
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.84\textwidth]{../data/visualizations/10_reconciliation_http_iragi.png}
+    \caption{R\'econciliation inter-sources ex\'ecut\'ee par \texttt{iragi.reconcile} entre \texttt{livraisons.csv} et \texttt{access.log}.}
+\end{figure}
+
+\textbf{Analyse de la r\'econciliation HTTP (Figure 10)} : le croisement par expression r\'eguli\`ere (\texttt{key\_transform=r"(\textbackslash d+)"}) associe l'identifiant num\'erique \texttt{id} des livraisons aux appels web \texttt{/api/livraisons/LIV-<id>}. Il met en lumi\`ere \textbf{751 livraisons} effectivement suivies sur le serveur web, \textbf{1\,759 livraisons} sans trace HTTP dans cet extrait, et surtout \textbf{139 appels HTTP 404 orphelins} sollicitant des num\'eros de colis absents du r\'ef\'erentiel valide.
+
 % ============================================================================
 % 15. DASHBOARD METABASE
 % ============================================================================
@@ -512,7 +520,16 @@ Les donn\'ees restent issues d'un g\'en\'erateur synth\'etique (non de flux GPS 
 % 21. CONCLUSION GENERALE
 % ============================================================================
 \section{Conclusion G\'en\'erale}
-Ce projet d\'emontre la synergie entre la sobri\'et\'e des pipelines UNIX, la robustesse de l'orchestration Docker/Traefik/PostgreSQL et la rigueur d'audit d'\texttt{iragi}. L'architecture r\'epond int\'egralement aux quatre phases du cahier des charges tout en d\'emontrant sa capacit\'e de passage \`a l'\'echelle.
+Ce projet d\'emontre la compl\'ementarit\'e op\'erationnelle entre la sobri\'et\'e des pipelines UNIX, la reproductibilit\'e de l'orchestration Docker/Traefik/PostgreSQL et la gouvernance formelle des donn\'ees apport\'ee par \texttt{iragi}. Tandis que les filtres UNIX (\texttt{sed}, \texttt{awk}, \texttt{sort}, \texttt{uniq}, \texttt{join}, \texttt{jq}) assurent le traitement rapide des flux textuels, \texttt{iragi} (\texttt{v0.6.4}) a agi comme v\'eritable contr\^oleur qualit\'e et certificateur dans \texttt{scripts/etl/audit\_quality.py} selon cinq axes d\'ecisifs :
+\begin{enumerate}
+    \item \textbf{Mesure objective avant et apr\`es traitement} (\texttt{iragi.scan} et \texttt{iragi.compare\_scans}) : le score de qualit\'e est pass\'e de \textbf{99,29 / 100} sur les donn\'ees brutes \`a \textbf{99,75 / 100} apr\`es \texttt{clean\_data.sh} (\texttt{+0,46 pt}, aucune cellule manquante).
+    \item \textbf{Application d'un contrat m\'etier strict} (\texttt{iragi.DataContract}) : la v\'erification automatis\'ee des neuf villes fran\c{c}aises, des dates ISO, des bornes physiques et des statuts a confirm\'e \textbf{z\'ero violation r\'esiduelle} en sortie du pipeline UNIX.
+    \item \textbf{Quarantaine DLQ sans corruption statistique} (\texttt{iragi.auto\_clean}) : au lieu d'imputer aveugl\'ement les champs vides par des moyennes, les \textbf{10 lignes fautives} ont \'et\'e isol\'ees dans \texttt{quarantine\_livraisons.csv}, \'etablissant une parit\'e exacte avec les filtres UNIX (\texttt{2\,510 == 2\,510} lignes).
+    \item \textbf{D\'etection robuste d'outliers temporels} (\texttt{detect\_outliers\_modified\_zscore}) : l'usage du Z-score modifi\'e fond\'e sur la m\'ediane (MAD) a fiabilis\'e le rep\'erage des dur\'ees atypiques malgr\'e l'asym\'etrie des trajets.
+    \item \textbf{R\'econciliation inter-sources} (\texttt{iragi.reconcile}) : l'extraction regex \texttt{key\_transform=r"(\textbackslash d+)"} a reli\'e les livraisons aux traces \texttt{/api/livraisons/LIV-<id>} de \texttt{access.log}, identifiant \textbf{751 livraisons suivies} et rév\'elant \textbf{139 appels HTTP 404 orphelins} \`a corriger.
+\end{enumerate}
+
+L'architecture ainsi valid\'ee r\'epond int\'egralement aux quatre phases du cahier des charges, tout en restant pr\^ete pour le passage \`a l'\'echelle et l'exploitation d\'ecisionnelle sous Metabase.
 
 % ============================================================================
 % 22. ANNEXES TECHNIQUES ET VIDEO YOUTUBE

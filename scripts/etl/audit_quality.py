@@ -311,6 +311,16 @@ def run_iragi_audit(
         missing_iragi=missing_after,
     )
 
+    reconcile_dat_lines = [
+        "# categorie\tnombre\tpourcentage",
+        f'"Livraisons suivies (CSV + Log)"\t{int(reconciliation.matched_count)}\t{round(100.0 * int(reconciliation.matched_count) / max(1, after_scan.row_count), 2)}',
+        f'"Appels HTTP 404 orphelins"\t{orphans_http}\t{round(100.0 * orphans_http / max(1, len(log_df)), 2)}',
+        f'"Livraisons sans trace HTTP"\t{int(reconciliation.orphan_a_count)}\t{round(100.0 * int(reconciliation.orphan_a_count) / max(1, after_scan.row_count), 2)}',
+    ]
+    (processed_dir / "iragi_reconciliation.dat").write_text(
+        "\n".join(reconcile_dat_lines) + "\n", encoding="utf-8"
+    )
+
     before_unix: dict[str, Any] = {
         "evaluated_file": "data/raw/livraisons.csv",
         "scan_mode": "scan_csv_stream" if use_streaming else "scan",

@@ -37,6 +37,7 @@ EXPECTED_CHARTS = [
     "07_performance_livreurs.png",
     "08_anomalies_avant_apres.png",
     "09_impact_donnees_avant_apres_iragi.png",
+    "10_reconciliation_http_iragi.png",
 ]
 
 
