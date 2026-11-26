@@ -1,6 +1,6 @@
 # Makefile delegating operational tasks to standardized scripts in bin/ and scripts/
 
-.PHONY: help launch test validate generate generate-data pipeline charts report pdf slides load-db audit backup down
+.PHONY: help launch test validate generate generate-data pipeline charts report pdf slides load-db audit backup down update-tree
 
 PYTHON ?= docker compose exec -T dev python3
 MODE ?= exam
@@ -62,6 +62,9 @@ test:
 
 backup:
 	./bin/backup.sh
+
+update-tree:
+	$(PYTHON) -m scripts.reporting.update_readme_tree
 
 down:
 	docker compose down

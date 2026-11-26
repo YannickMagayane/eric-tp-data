@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase 3 & 4: Render 8 clean PNG charts via gnuplot with outside legends so nothing overlaps.
+# Phase 3 & 4: Render 10 clean PNG charts via gnuplot with outside legends so nothing overlaps.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/etl/common.sh
@@ -47,7 +47,7 @@ run_gnuplot_script() {
     fi
 }
 
-log_info "${STAGE}" "Rendering 8 PNG charts into ${VISUALIZATIONS_DIR} with non-overlapping outside legends..."
+log_info "${STAGE}" "Rendering 10 PNG charts into ${VISUALIZATIONS_DIR} with non-overlapping outside legends..."
 
 read -r -d '' GP_COMMANDS << 'EOF' || true
 data_dir = system("echo $DATA_MOUNT")

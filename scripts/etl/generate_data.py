@@ -616,7 +616,14 @@ def generate_all_datasets(config: DatasetConfig | None = None) -> dict[str, Any]
 
 
 def _parse_args() -> argparse.Namespace:
-    """Parse CLI arguments for EXAM and EXTENDED synthetic data generation."""
+    """Parse CLI arguments for synthetic data generation.
+
+    :return: Parsed command-line namespace.
+    :rtype: argparse.Namespace
+
+    Example:
+        >>> # args = _parse_args()
+    """
     parser = argparse.ArgumentParser(description="Generate synthetic logistics datasets.")
     parser.add_argument("--mode", choices=("exam", "extended"), default="exam")
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw"))

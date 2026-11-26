@@ -156,3 +156,24 @@ def test_compiled_latex_report_exists() -> None:
     pdf_bytes = pdf_path.read_bytes()
     assert len(pdf_bytes) > 20_000
     assert pdf_bytes[:4] == b"%PDF"
+
+
+def test_readme_tree_auto_generation() -> None:
+    """Verify ``update_readme_tree`` keeps ``README.md`` tree synchronized and ordered.
+
+    :raises AssertionError: If markers, logical ordering, or chart count are missing.
+
+    Example:
+        >>> test_readme_tree_auto_generation()
+    """
+    from scripts.reporting.update_readme_tree import build_project_tree, update_readme_tree
+
+    update_readme_tree(PROJECT_ROOT)
+    readme_text = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    assert "<!-- TREE:START -->" in readme_text
+    assert "<!-- TREE:END -->" in readme_text
+
+    tree_block = build_project_tree(PROJECT_ROOT)
+    assert tree_block in readme_text
+    assert "10 graphiques PNG" in tree_block
+    assert tree_block.index("bin/") < tree_block.index("scripts/") < tree_block.index("sql/") < tree_block.index("data/") < tree_block.index("docs/") < tree_block.index("tests/")

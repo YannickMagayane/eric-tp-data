@@ -26,7 +26,9 @@ PYTHONPATH="${PROJECT_DIR}" "${PYTHON_BIN}" -c "
 from pathlib import Path
 import json
 from scripts.reporting.render_report import generate_all_reports
+from scripts.reporting.update_readme_tree import update_readme_tree
 res = generate_all_reports(Path('${DATA_DIR}'))
+update_readme_tree(Path('${PROJECT_DIR}'))
 print(json.dumps(res, indent=2))
 "
 
