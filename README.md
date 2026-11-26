@@ -69,20 +69,17 @@ Une entreprise de logistique opere sur neuf grandes villes francaises (**Paris, 
 
 - **Docker Engine** (`v20.10+`) et **Docker Compose** (`v2.0+`)
 - **GNU Make**, **Bash** (`v5.0+`), `jq`, `curl`
-- **Python 3.14+** (optionnel en local si execution hors conteneur)
 - **TeX Live** (`pdflatex`, `beamer`) pour recompiler `docs/rapport.pdf` et `docs/slides.pdf`
 - **5 Go** d'espace disque disponible
 
 ## 8. Installation
 
 ```bash
-# Cloner ou ouvrir le depot du projet
+# Ouvrir le depot du projet
 cd /home/yannick-magayane/Bureau/projet/eric
 
-# Option locale Python (optionnel pour executer pytest sur l'hote)
-python3 -m venv .venv
-.venv/bin/pip install --upgrade pip
-.venv/bin/pip install -r requirements.txt
+# Construire et demarrer toute la stack Docker (Traefik, PostgreSQL, Metabase, dev)
+./bin/launch.sh
 ```
 
 ## 9. Configuration

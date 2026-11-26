@@ -8,7 +8,7 @@ performance, and Apache HTTP anomalies.
 Example:
     Provision Metabase and create the dashboard::
 
-        $ .venv/bin/python3 -m scripts.reporting.setup_metabase
+        $ docker compose exec -T dev python3 -m scripts.reporting.setup_metabase
 """
 
 from __future__ import annotations

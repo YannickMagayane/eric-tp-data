@@ -9,7 +9,6 @@
 
 - **Docker Engine** (`v20.10+`) et **Docker Compose** (`v2.0+`)
 - **GNU Make**, **Bash** (`v5.0+`), `sed`, `gawk`, `jq`, `curl`
-- **Python 3.14+** (pour l'execution locale via `.venv`)
 - **TeX Live (`pdflatex` + `beamer`)** pour recompiler le rapport et les slides
 - Au moins **5 Go** d'espace disque disponible
 

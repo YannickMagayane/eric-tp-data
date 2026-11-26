@@ -231,7 +231,7 @@ L'architecture repose sur une s\'eparation nette des responsabilit\'es : les fil
 % 8. ENVIRONNEMENT DOCKER
 % ============================================================================
 \section{Environnement Docker}
-Le \texttt{Dockerfile} adopte un \emph{multi-stage build} s\'eparant l'installation des d\'ependances Python (\texttt{builder}) de l'image d'ex\'ecution (\texttt{runtime}). Ce choix r\'eduit la taille finale de l'image, isole l'environnement virtuel \texttt{/opt/venv} et ex\'ecute les traitements sous l'utilisateur non privil\'egi\'e \texttt{appuser}. L'orchestration via \texttt{docker compose} relie les quatre services sur le r\'eseau \texttt{pipeline\_net} avec des volumes persistants nomm\'es (\texttt{pgdata}, \texttt{metabase\_data}).
+Le \texttt{Dockerfile} adopte un \emph{multi-stage build} s\'eparant l'installation des d\'ependances Python (\texttt{builder}) de l'image d'ex\'ecution (\texttt{runtime}). Ce choix r\'eduit la taille finale de l'image, isole les d\'ependances Python dans l'image et ex\'ecute les traitements sous l'utilisateur non privil\'egi\'e \texttt{appuser}. L'orchestration via \texttt{docker compose} relie les quatre services sur le r\'eseau \texttt{pipeline\_net} avec des volumes persistants nomm\'es (\texttt{pgdata}, \texttt{metabase\_data}).
 
 % ============================================================================
 % 9. ORGANISATION DU STOCKAGE

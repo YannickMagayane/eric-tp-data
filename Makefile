@@ -2,7 +2,7 @@
 
 .PHONY: help launch test validate generate generate-data pipeline charts report pdf slides load-db audit backup down
 
-PYTHON ?= $(shell if [ -x .venv/bin/python3 ]; then echo .venv/bin/python3; else echo python3; fi)
+PYTHON ?= docker compose exec -T dev python3
 MODE ?= exam
 MONTHS ?= 3
 PER_CITY_MONTH ?= 12000

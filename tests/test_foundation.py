@@ -7,7 +7,7 @@ and Iragi quality inspection, contract DLQ, and reconciliation.
 Example:
     Execute the foundation test suite::
 
-        $ .venv/bin/pytest tests/test_foundation.py -v
+        $ ./bin/test.sh
 """
 
 from __future__ import annotations
