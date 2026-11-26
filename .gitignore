@@ -1,14 +1,11 @@
-# Python virtual environments and caches
+# Hide gitignore and local/generated workspace artifacts on GitHub
+.gitignore
 .venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
-
-# Local environment secrets and backups
 .env
 backups/
-
-# LaTeX and gnuplot temporary build files
 docs/*.aux
 docs/*.log
 docs/*.nav
