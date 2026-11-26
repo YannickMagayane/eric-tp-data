@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archive de Brainstorming — Projet Final Systèmes UNIX &amp; iragi</title>
+  <style>
+    :root {
+      --bg-void: #070b10;
+      --bg-blueprint: #0b121b;
+      --bg-panel: #0f1926;
+      --bg-panel-alt: #132030;
+      --bg-terminal: #06090e;
+      --grid-line: rgba(56, 189, 248, 0.07);
+      --grid-line-strong: rgba(56, 189, 248, 0.16);
+      --border-dim: #1e3248;
+      --border-bright: #2d4f73;
+      --text-primary: #e6eff8;
+      --text-secondary: #9bb2c9;
+      --text-muted: #647d98;
+      --unix-green: #2ee59d;
+      --unix-green-dim: rgba(46, 229, 157, 0.12);
+      --iragi-cyan: #38bdf8;
+      --iragi-cyan-dim: rgba(56, 189, 248, 0.13);
+      --traefik-amber: #f59e0b;
+      --traefik-amber-dim: rgba(245, 158, 11, 0.13);
+      --fault-crimson: #f43f5e;
+      --fault-crimson-dim: rgba(244, 63, 94, 0.12);
+      --dial-violet: #a78bfa;
+      --dial-violet-dim: rgba(167, 139, 250, 0.13);
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-panel: 0 14px 34px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+    }
+
+    body {
+      background-color: var(--bg-void);
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to right, var(--grid-line-strong) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line-strong) 1px, transparent 1px);
+      background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Pipeline Telemetry Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 11, 16, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .topbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-pipe {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--unix-green);
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--unix-green);
+      box-shadow: 0 0 10px var(--unix-green);
+      display: inline-block;
+    }
+
+    .nav-pipes {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .nav-pipes a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      transition: all 0.18s ease;
+    }
+
+    .nav-pipes a:hover,
+    .nav-pipes a.active {
+      color: var(--text-primary);
+      border-color: var(--border-bright);
+      background: var(--bg-panel);
+    }
+
+    .pipe-sep {
+      color: var(--border-bright);
+      user-select: none;
+    }
+
+    .scroll-progress {
+      height: 2px;
+      background: linear-gradient(90deg, var(--unix-green), var(--iragi-cyan), var(--traefik-amber), var(--dial-violet));
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* Utility Badges & Labels */
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-bright);
+      background: var(--bg-panel);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge-unix {
+      color: var(--unix-green);
+      border-color: rgba(46, 229, 157, 0.4);
+      background: var(--unix-green-dim);
+    }
+
+    .badge-iragi {
+      color: var(--iragi-cyan);
+      border-color: rgba(56, 189, 248, 0.4);
+      background: var(--iragi-cyan-dim);
+    }
+
+    .badge-amber {
+      color: var(--traefik-amber);
+      border-color: rgba(245, 158, 11, 0.4);
+      background: var(--traefik-amber-dim);
+    }
+
+    .badge-crimson {
+      color: var(--fault-crimson);
+      border-color: rgba(244, 63, 94, 0.4);
+      background: var(--fault-crimson-dim);
+    }
+
+    .badge-violet {
+      color: var(--dial-violet);
+      border-color: rgba(167, 139, 250, 0.4);
+      background: var(--dial-violet-dim);
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+      padding: 0.12rem 0.38rem;
+      border-radius: 3px;
+      background: rgba(15, 25, 38, 0.9);
+      border: 1px solid var(--border-dim);
+      color: var(--iragi-cyan);
+    }
+
+    /* Hero Blueprint Header */
+    .hero {
+      position: relative;
+      background: linear-gradient(155deg, rgba(15, 25, 38, 0.95) 0%, rgba(7, 11, 16, 0.96) 100%);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-panel);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "BLUEPRINT // SYS-UNIX-ETL // IRAGI-0.6.4 // REV-2026.11.26";
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .hero h1 {
+      font-size: clamp(1.85rem, 3.4vw, 2.85rem);
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      max-width: 920px;
+    }
+
+    .hero h1 .hl-unix {
+      color: var(--unix-green);
+    }
+
+    .hero h1 .hl-iragi {
+      color: var(--iragi-cyan);
+    }
+
+    .hero-goal {
+      font-size: 1.08rem;
+      color: var(--text-secondary);
+      max-width: 880px;
+      margin-bottom: 1.75rem;
+    }
+
+    .decision-callout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: start;
+      background: rgba(46, 229, 157, 0.06);
+      border: 1px solid rgba(46, 229, 157, 0.32);
+      border-left: 4px solid var(--unix-green);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .decision-tag {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--unix-green);
+      background: rgba(46, 229, 157, 0.14);
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    .decision-callout p {
+      font-size: 0.94rem;
+      color: var(--text-primary);
+    }
+
+    .meta-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 0.85rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed var(--border-dim);
+    }
+
+    .meta-cell {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 0.9rem;
+    }
+
+    .meta-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .meta-val {
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Section Headers */
+    .section-block {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 4.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border-bright);
+    }
+
+    .section-kicker {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+    }
+
+    .section-subtitle {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+    }
+
+    /* Topology & iragi Coupling Blueprint */
+    .topology-panel {
+      background: var(--bg-blueprint);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-panel);
+    }
+
+    .svg-frame {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .svg-frame svg {
+      width: 100%;
+      min-width: 860px;
+      height: auto;
+      display: block;
+    }
+
+    .iragi-pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .iragi-card {
+      background: var(--bg-panel);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      position: relative;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .iragi-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--iragi-cyan);
+    }
+
+    .iragi-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--iragi-cyan);
+    }
+
+    .iragi-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.45rem;
+      color: var(--text-primary);
+    }
+
+    .iragi-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .origin-user {
+      border-color: rgba(245, 158, 11, 0.55);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.09), var(--bg-panel));
+    }
+
+    /* Section 1: Morphological Analysis */
+    .morph-controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--bg-panel);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--iragi-cyan-dim);
+      color: var(--iragi-cyan);
+      border-color: var(--iragi-cyan);
+    }
+
+    .morph-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .morph-cell {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-dim);
+      border-top: 3px solid var(--iragi-cyan);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.9rem;
+      transition: border-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .morph-cell[data-axis="unix"] {
+      border-top-color: var(--unix-green);
+    }
+
+    .morph-cell[data-axis="infra"] {
+      border-top-color: var(--traefik-amber);
+    }
+
+    .morph-cell.dimmed {
+      opacity: 0.25;
+    }
+
+    .morph-axis-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .morph-cell h3 {
+      font-size: 1.02rem;
+      color: var(--text-primary);
+      margin-top: 0.3rem;
+    }
+
+    .morph-cell p {
+      font-size: 0.89rem;
+      color: var(--text-secondary);
+    }
+
+    .contract-spec {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--unix-green);
+      overflow-x: auto;
+    }
+
+    /* Section 2: Failure Analysis */
+    .fault-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .fault-card {
+      background: var(--bg-panel);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fault-top {
+      background: rgba(244, 63, 94, 0.09);
+      border-bottom: 1px solid rgba(244, 63, 94, 0.22);
+      padding: 0.9rem 1.15rem;
+    }
+
+    .fault-id {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--fault-crimson);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .fault-top h3 {
+      font-size: 0.98rem;
+      color: var(--text-primary);
+    }
+
+    .fault-remedy {
+      padding: 1.1rem 1.15rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    .remedy-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--unix-green);
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .fault-remedy p {
+      font-size: 0.89rem;
+      color: var(--text-secondary);
+    }
+
+    .cmd-snippet {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-left: 3px solid var(--unix-green);
+      padding: 0.55rem 0.75rem;
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+    }
+
+    /* Section 3: Backcasting */
+    .backcast-track {
+      position: relative;
+      padding-left: 2.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .backcast-track::before {
+      content: "";
+      position: absolute;
+      top: 0.6rem;
+      bottom: 0.6rem;
+      left: 0.72rem;
+      width: 2px;
+      background: linear-gradient(180deg, var(--traefik-amber), var(--iragi-cyan), var(--unix-green));
+    }
+
+    .milestone {
+      position: relative;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.4rem;
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .milestone::before {
+      content: "";
+      position: absolute;
+      left: -1.88rem;
+      top: 1.45rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      transform: rotate(45deg);
+      background: var(--bg-void);
+      border: 2px solid var(--traefik-amber);
+    }
+
+    .milestone.j-zero {
+      border-color: var(--traefik-amber);
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.08), var(--bg-panel));
+    }
+
+    .milestone.j-zero::before {
+      background: var(--traefik-amber);
+      box-shadow: 0 0 12px var(--traefik-amber);
+    }
+
+    .milestone.j-now {
+      border-color: var(--unix-green);
+      background: linear-gradient(90deg, rgba(46, 229, 157, 0.08), var(--bg-panel));
+    }
+
+    .milestone.j-now::before {
+      border-color: var(--unix-green);
+      background: var(--unix-green);
+    }
+
+    .milestone-stage {
+      font-family: var(--font-mono);
+    }
+
+    .milestone-code {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--traefik-amber);
+      display: block;
+    }
+
+    .milestone.j-now .milestone-code {
+      color: var(--unix-green);
+    }
+
+    .milestone-name {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .milestone-body h3 {
+      font-size: 1.04rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-primary);
+    }
+
+    .milestone-body p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* Section 4: Crank the Dial to 11 */
+    .dials-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .dial-card {
+      background: linear-gradient(170deg, rgba(167, 139, 250, 0.09) 0%, var(--bg-panel) 60%);
+      border: 1px solid rgba(167, 139, 250, 0.38);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .dial-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .dial-meter {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--dial-violet);
+      background: rgba(167, 139, 250, 0.14);
+      border: 1px solid rgba(167, 139, 250, 0.45);
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .seg-bar {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 4px;
+    }
+
+    .seg-bar span {
+      height: 8px;
+      border-radius: 2px;
+      background: var(--iragi-cyan);
+    }
+
+    .seg-bar span:nth-child(10) {
+      background: var(--traefik-amber);
+    }
+
+    .seg-bar span:nth-child(11) {
+      background: var(--dial-violet);
+      box-shadow: 0 0 10px var(--dial-violet);
+    }
+
+    .dial-card h3 {
+      font-size: 1.08rem;
+      color: var(--text-primary);
+    }
+
+    .dial-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .dial-artifact {
+      margin-top: auto;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--dial-violet);
+    }
+
+    /* Climax: Final Synthesis */
+    .climax-box {
+      position: relative;
+      background: linear-gradient(135deg, #0b1928 0%, #09131c 50%, #0f1b24 100%);
+      border: 2px solid var(--unix-green);
+      border-radius: var(--radius-lg);
+      padding: 2.4rem;
+      box-shadow: 0 0 48px rgba(46, 229, 157, 0.12), var(--shadow-panel);
+    }
+
+    .climax-statement {
+      font-size: clamp(1.1rem, 1.8vw, 1.32rem);
+      line-height: 1.55;
+      color: var(--text-primary);
+      background: rgba(6, 9, 14, 0.72);
+      border: 1px solid var(--border-bright);
+      border-left: 4px solid var(--iragi-cyan);
+      padding: 1.35rem 1.5rem;
+      border-radius: var(--radius-md);
+      margin: 1.25rem 0 1.75rem;
+    }
+
+    .synthesis-pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.85rem;
+    }
+
+    .syn-item {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.1rem;
+    }
+
+    .syn-item .syn-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--unix-green);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .syn-item h4 {
+      font-size: 0.96rem;
+      color: var(--text-primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .syn-item p {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    /* Interactive Terminal Preview */
+    .terminal-window {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .terminal-bar {
+      background: #101b29;
+      border-bottom: 1px solid var(--border-dim);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .term-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .term-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid var(--border-bright);
+      display: inline-block;
+    }
+
+    .term-title {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+
+    .term-tabs {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .term-tab {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-dim);
+      background: var(--bg-panel);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .term-tab.active {
+      background: var(--unix-green-dim);
+      color: var(--unix-green);
+      border-color: var(--unix-green);
+    }
+
+    .terminal-output {
+      padding: 1.2rem 1.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.65;
+      color: #cfe3f7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .t-prompt { color: var(--unix-green); font-weight: 700; }
+    .t-info { color: var(--iragi-cyan); }
+    .t-warn { color: var(--traefik-amber); }
+    .t-ok { color: var(--unix-green); }
+    .t-muted { color: var(--text-muted); }
+
+    footer {
+      margin-top: 3.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-dim);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 720px) {
+      .hero, .climax-box {
+        padding: 1.5rem;
+      }
+      .hero::before {
+        position: static;
+        display: block;
+        margin-bottom: 0.75rem;
+      }
+      .decision-callout {
+        grid-template-columns: 1fr;
+      }
+      .milestone {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation / Pipeline Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-pipe">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span>stdin | unix-etl | iragi-0.6.4 &gt; rapport.tex</span>
+      </div>
+      <nav class="nav-pipes" aria-label="Navigation des sections">
+        <a href="#couplage-iragi">iragi x UNIX</a>
+        <span class="pipe-sep">|</span>
+        <a href="#morphological">01. Morphologie</a>
+        <span class="pipe-sep">|</span>
+        <a href="#failure">02. Pannes</a>
+        <span class="pipe-sep">|</span>
+        <a href="#backcasting">03. Rétro-Planning</a>
+        <span class="pipe-sep">|</span>
+        <a href="#dial-11">04. Curseur 11</a>
+        <span class="pipe-sep">|</span>
+        <a href="#synthese">Synthèse</a>
+      </nav>
+    </div>
+    <div class="scroll-progress" id="scrollProgress"></div>
+  </header>
+
+  <main class="container">
+
+    <!-- HERO BLUEPRINT -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="tag-row">
+        <span class="badge badge-unix">[MODE : AUTONOMOUS]</span>
+        <span class="badge badge-iragi">[STATUT : COMPLETE]</span>
+        <span class="badge badge-amber">[DOCKER + TRAEFIK + PYTHON 3.14]</span>
+      </div>
+
+      <h1 id="hero-title">
+        Projet Final Systèmes UNIX — <span class="hl-unix">Pipeline ETL Docker</span>, Gouvernance <span class="hl-iragi">iragi</span> &amp; Documentation Exemplaire
+      </h1>
+
+      <p class="hero-goal">
+        Concevoir une architecture technique robuste, un code minimaliste et testé, ainsi qu'une documentation exemplaire (<code>README.md</code>, guide pas-à-pas et rapport LaTeX <code>docs/rapport.tex</code>).
+      </p>
+
+      <div class="decision-callout">
+        <span class="decision-tag">DECISION D'EXECUTION</span>
+        <p>
+          Posture initiale <em>Creative Partner</em> basculée vers une <strong>exécution autonome complète</strong> suite à la demande utilisateur : enchaînement intégral des méthodes d'idéation, intégration de la bibliothèque Python <code>iragi</code> et lancement immédiat du socle technique.
+        </p>
+      </div>
+
+      <div class="meta-strip">
+        <div class="meta-cell">
+          <span class="meta-label">Horodatage Session</span>
+          <span class="meta-val">2026-11-26 // 16:38</span>
+        </div>
+        <div class="meta-cell">
+          <span class="meta-label">Moteur ETL Principal</span>
+          <span class="meta-val">100% Bash / sed / awk / jq</span>
+        </div>
+        <div class="meta-cell">
+          <span class="meta-label">Audit &amp; Contrats</span>
+          <span class="meta-val">iragi 0.6.4 (DataContract)</span>
+        </div>
+        <div class="meta-cell">
+          <span class="meta-label">Topologie Conteneurs</span>
+          <span class="meta-val">Traefik + PG + Metabase</span>
+        </div>
+        <div class="meta-cell">
+          <span class="meta-label">Discipline Qualité</span>
+          <span class="meta-val">TDD Strict (bin/test.sh)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- IRAGI x UNIX INTEGRATION TOPOLOGY -->
+    <section class="section-block" id="couplage-iragi">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker" style="color: var(--iragi-cyan);">
+            <span>[ARCHITECTURE HYBRIDE]</span>
+            <span>::</span>
+            <span>FILTRES NATIFS &amp; CONTRATS QUALITE</span>
+          </div>
+          <h2 class="section-title">Topologie Docker/Traefik &amp; Couplage UNIX + iragi</h2>
+        </div>
+        <p class="section-subtitle">
+          Conservation intégrale des pipelines UNIX exigés par l'énoncé pour le traitement principal, doublée d'une couche d'audit, de quarantaine DLQ et de réconciliation propulsée par <code>iragi</code>.
+        </p>
+      </div>
+
+      <div class="topology-panel">
+        <div class="svg-frame" role="img" aria-label="Schéma d'architecture du pipeline hybride UNIX, iragi, Docker, PostgreSQL, Metabase et Traefik">
+          <svg viewBox="0 0 1080 390" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#2ee59d" />
+              </marker>
+              <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
+              </marker>
+              <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
+              </marker>
+              <marker id="arrow-crimson" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e" />
+              </marker>
+            </defs>
+
+            <!-- Outer Docker Network Frame -->
+            <rect x="12" y="12" width="1056" height="366" rx="8" fill="none" stroke="#1e3248" stroke-dasharray="6 4" stroke-width="1.5" />
+            <text x="28" y="34" fill="#647d98" font-family="monospace" font-size="11">DOCKER-COMPOSE NETWORK // CONTENEUR DEV PYTHON 3.14 DEBIAN NON-ROOT (appuser UID 1000) // LC_ALL=C</text>
+
+            <!-- Stage 1: Raw Generator -->
+            <rect x="28" y="62" width="205" height="150" rx="6" fill="#0f1926" stroke="#2d4f73" stroke-width="1.5" />
+            <text x="42" y="86" fill="#9bb2c9" font-family="monospace" font-size="10" font-weight="bold">[01] SOURCES BRUTES (SEED)</text>
+            <text x="42" y="110" fill="#e6eff8" font-family="monospace" font-size="12">livraisons.csv</text>
+            <text x="42" y="125" fill="#647d98" font-family="monospace" font-size="10">1000-5000 lignes + anomalies</text>
+            <text x="42" y="148" fill="#e6eff8" font-family="monospace" font-size="12">livreurs.json</text>
+            <text x="42" y="163" fill="#647d98" font-family="monospace" font-size="10">20-50 livreurs</text>
+            <text x="42" y="186" fill="#e6eff8" font-family="monospace" font-size="12">access.log</text>
+            <text x="42" y="201" fill="#647d98" font-family="monospace" font-size="10">500-2000 lignes Apache</text>
+
+            <!-- Arrow Raw -> UNIX Pipe -->
+            <line x1="233" y1="125" x2="285" y2="125" stroke="#2ee59d" stroke-width="2" marker-end="url(#arrow-green)" />
+
+            <!-- Stage 2: Native UNIX Pipeline -->
+            <rect x="292" y="56" width="245" height="135" rx="6" fill="#0b1d19" stroke="#2ee59d" stroke-width="1.8" />
+            <text x="308" y="80" fill="#2ee59d" font-family="monospace" font-size="10" font-weight="bold">[02] PIPELINE UNIX 100% NATIF</text>
+            <text x="308" y="103" fill="#e6eff8" font-family="monospace" font-size="12">clean_data.sh</text>
+            <text x="308" y="123" fill="#9bb2c9" font-family="monospace" font-size="11">Bash | sed | awk | sort</text>
+            <text x="308" y="141" fill="#9bb2c9" font-family="monospace" font-size="11">| uniq | jq</text>
+            <text x="308" y="168" fill="#2ee59d" font-family="monospace" font-size="10">set -euo pipefail + trap log</text>
+
+            <!-- Stage 3: iragi Governance Layer -->
+            <rect x="292" y="218" width="465" height="142" rx="6" fill="#0c1b2a" stroke="#38bdf8" stroke-width="1.8" />
+            <text x="308" y="242" fill="#38bdf8" font-family="monospace" font-size="10" font-weight="bold">[03] COUCHE GOUVERNANCE &amp; CONTRAT METIER — iragi 0.6.4</text>
+            <text x="308" y="266" fill="#e6eff8" font-family="monospace" font-size="11">1. iragi.scan (avant/après) + compare_scans -&gt; score_delta (/100)</text>
+            <text x="308" y="288" fill="#e6eff8" font-family="monospace" font-size="11">2. DataContract (poids 5..50, dist 10..500, temps 30..300, ISO)</text>
+            <text x="308" y="310" fill="#e6eff8" font-family="monospace" font-size="11">3. iragi.reconcile(key_transform=r"(\d+)") CSV &lt;-&gt; /LIV-1042</text>
+            <text x="308" y="332" fill="#e6eff8" font-family="monospace" font-size="11">4. detect_outliers_modified_zscore (temps asymétriques)</text>
+
+            <!-- Bidirectional / Audit Links -->
+            <line x1="350" y1="191" x2="350" y2="214" stroke="#38bdf8" stroke-width="1.6" marker-end="url(#arrow-cyan)" />
+            <line x1="470" y1="218" x2="470" y2="195" stroke="#38bdf8" stroke-width="1.6" marker-end="url(#arrow-cyan)" />
+            <path d="M 130 212 L 130 290 L 286 290" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-cyan)" />
+
+            <!-- Quarantine DLQ Box -->
+            <rect x="28" y="312" width="235" height="48" rx="5" fill="#1f0d16" stroke="#f43f5e" stroke-width="1.4" />
+            <text x="40" y="333" fill="#f43f5e" font-family="monospace" font-size="10" font-weight="bold">DEAD-LETTER QUEUE (DLQ)</text>
+            <text x="40" y="350" fill="#e6eff8" font-family="monospace" font-size="10">quarantine_livraisons.csv</text>
+            <line x1="292" y1="336" x2="269" y2="336" stroke="#f43f5e" stroke-width="1.6" marker-end="url(#arrow-crimson)" />
+
+            <!-- Stage 4: PostgreSQL + Gnuplot / LaTeX -->
+            <rect x="590" y="56" width="195" height="135" rx="6" fill="#0f1926" stroke="#2d4f73" stroke-width="1.5" />
+            <text x="604" y="80" fill="#9bb2c9" font-family="monospace" font-size="10" font-weight="bold">[04] PERSISTANCE &amp; RENDUS</text>
+            <text x="604" y="104" fill="#e6eff8" font-family="monospace" font-size="12">PostgreSQL (COPY)</text>
+            <text x="604" y="121" fill="#647d98" font-family="monospace" font-size="10">pg_isready + sql/queries.sql</text>
+            <text x="604" y="147" fill="#e6eff8" font-family="monospace" font-size="12">gnuplot (5 PNG/SVG)</text>
+            <text x="604" y="166" fill="#2ee59d" font-family="monospace" font-size="10">docs/rapport.tex auto-sync</text>
+
+            <line x1="537" y1="125" x2="584" y2="125" stroke="#2ee59d" stroke-width="2" marker-end="url(#arrow-green)" />
+
+            <!-- Stage 5: Traefik + Metabase -->
+            <rect x="830" y="56" width="220" height="304" rx="6" fill="#1b160c" stroke="#f59e0b" stroke-width="1.8" />
+            <text x="846" y="82" fill="#f59e0b" font-family="monospace" font-size="10" font-weight="bold">[05] EXPOSITION &amp; PILOTAGE</text>
+            <rect x="846" y="98" width="188" height="66" rx="4" fill="#0f1926" stroke="#f59e0b" stroke-width="1.2" />
+            <text x="858" y="120" fill="#f59e0b" font-family="monospace" font-size="11" font-weight="bold">Traefik Reverse Proxy</text>
+            <text x="858" y="138" fill="#e6eff8" font-family="monospace" font-size="10">Unique point d'entrée</text>
+            <text x="858" y="153" fill="#9bb2c9" font-family="monospace" font-size="10">-&gt; metabase.localhost</text>
+
+            <rect x="846" y="180" width="188" height="62" rx="4" fill="#0f1926" stroke="#2d4f73" stroke-width="1.2" />
+            <text x="858" y="202" fill="#e6eff8" font-family="monospace" font-size="11" font-weight="bold">Metabase BI</text>
+            <text x="858" y="220" fill="#9bb2c9" font-family="monospace" font-size="10">depends_on: service_healthy</text>
+            <text x="858" y="234" fill="#647d98" font-family="monospace" font-size="9">Schéma ou base interne dédiée</text>
+
+            <rect x="846" y="258" width="188" height="86" rx="4" fill="#06090e" stroke="#2ee59d" stroke-width="1.2" />
+            <text x="858" y="278" fill="#2ee59d" font-family="monospace" font-size="10" font-weight="bold">ORCHESTRATION UNIFIEE</text>
+            <text x="858" y="296" fill="#e6eff8" font-family="monospace" font-size="10">bin/launch.sh | make all</text>
+            <text x="858" y="313" fill="#e6eff8" font-family="monospace" font-size="10">bin/test.sh   (TDD strict)</text>
+            <text x="858" y="330" fill="#e6eff8" font-family="monospace" font-size="10">bin/backup.sh (SHA-256)</text>
+
+            <line x1="785" y1="115" x2="824" y2="115" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
+            <line x1="757" y1="288" x2="824" y2="288" stroke="#38bdf8" stroke-width="1.6" marker-end="url(#arrow-cyan)" />
+          </svg>
+        </div>
+
+        <div class="iragi-pillars">
+          <article class="iragi-card origin-user">
+            <div class="iragi-card-head">
+              <span>IMPULSION UTILISATEUR</span>
+              <span>[pip install iragi]</span>
+            </div>
+            <h3>Intégration Native dans l'Ecosystème UNIX</h3>
+            <p>
+              Proposition clé de l'utilisateur : intégrer la bibliothèque Python <code>iragi</code> au projet d'analyse UNIX sans jamais dénaturer ni remplacer les filtres standards <code>Bash/sed/awk/sort/uniq/jq</code> exigés par le barème académique.
+            </p>
+          </article>
+
+          <article class="iragi-card">
+            <div class="iragi-card-head">
+              <span>METRIQUE AVANT / APRES</span>
+              <span>[compare_scans]</span>
+            </div>
+            <h3>Certification du Quality Score sur 100</h3>
+            <p>
+              Exécution de <code>iragi.scan</code> avant et après <code>clean_data.sh</code>, puis calcul automatique par <code>iragi.compare_scans</code> du gain exact (<code>score_delta</code>, <code>missing_delta</code>) injecté dans le rapport généré et le document LaTeX.
+            </p>
+          </article>
+
+          <article class="iragi-card">
+            <div class="iragi-card-head">
+              <span>CONTRAT &amp; QUARANTAINE</span>
+              <span>[DataContract + DLQ]</span>
+            </div>
+            <h3>Isolation en Dead-Letter Queue</h3>
+            <p>
+              Validation stricte via <code>iragi.DataContract</code> et isolation automatique des lignes hors-contrat dans <code>data/processed/quarantine_livraisons.csv</code> grâce à <code>iragi.auto_clean(contract_action="quarantine")</code>.
+            </p>
+          </article>
+
+          <article class="iragi-card">
+            <div class="iragi-card-head">
+              <span>RECONCILIATION &amp; PROFILAGE</span>
+              <span>[reconcile + zscore]</span>
+            </div>
+            <h3>Croisement CSV / Logs Apache &amp; Outliers</h3>
+            <p>
+              Réconciliation inter-sources via <code>iragi.reconcile</code> (<code>key_transform=r"(\d+)"</code>) entre <code>livraisons.csv</code> et <code>/api/livraisons/LIV-1042</code> (orphelins, erreurs 500), complétée par <code>detect_outliers_modified_zscore</code>.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNIQUE 01: MORPHOLOGICAL ANALYSIS -->
+    <section class="section-block" id="morphological">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker" style="color: var(--unix-green);">
+            <span>[TECHNIQUE 01]</span>
+            <span>::</span>
+            <span>MORPHOLOGICAL ANALYSIS</span>
+          </div>
+          <h2 class="section-title">Analyse Morphologique — Matrice Architecturale</h2>
+        </div>
+        <p class="section-subtitle">
+          Décomposition systématique du système en dimensions indépendantes (données, arborescence, pipelines UNIX, gouvernance <code>iragi</code> et infrastructure conteneurisée).
+        </p>
+      </div>
+
+      <div class="morph-controls" role="group" aria-label="Filtrer les axes morphologiques">
+        <button class="filter-btn active" data-filter="all" type="button">[TOUS LES AXES (9)]</button>
+        <button class="filter-btn" data-filter="unix" type="button">[DONNEES &amp; ARBORESCENCE UNIX]</button>
+        <button class="filter-btn" data-filter="iragi" type="button">[CONTRATS &amp; AUDIT IRAGI]</button>
+        <button class="filter-btn" data-filter="infra" type="button">[DOCKER &amp; TRAEFIK]</button>
+      </div>
+
+      <div class="morph-grid" id="morphGrid">
+        <!-- Idea 1 -->
+        <article class="morph-cell" data-axis="unix">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: GENERATION DE DONNEES</span>
+              <span class="badge badge-unix">SEED REPRODUCTIBLE</span>
+            </div>
+            <h3>Générateur Aléatoire Calibré Multi-Formats</h3>
+            <p>
+              Production déterministe (seed configurable) de <code>livraisons.csv</code> (1000 à 5000 lignes), <code>livreurs.json</code> (20 à 50 livreurs) et <code>access.log</code> (500 à 2000 lignes Apache) avec injection maîtrisée de doublons, lignes vides, espaces parasites et valeurs hors-contrat.
+            </p>
+          </div>
+          <div class="contract-spec">data/raw/{livraisons.csv, livreurs.json, access.log}</div>
+        </article>
+
+        <!-- Idea 2 -->
+        <article class="morph-cell" data-axis="unix">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: STRUCTURE DU PROJET</span>
+              <span class="badge badge-unix">ARBORESCENCE UNIFIEE</span>
+            </div>
+            <h3>Conciliation Académique &amp; Exploitation</h3>
+            <p>
+              Architecture unifiée reliant l'arborescence académique attendue (<code>scripts/etl</code>, <code>analysis</code>, <code>reporting</code>, <code>sql</code>, <code>docs</code>, <code>Makefile</code>) aux points d'entrée opérationnels standardisés dans <code>bin/</code>.
+            </p>
+          </div>
+          <div class="contract-spec">bin/launch.sh | bin/test.sh | bin/backup.sh &lt;-&gt; Makefile</div>
+        </article>
+
+        <!-- Idea 3 & 4 -->
+        <article class="morph-cell" data-axis="unix">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: TRAITEMENT HYBRIDE</span>
+              <span class="badge badge-unix">100% FILTRES UNIX</span>
+            </div>
+            <h3>Séparation Nette Traitement UNIX / Audit Python</h3>
+            <p>
+              Maintien à 100% des pipelines <code>Bash/sed/awk/sort/uniq/jq</code> exigés par l'énoncé pour l'ETL principal, tout en positionnant <code>iragi</code> (<code>pip install iragi</code>) comme couche d'audit qualité, de contrat métier, de quarantaine DLQ et de réconciliation.
+            </p>
+          </div>
+          <div class="contract-spec">sed / awk / sort / uniq / jq  --&gt;  iragi audit</div>
+        </article>
+
+        <!-- Idea 5 -->
+        <article class="morph-cell" data-axis="iragi">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: MESURE QUALITE</span>
+              <span class="badge badge-iragi">SCORE / 100</span>
+            </div>
+            <h3>Différentiel Automatisé Avant / Après Nettoyage</h3>
+            <p>
+              Double passage de <code>iragi.scan</code> en amont et en aval de <code>clean_data.sh</code>, suivi de <code>iragi.compare_scans</code> afin d'extraire <code>score_delta</code> et <code>missing_delta</code> pour le rapport généré et le rapport LaTeX.
+            </p>
+          </div>
+          <div class="contract-spec">iragi.compare_scans(pre, post) -&gt; score_delta, missing_delta</div>
+        </article>
+
+        <!-- Idea 6 -->
+        <article class="morph-cell" data-axis="iragi">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: CONTRAT METIER &amp; DLQ</span>
+              <span class="badge badge-iragi">DATACONTRACT</span>
+            </div>
+            <h3>Bornes Métier Exactes &amp; Quarantaine</h3>
+            <p>
+              Encodage des règles de l'énoncé dans un <code>iragi.DataContract</code> et mise en quarantaine automatique des enregistrements corrompus via <code>iragi.auto_clean(contract_action="quarantine")</code>.
+            </p>
+          </div>
+          <div class="contract-spec">id != null | poids: 5..50 | dist: 10..500 | temps: 30..300 | ISO + statut</div>
+        </article>
+
+        <!-- Idea 7 -->
+        <article class="morph-cell" data-axis="iragi">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: RECONCILIATION INTER-SOURCES</span>
+              <span class="badge badge-iragi">REGEX KEY_TRANSFORM</span>
+            </div>
+            <h3>Croisement CSV et Traces HTTP Apache</h3>
+            <p>
+              Utilisation de <code>iragi.reconcile</code> avec <code>key_transform=r"(\d+)"</code> pour apparier les identifiants entiers de <code>livraisons.csv</code> aux URI <code>/api/livraisons/LIV-1042</code> de <code>access.log</code> et détecter livraisons orphelines ou erreurs HTTP 500.
+            </p>
+          </div>
+          <div class="contract-spec">livraisons.id (1042) &lt;==&gt; /api/livraisons/LIV-1042 [HTTP 500]</div>
+        </article>
+
+        <!-- Idea 8 -->
+        <article class="morph-cell" data-axis="iragi">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: STATISTIQUE ROBUSTE</span>
+              <span class="badge badge-iragi">MODIFIED Z-SCORE</span>
+            </div>
+            <h3>Détection Fiabilisée d'Anomalies Temporelles</h3>
+            <p>
+              Recours à <code>detect_outliers_modified_zscore</code> du module <code>iragi.scan.profiler</code> pour identifier sans biais les temps de livraison atypiques malgré l'asymétrie naturelle des distributions logistiques.
+            </p>
+          </div>
+          <div class="contract-spec">from iragi.scan.profiler import detect_outliers_modified_zscore</div>
+        </article>
+
+        <!-- Idea 9 -->
+        <article class="morph-cell" data-axis="infra">
+          <div>
+            <div class="morph-axis-label">
+              <span>AXE :: INFRASTRUCTURE &amp; PROXY</span>
+              <span class="badge badge-amber">TRAEFIK + DEBIAN</span>
+            </div>
+            <h3>Reverse Proxy Traefik &amp; Conteneur Non-Root</h3>
+            <p>
+              Déploiement de Traefik comme unique reverse proxy Docker devant Metabase (<code>metabase.localhost</code>), accompagné de healthchecks stricts sur PostgreSQL et sur le conteneur de développement Python 3.14 Debian non-root.
+            </p>
+          </div>
+          <div class="contract-spec">Traefik -&gt; metabase.localhost | Python 3.14 Debian non-root</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- TECHNIQUE 02: FAILURE ANALYSIS -->
+    <section class="section-block" id="failure">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker" style="color: var(--fault-crimson);">
+            <span>[TECHNIQUE 02]</span>
+            <span>::</span>
+            <span>FAILURE ANALYSIS</span>
+          </div>
+          <h2 class="section-title">Analyse des Modes de Défaillance — Immunisation du Socle</h2>
+        </div>
+        <p class="section-subtitle">
+          Identification préventive des 6 pannes classiques d'un pipeline UNIX/Docker en correction académique et parades techniques immédiates.
+        </p>
+      </div>
+
+      <div class="fault-grid">
+        <!-- Failure 1 -->
+        <article class="fault-card">
+          <div class="fault-top">
+            <span class="fault-id">PANNE CLASSIQUE 01 // VOLUMES DOCKER</span>
+            <h3>Conflits de Permissions UID/GID sur les Volumes Montés</h3>
+          </div>
+          <div class="fault-remedy">
+            <div>
+              <span class="remedy-label">PARADE ARCHITECTURALE</span>
+              <p>
+                Création explicite d'un utilisateur non-root <code>appuser</code> (<code>UID 1000</code>) dans le <code>Dockerfile</code> multi-stage et configuration stricte de <code>chown</code> / <code>chmod</code> sur les répertoires <code>data/</code> et <code>scripts/</code>.
+              </p>
+            </div>
+            <div class="cmd-snippet">USER appuser (UID=1000) &amp;&amp; chown -R appuser:appuser data/ scripts/</div>
+          </div>
+        </article>
+
+        <!-- Failure 2 -->
+        <article class="fault-card">
+          <div class="fault-top">
+            <span class="fault-id">PANNE CLASSIQUE 02 // LOCALES &amp; DECIMALES</span>
+            <h3>Incohérences Virgule/Point et Tri dans awk / sort</h3>
+          </div>
+          <div class="fault-remedy">
+            <div>
+              <span class="remedy-label">PARADE ARCHITECTURALE</span>
+              <p>
+                Forçage systématique de <code>LC_ALL=C</code> en tête de chaque script shell pour garantir l'usage exclusif du point décimal et un ordre lexicographique/numérique 100% déterministe quelle que soit la machine hôte.
+              </p>
+            </div>
+            <div class="cmd-snippet">export LC_ALL=C</div>
+          </div>
+        </article>
+
+        <!-- Failure 3 -->
+        <article class="fault-card">
+          <div class="fault-top">
+            <span class="fault-id">PANNE CLASSIQUE 03 // PIPELINES MUETS</span>
+            <h3>Erreurs Silencieuses Masquées au Milieu d'un Tube UNIX</h3>
+          </div>
+          <div class="fault-remedy">
+            <div>
+              <span class="remedy-label">PARADE ARCHITECTURALE</span>
+              <p>
+                Imposition de <code>set -euo pipefail</code> couplé à un <code>trap</code> d'erreur qui journalise l'étape exacte en échec, le code retour et l'horodatage précis dans <code>data/reports/pipeline.log</code>.
+              </p>
+            </div>
+            <div class="cmd-snippet">set -euo pipefail; trap 'log_err $LINENO $?' ERR &gt;&gt; pipeline.log</div>
+          </div>
+        </article>
+
+        <!-- Failure 4 -->
+        <article class="fault-card">
+          <div class="fault-top">
+            <span class="fault-id">PANNE CLASSIQUE 04 // COURSE AU DEMARRAGE</span>
+            <h3>Metabase Démarre Avant la Disponibilité Réelle de PostgreSQL</h3>
+          </div>
+          <div class="fault-remedy">
+            <div>
+              <span class="remedy-label">PARADE ARCHITECTURALE</span>
+              <p>
+                Orchestration par <code>depends_on</code> avec condition stricte <code>service_healthy</code> adossée à <code>pg_isready</code>, et isolation des métadonnées Metabase dans une base interne dédiée ou un schéma séparé.
+              </p>
+            </div>
+            <div class="cmd-snippet">depends_on: { db: { condition: service_healthy } } # pg_isready</div>
+          </div>
+        </article>
+
+        <!-- Failure 5 -->
+        <article class="fault-card">
+          <div class="fault-top">
+            <span class="fault-id">PANNE CLASSIQUE 05 // REGRESSIONS SHELL &amp; PYTHON</span>
+            <h3>Effets de Bord lors de l'Ajout de Nouveaux Filtres Bash</h3>
+          </div>
+          <div class="fault-remedy">
+            <div>
+              <span class="remedy-label">PARADE ARCHITECTURALE</span>
+              <p>
+                Intégration conjointe de <code>shellcheck</code> et de <code>pytest</code> dans <code>bin/test.sh</code>, exécutés selon un cycle TDD strict (tests rouges écrits avant chaque nouvelle brique fonctionnelle).
+              </p>
+            </div>
+            <div class="cmd-snippet">bin/test.sh :: shellcheck scripts/**/*.sh &amp;&amp; pytest</div>
+          </div>
+        </article>
+
+        <!-- Failure 6 -->
+        <article class="fault-card">
+          <div class="fault-top">
+            <span class="fault-id">PANNE CLASSIQUE 06 // SINISTRE DE DONNEES</span>
+            <h3>Perte des Fichiers Traités ou de la Base PostgreSQL</h3>
+          </div>
+          <div class="fault-remedy">
+            <div>
+              <span class="remedy-label">PARADE ARCHITECTURALE</span>
+              <p>
+                Fourniture de <code>bin/backup.sh</code> générant une archive horodatée de <code>data/</code> et un export complet <code>pg_dump</code>, accompagnée d'une vérification d'intégrité par empreinte <code>SHA-256</code>.
+              </p>
+            </div>
+            <div class="cmd-snippet">bin/backup.sh -&gt; backup_YYYYMMDD_HHMMSS.tar.gz + .sha256</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- TECHNIQUE 03: BACKCASTING -->
+    <section class="section-block" id="backcasting">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker" style="color: var(--traefik-amber);">
+            <span>[TECHNIQUE 03]</span>
+            <span>::</span>
+            <span>BACKCASTING</span>
+          </div>
+          <h2 class="section-title">Rétro-Planification — De la Correction Parfaite au Socle Initial</h2>
+        </div>
+        <p class="section-subtitle">
+          Projection dans le moment exact où l'évaluateur exécute le projet à <code>J0</code>, puis remontée séquentielle jusqu'aux fondations verrouillées dès aujourd'hui.
+        </p>
+      </div>
+
+      <div class="backcast-track">
+        <!-- J0 -->
+        <article class="milestone j-zero">
+          <div class="milestone-stage">
+            <span class="milestone-code">JALON J0</span>
+            <span class="milestone-name">Remise &amp; Evaluation</span>
+          </div>
+          <div class="milestone-body">
+            <h3>Exécution Monolithique Zéro Friction</h3>
+            <p>
+              Le correcteur lance une unique commande (<code>bin/launch.sh</code> ou <code>make all</code>), observe la validation automatique de l'environnement, le traitement des données par le pipeline UNIX, la certification par <code>iragi</code> du passage du Quality Score à <strong>100/100</strong>, la génération par <code>gnuplot</code> de 5 graphiques PNG/SVG nets, et la compilation sans erreur du rapport HTML et LaTeX.
+            </p>
+          </div>
+        </article>
+
+        <!-- J-1 -->
+        <article class="milestone">
+          <div class="milestone-stage">
+            <span class="milestone-code">JALON J-1</span>
+            <span class="milestone-name">Vidéo &amp; Soutenance</span>
+          </div>
+          <div class="milestone-body">
+            <h3>Mode Démonstration Chronométré (&lt; 15 secondes)</h3>
+            <p>
+              Inclusion d'un mode démonstration reproductible qui affiche dans le terminal une synthèse lisible et rythmée des métriques UNIX + <code>iragi</code> en moins de 15 secondes, calibrée spécialement pour la capture vidéo OBS.
+            </p>
+          </div>
+        </article>
+
+        <!-- J-2 -->
+        <article class="milestone">
+          <div class="milestone-stage">
+            <span class="milestone-code">JALON J-2</span>
+            <span class="milestone-name">Documentation &amp; LaTeX</span>
+          </div>
+          <div class="milestone-body">
+            <h3>Alignement Documentaire &amp; Benchmarks</h3>
+            <p>
+              Structuration de <code>README.md</code> et <code>docs/rapport.tex</code> autour de schémas d'architecture limpides, de la justification du couplage UNIX vs <code>iragi</code>, des benchmarks chiffrés avant/après nettoyage et d'un guide d'exploitation pas-à-pas.
+            </p>
+          </div>
+        </article>
+
+        <!-- J-3 -->
+        <article class="milestone">
+          <div class="milestone-stage">
+            <span class="milestone-code">JALON J-3</span>
+            <span class="milestone-name">Visualisation &amp; SQL</span>
+          </div>
+          <div class="milestone-body">
+            <h3>Ingestion Haute Vitesse PostgreSQL &amp; Metabase</h3>
+            <p>
+              Chargement automatisé des fichiers CSV propres dans PostgreSQL via l'instruction native <code>COPY</code> afin d'alimenter instantanément les tableaux de bord Metabase et le jeu de requêtes analytiques <code>sql/queries.sql</code>.
+            </p>
+          </div>
+        </article>
+
+        <!-- Jalon Initial -->
+        <article class="milestone j-now">
+          <div class="milestone-stage">
+            <span class="milestone-code">SOCLE J-INIT</span>
+            <span class="milestone-name">Action Immédiate</span>
+          </div>
+          <div class="milestone-body">
+            <h3>Verrouillage des Fondations en TDD</h3>
+            <p>
+              Verrouillage immédiat de l'arborescence unifiée, des tests TDD du socle, de la pile Docker + Traefik + PostgreSQL + Python 3.14 + <code>iragi</code>, ainsi que du générateur de données aléatoires reproductible dans <code>data/raw/</code>.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- TECHNIQUE 04: CRANK THE DIAL TO 11 -->
+    <section class="section-block" id="dial-11">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker" style="color: var(--dial-violet);">
+            <span>[TECHNIQUE 04]</span>
+            <span>::</span>
+            <span>CRANK THE DIAL TO 11</span>
+          </div>
+          <h2 class="section-title">Pousser les Curseurs à 11 — Excellence d'Ingénierie</h2>
+        </div>
+        <p class="section-subtitle">
+          Amplification maximale des trois exigences cardinales du projet : traçabilité cryptographique, minimalisme du code et documentation auto-synchronisée.
+        </p>
+      </div>
+
+      <div class="dials-wrapper">
+        <!-- Dial 1: Traceability -->
+        <article class="dial-card">
+          <div class="dial-header">
+            <span class="badge badge-violet">AXE 01 // AUDITABILITE</span>
+            <span class="dial-meter">11 / 10</span>
+          </div>
+          <div class="seg-bar" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <h3>Traçabilité Poussée à 11 : Manifeste JSON d'Exécution</h3>
+          <p>
+            Chaque exécution du pipeline produit un manifeste JSON d'audit immuable agrégeant les comptages UNIX (<code>wc -l</code>), les empreintes <code>SHA-256</code> des fichiers d'entrée et de sortie, le score <code>iragi</code> avant/après et le taux exact de réconciliation entre <code>access.log</code> et CSV.
+          </p>
+          <div class="dial-artifact">
+            data/reports/audit_manifest.json :: { wc_lines, sha256_io, iragi_delta, reconcile_rate }
+          </div>
+        </article>
+
+        <!-- Dial 2: Minimalism -->
+        <article class="dial-card">
+          <div class="dial-header">
+            <span class="badge badge-violet">AXE 02 // CODE PROPRE</span>
+            <span class="dial-meter">11 / 10</span>
+          </div>
+          <div class="seg-bar" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <h3>Minimalisme Poussé à 11 : Factorisation &amp; Sphinx</h3>
+          <p>
+            Factorisation de toutes les primitives communes de journalisation et de vérification d'outils dans un unique petit module shell partagé, et documentation systématique de chaque fonction Python au format Sphinx avec au moins un exemple exécutable.
+          </p>
+          <div class="dial-artifact">
+            lib/common.sh (log + check_cmd) &amp;&amp; Docstrings Sphinx (:param:, :return:, Exemple)
+          </div>
+        </article>
+
+        <!-- Dial 3: Living Documentation -->
+        <article class="dial-card">
+          <div class="dial-header">
+            <span class="badge badge-violet">AXE 03 // ZERO DERIVE</span>
+            <span class="dial-meter">11 / 10</span>
+          </div>
+          <div class="seg-bar" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <h3>Documentation Poussée à 11 : Tableaux LaTeX Générés</h3>
+          <p>
+            Génération automatique par <code>generate_report.sh</code> des tableaux de chiffres clés inclus directement dans <code>docs/rapport.tex</code> : aucun indicateur statistique ou score qualité du PDF compilé ne peut jamais se désynchroniser des données réellement traitées.
+          </p>
+          <div class="dial-artifact">
+            generate_report.sh --&gt; docs/generated_metrics.tex --&gt; \input{} dans docs/rapport.tex
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- CLIMAX: FINAL SYNTHESIS -->
+    <section class="section-block" id="synthese">
+      <div class="climax-box">
+        <div class="tag-row">
+          <span class="badge badge-unix">[CLIMAX // SYNTHESE RETENUE]</span>
+          <span class="badge badge-iragi">[IRAGI 0.6.4 CERTIFIE]</span>
+          <span class="badge badge-amber">[TDD STRICT]</span>
+        </div>
+
+        <h2 class="section-title">Architecture Finale Retenue — Convergence UNIX, Docker &amp; iragi</h2>
+
+        <blockquote class="climax-statement">
+          Architecture Docker multi-stage <strong>Python 3.14 Debian non-root</strong> sous <strong>Traefik</strong>, pipelines ETL <strong>100% filtres UNIX natifs</strong> pour la conformité pédagogique, doublée d'une couche d'audit, de contrat métier, de Dead-Letter Queue et de réconciliation propulsée par <strong>iragi 0.6.4</strong>, pilotée par <code>bin/</code> et <code>Makefile</code> en <strong>TDD strict</strong>.
+        </blockquote>
+
+        <div class="synthesis-pillars">
+          <div class="syn-item">
+            <span class="syn-num">PILIER 01 // SOCLE CONTENEUR</span>
+            <h4>Docker Multi-Stage &amp; Traefik</h4>
+            <p>Python 3.14 sur Debian non-root (<code>appuser</code> UID 1000), PostgreSQL sous <code>pg_isready</code> et Metabase exposé via <code>metabase.localhost</code>.</p>
+          </div>
+          <div class="syn-item">
+            <span class="syn-num">PILIER 02 // CONFORMITE UNIX</span>
+            <h4>100% Filtres Standards</h4>
+            <p>Traitement principal assuré par <code>Bash</code>, <code>sed</code>, <code>awk</code>, <code>sort</code>, <code>uniq</code> et <code>jq</code> sous <code>LC_ALL=C</code> et <code>set -euo pipefail</code>.</p>
+          </div>
+          <div class="syn-item">
+            <span class="syn-num">PILIER 03 // CERTITUDE QUALITE</span>
+            <h4>Gouvernance iragi 0.6.4</h4>
+            <p><code>scan</code>, <code>compare_scans</code>, <code>DataContract</code> + DLQ, <code>reconcile</code> CSV/Apache et <code>detect_outliers_modified_zscore</code>.</p>
+          </div>
+          <div class="syn-item">
+            <span class="syn-num">PILIER 04 // EXPLOITATION &amp; PREUVE</span>
+            <h4>TDD, Backups &amp; LaTeX Vivant</h4>
+            <p>Pilotage par <code>bin/{launch,test,backup}.sh</code> et <code>Makefile</code>, manifeste JSON <code>SHA-256</code> et tableaux LaTeX auto-générés.</p>
+          </div>
+        </div>
+
+        <!-- Interactive Command Preview -->
+        <div class="terminal-window" aria-label="Aperçu interactif des sorties opérationnelles">
+          <div class="terminal-bar">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div class="term-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <span class="term-title">appuser@debian-py314:/workspace$ — Simulateur d'Architecture</span>
+            </div>
+            <div class="term-tabs" role="tablist">
+              <button class="term-tab active" type="button" data-view="launch">bin/launch.sh (J0 / Démo &lt;15s)</button>
+              <button class="term-tab" type="button" data-view="contract">iragi DataContract &amp; DLQ</button>
+              <button class="term-tab" type="button" data-view="manifest">Manifeste JSON (Curseur 11)</button>
+            </div>
+          </div>
+          <div class="terminal-output" id="terminalOutput"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>ARCHIVE DE BRAINSTORMING // PROJET FINAL SYSTEMES UNIX</span>
+      <span>SOURCE UNIQUE : .memlog.md // ZERO DEPENDANCE EXTERNE</span>
+    </footer>
+
+  </main>
+
+  <script>
+    (function () {
+      // 1. Scroll progress bar & active navigation highlight
+      var progressEl = document.getElementById("scrollProgress");
+      var sections = document.querySelectorAll(".section-block");
+      var navLinks = document.querySelectorAll(".nav-pipes a");
+
+      function onScroll() {
+        var scrollTop = window.scrollY || document.documentElement.scrollTop;
+        var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        progressEl.style.width = pct.toFixed(1) + "%";
+
+        var currentId = "";
+        for (var i = 0; i < sections.length; i++) {
+          var rect = sections[i].getBoundingClientRect();
+          if (rect.top <= 140) {
+            currentId = sections[i].id;
+          }
+        }
+        for (var j = 0; j < navLinks.length; j++) {
+          var href = navLinks[j].getAttribute("href");
+          navLinks[j].classList.toggle("active", href === "#" + currentId);
+        }
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      // 2. Morphological matrix axis filter
+      var filterBtns = document.querySelectorAll(".filter-btn");
+      var morphCells = document.querySelectorAll(".morph-cell");
+
+      for (var b = 0; b < filterBtns.length; b++) {
+        filterBtns[b].addEventListener("click", function () {
+          var target = this.getAttribute("data-filter");
+          for (var k = 0; k < filterBtns.length; k++) {
+            filterBtns[k].classList.remove("active");
+          }
+          this.classList.add("active");
+
+          for (var c = 0; c < morphCells.length; c++) {
+            var axis = morphCells[c].getAttribute("data-axis");
+            var match = (target === "all" || axis === target);
+            morphCells[c].classList.toggle("dimmed", !match);
+          }
+        });
+      }
+
+      // 3. Climax interactive terminal views
+      var views = {
+        launch: [
+          '<span class="t-prompt">$ bin/launch.sh --demo</span>',
+          '<span class="t-muted">[00.4s]</span> Verification environnement : LC_ALL=C | appuser (UID 1000) | Docker + Traefik + PG [service_healthy]',
+          '<span class="t-muted">[01.9s]</span> Generation reproductible (seed) : livraisons.csv (2500 lignes), livreurs.json (35), access.log (1200)',
+          '<span class="t-info">[03.1s]</span> iragi.scan (avant nettoyage)     : Quality Score = 68.4 / 100 (doublons, vides, hors-contrat detectes)',
+          '<span class="t-ok">[05.2s]</span> Pipeline UNIX clean_data.sh      : Bash | sed | awk | sort | uniq | jq [set -euo pipefail -> CODE 0]',
+          '<span class="t-warn">[06.8s]</span> iragi.DataContract + auto_clean  : Quarantaine DLQ -> data/processed/quarantine_livraisons.csv',
+          '<span class="t-info">[08.0s]</span> iragi.compare_scans              : Quality Score = 100.0 / 100 (score_delta = +31.6, missing_delta = -100%)',
+          '<span class="t-info">[09.4s]</span> iragi.reconcile (r"(\\d+)")      : Livraisons CSV <-> access.log (/api/livraisons/LIV-*) + audit HTTP 500',
+          '<span class="t-ok">[11.3s]</span> Chargement PostgreSQL COPY       : sql/queries.sql pret | Metabase actif sur http://metabase.localhost',
+          '<span class="t-ok">[13.6s]</span> Rendus finaux                    : 5 graphiques gnuplot (PNG/SVG) + tableaux injectes dans docs/rapport.tex'
+        ].join("\n"),
+        contract: [
+          '<span class="t-prompt"># Extrait conceptuel — Gouvernance iragi 0.6.4 autour du pipeline UNIX</span>',
+          '<span class="t-info">Contrat Metier (iragi.DataContract) :</span>',
+          '  - id       : non nul (entier unique)',
+          '  - poids    : intervalle strict [5 .. 50]',
+          '  - distance : intervalle strict [10 .. 500]',
+          '  - temps    : intervalle strict [30 .. 300] + detect_outliers_modified_zscore',
+          '  - date     : regex format ISO 8601',
+          '  - statut   : regex valeurs autorisees par l\'enonce',
+          '',
+          '<span class="t-warn">Action Hors-Contrat :</span>',
+          '  iragi.auto_clean(df, contract=contrat, contract_action="quarantine")',
+          '  --> Enregistrements valides  : data/processed/livraisons_clean.csv',
+          '  --> Enregistrements isoles   : data/processed/quarantine_livraisons.csv (Dead-Letter Queue)'
+        ].join("\n"),
+        manifest: [
+          '<span class="t-prompt">$ cat data/reports/audit_manifest.json</span>',
+          '{',
+          '  "mode_execution": "autonomous_tdd",',
+          '  "locale": "C",',
+          '  "unix_line_counts": { "raw_csv": 2500, "clean_csv": 2318, "quarantine_dlq": 94, "duplicates_removed": 88 },',
+          '  "sha256_fingerprints": {',
+          '    "livraisons_raw":   "9f84c2e1a0b7...d41e",',
+          '    "livraisons_clean": "3c71b804f29a...88a2"',
+          '  },',
+          '  "iragi_audit": {',
+          '    "version": "0.6.4",',
+          '    "score_before": 68.4,',
+          '    "score_after": 100.0,',
+          '    "score_delta": 31.6,',
+          '    "reconcile_key_transform": "(\\\\d+)",',
+          '    "latex_tables_synced": true',
+          '  }',
+          '}'
+        ].join("\n")
+      };
+
+      var termOut = document.getElementById("terminalOutput");
+      var termTabs = document.querySelectorAll(".term-tab");
+
+      function renderTerm(key) {
+        termOut.innerHTML = views[key] || views.launch;
+      }
+
+      for (var t = 0; t < termTabs.length; t++) {
+        termTabs[t].addEventListener("click", function () {
+          for (var m = 0; m < termTabs.length; m++) {
+            termTabs[m].classList.remove("active");
+          }
+          this.classList.add("active");
+          renderTerm(this.getAttribute("data-view"));
+        });
+      }
+
+      renderTerm("launch");
+    })();
+  </script>
+</body>
+</html>

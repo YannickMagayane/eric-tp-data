@@ -1,0 +1,10 @@
+{
+  "seed": 2026,
+  "couriers_count": 35,
+  "access_logs_count": 1200,
+  "deliveries_base_rows": 2500,
+  "injected_duplicates": 20,
+  "injected_whitespace_rows": 8,
+  "injected_invalid_rows": 8,
+  "injected_blank_lines": 5
+}

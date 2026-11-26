@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\geometry{margin=2.5cm}
+
+\title{Projet Final --- Syst\`emes UNIX\\Analyse de Donn\'ees Logistiques par Pipelines UNIX et Audit de Qualit\'e Iragi}
+\author{M1 Informatique --- Universit\'e de Lubumbashi}
+\date{D\'ecembre 2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Architecture du Syst\`eme}
+L'infrastructure repose sur une orchestration Docker reproductible articul\'ee autour de quatre services isol\'es :
+\begin{itemize}
+    \item \textbf{Traefik v3} : unique reverse proxy routant les flux HTTP vers le tableau de bord analytique (\texttt{metabase.localhost}).
+    \item \textbf{Conteneur \texttt{dev} (Debian Bookworm / Python 3.14)} : image multi-stage ex\'ecut\'ee sous un utilisateur non-root (\texttt{appuser}, UID 1000), embarquant les filtres UNIX (\texttt{bash}, \texttt{sed}, \texttt{gawk}, \texttt{sort}, \texttt{uniq}, \texttt{jq}), \texttt{gnuplot}, \texttt{shellcheck} et la biblioth\`eque Python \texttt{iragi} (\texttt{0.6.4}).
+    \item \textbf{PostgreSQL 16 (\texttt{db})} : stockage relationnel typ\'e avec contraintes d'int\'egrit\'e m\'etier et contr\^oles de sant\'e (\texttt{pg\_isready}).
+    \item \textbf{Metabase (\texttt{dashboard})} : visualisation interactive connect\'ee \`a PostgreSQL.
+\end{itemize}
+
+\section{Acquisition des Donn\'ees et Gouvernance par Iragi}
+Un g\'en\'erateur reproductible (\texttt{scripts/etl/generate\_data.py}) produit les trois sources exig\'ees dans \texttt{data/raw/} (\texttt{livraisons.csv}, \texttt{livreurs.json}, \texttt{access.log}) en injectant un volume calibr\'e de doublons, lignes vides, espaces parasites et hors-bornes m\'etier.
+
+En compl\'ement des pipelines UNIX natifs, le module \texttt{iragi} assure :
+\begin{enumerate}
+    \item Le calcul explicable du score de qualit\'e sur 100 avant et apr\`es nettoyage via \texttt{iragi.scan} et \texttt{iragi.compare\_scans}.
+    \item La validation contractuelle via \texttt{iragi.DataContract} et l'isolement en \emph{Dead-Letter Queue} (\texttt{quarantine\_livraisons.csv}) via \texttt{iragi.auto\_clean}.
+    \item La r\'econciliation inter-sources entre \texttt{livraisons.csv} et les traces HTTP \texttt{/api/livraisons/LIV-<id>} de \texttt{access.log} via \texttt{iragi.reconcile}.
+\end{enumerate}
+
+\section{Description des Pipelines UNIX}
+\emph{Section compl\'et\'ee lors de l'impl\'ementation de la Phase 2 (\texttt{clean\_data.sh}, \texttt{transform\_data.sh}, \texttt{analyze\_data.sh}, \texttt{run\_pipeline.sh}).}
+
+\section{R\'esultats, Visualisations et Analyses}
+\emph{Section compl\'et\'ee lors de la Phase 3 avec l'int\'egration automatique des graphiques \texttt{gnuplot} et des m\'etriques cl\'es.}
+
+\section{Difficult\'es Rencontr\'ees et Solutions}
+\begin{itemize}
+    \item \textbf{Permissions sur volumes Docker} : r\'esolues par l'alignement UID/GID 1000 de \texttt{appuser} dans l'image multi-stage.
+    \item \textbf{D\'eterminisme des filtres UNIX} : verrouill\'e par \texttt{LC\_ALL=C} et \texttt{set -euo pipefail} dans tous les scripts shell.
+\end{itemize}
+
+\end{document}

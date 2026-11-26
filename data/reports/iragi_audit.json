@@ -1,0 +1,52 @@
+{
+  "iragi_version": "0.6.4",
+  "raw_rows": 2536,
+  "raw_quality_score": 99.7,
+  "clean_rows": 2508,
+  "clean_quality_score": 100.0,
+  "quality_score_delta": 0.3,
+  "duplicates_removed": 20,
+  "contract_violations_count": 8,
+  "contract_violations": [
+    {
+      "column": "id",
+      "rule": "not_null",
+      "failed_count": 1
+    },
+    {
+      "column": "ville",
+      "rule": "not_null",
+      "failed_count": 1
+    },
+    {
+      "column": "date",
+      "rule": "regex",
+      "failed_count": 1
+    },
+    {
+      "column": "poids",
+      "rule": "range",
+      "failed_count": 2
+    },
+    {
+      "column": "distance",
+      "rule": "range",
+      "failed_count": 1
+    },
+    {
+      "column": "temps",
+      "rule": "range",
+      "failed_count": 1
+    },
+    {
+      "column": "statut",
+      "rule": "regex",
+      "failed_count": 1
+    }
+  ],
+  "quarantined_rows_count": 8,
+  "modified_zscore_time_outliers": 0,
+  "log_reconciliation_match_rate": 0.3187,
+  "log_matched_deliveries": 825,
+  "orphan_http_delivery_calls": 81
+}

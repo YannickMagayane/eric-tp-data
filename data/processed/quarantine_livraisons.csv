@@ -1,0 +1,9 @@
+id,date,ville,poids,distance,temps,statut
+2603.0,2026-10-15,Marseille,75.0,140,110.0,retarde
+2607.0,2026-10-25,Nice,14.2,70,65.0,inconnu
+2602.0,2026-10-12,Lyon,-4.5,85,60.0,livre
+2606.0,2026-10-22,Nantes,19.0,90,,livre
+2605.0,2026-10-20,,22.1,60,55.0,en_cours
+,2026-10-28,Bordeaux,11.0,45,40.0,annule
+2604.0,2026-10-18,Lille,15.0,820,490.0,retarde
+2601.0,2026-13-45,Paris,12.4,100,80.0,livre
