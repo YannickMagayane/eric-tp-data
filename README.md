@@ -97,27 +97,30 @@ Les services Docker utilisent des valeurs par defaut coherentes dans `docker-com
 ├── Dockerfile                          # Image multi-stage Debian + Python 3.14 non-root (appuser)
 ├── docker-compose.yml                  # Services traefik, db, dev, dashboard + healthchecks
 ├── Makefile                            # Commandes unifiees (generate-data, pipeline, charts, etc.)
+├── requirements.txt                    # Dependances Python installees dans l'image Docker (iragi, pytest)
 ├── README.md                           # Documentation technique principale
 ├── bin/
 │   ├── launch.sh                       # Construction, demarrage Docker et validation runtime
 │   ├── test.sh                         # Execution isolee pytest + shellcheck
 │   └── backup.sh                       # Sauvegarde pg_dump + tar.gz verifiee par SHA-256
+├── backups/                            # Dumps SQL PostgreSQL et archives .tar.gz + empreintes .sha256
 ├── data/
-│   ├── raw/                            # Donnees brutes + generation_manifest.json
+│   ├── raw/                            # Donnees brutes (CSV, JSON, access.log) + generation_manifest.json
 │   ├── processed/                      # Donnees nettoyees, enrichies, DLQ et fichiers .dat
 │   ├── reports/                        # Audits JSON, stats, anomalies, lineage_manifest.json, MD/HTML
-│   └── visualizations/                 # 8 graphiques PNG generes par gnuplot
+│   └── visualizations/                 # 10 graphiques PNG generes par gnuplot (01 a 10)
 ├── scripts/
 │   ├── etl/                            # common.sh, validate_env.sh, generate_data.py, clean/transform/run/load, audit_quality.py
 │   ├── analysis/                       # analyze_data.sh (stats, quartiles, Pearson r, .dat)
-│   └── reporting/                      # generate_charts.sh, generate_report.sh, render_report.py
+│   └── reporting/                      # generate_charts.sh, generate_report.sh, render_report.py, setup_metabase.py
 ├── sql/
-│   ├── schema.sql                      # Schema PostgreSQL (couriers, deliveries, web_access_logs)
-│   └── queries.sql                     # 6 requetes analytiques Metabase
+│   ├── schema.sql                      # Schema PostgreSQL (couriers, deliveries, web_access_logs, iragi_audit_metrics)
+│   └── queries.sql                     # Requetes SQL analytiques pour Metabase
 ├── docs/
 │   ├── GUIDE_INSTALLATION_UTILISATION.md
+│   ├── SCRIPT_VIDEO_DEMO.md            # Trame de presentation pour la video YouTube
 │   ├── rapport.tex / rapport.pdf       # Rapport universitaire LaTeX et PDF compile
-│   └── slides.tex / slides.pdf         # Presentation Beamer PDF
+│   └── slides.tex / slides.pdf         # Presentation Beamer PDF (10 diapositives)
 └── tests/                              # Suites TDD (foundation, phase2, phase3, phase4_e2e)
 ```
 
