@@ -122,7 +122,7 @@
                     \'Etudiant : & \textbf{Lutumba Miteo Eric} \\
                     Promotion : & Master 1 Informatique \\
                     Enseignant : & Prof. Patrick Mukala \\
-                    P\'erim\`etre : & 9 villes fran\c{c}aises (modes \texttt{exam} et \texttt{extended}) \\
+                    P\'erim\`etre : & 9 villes fran\c{c}aises (Paris, Lyon, Marseille, Lille, Bordeaux, Toulouse, Nantes, Nice, Strasbourg) \\
                     Environnement : & Docker Multi-Stage, Traefik v3.2, Bash/AWK/jq, PostgreSQL 16, Metabase, Gnuplot \\
                     Date de remise : & 15 d\'ecembre 2026 \\
                 \end{tabularx}
@@ -157,7 +157,7 @@ Une entreprise de logistique assurant des livraisons entre neuf grandes villes f
 Le projet poursuit quatre objectifs principaux :
 \begin{enumerate}
     \item Mettre en place un environnement reproductible sous Docker avec utilisateur non-root et reverse proxy Traefik.
-    \item D\'evelopper des pipelines UNIX modulaires, d\'eterministes et tra\c{c}ables fonctionnant tant \`a l'\'echelle de l'examen (mode \texttt{exam}) qu'\`a grande \'echelle (mode \texttt{extended} \`a 12\,000 livraisons/mois/ville).
+    \item D\'evelopper des pipelines UNIX modulaires, d\'eterministes et tra\c{c}ables capables de traiter les donn\'ees de l'entreprise logistique dans le strict respect du cahier des charges.
     \item Int\'egrer et justifier scientifiquement \texttt{iragi} pour l'audit avant/apr\`es, la validation de contrats m\'etier, la quarantaine (\emph{Dead-Letter Queue}) et la r\'econciliation inter-sources.
     \item Alimenter PostgreSQL 16 et Metabase, produire huit visualisations \texttt{gnuplot} rigoureuses et valider l'ensemble par des tests automatis\'es (\texttt{pytest} et \texttt{shellcheck}).
 \end{enumerate}
@@ -166,7 +166,7 @@ Le projet poursuit quatre objectifs principaux :
 % 4. CAHIER DES CHARGES
 % ============================================================================
 \section{Cahier des Charges}
-En mode \texttt{exam} (configuration par d\'efaut), le syst\`eme respecte strictement les bornes impos\'ees : \texttt{livraisons.csv} entre 1\,000 et 5\,000 lignes sur 3 mois couvrant les 9 villes impos\'ees, \texttt{livreurs.json} entre 20 et 50 livreurs, et \texttt{access.log} entre 500 et 2\,000 lignes. En mode \texttt{extended}, l'architecture supporte une mont\'ee en charge simul\'ee autour de 12\,000 livraisons par mois et par ville (108\,000 livraisons/mois de base, soit 324\,000 sur 3 mois avant pond\'eration).
+Conform\'ement aux sp\'ecifications du projet, le jeu de donn\'ees respecte les bornes impos\'ees : \texttt{livraisons.csv} entre 1\,000 et 5\,000 lignes sur 3 mois couvrant les 9 villes impos\'ees, \texttt{livreurs.json} entre 20 et 50 livreurs, et \texttt{access.log} entre 500 et 2\,000 lignes. Le g\'en\'erateur reste param\'etrable pour permettre des essais de mont\'ee en charge jusqu'\`a 108\,000 livraisons mensuelles.
 
 % ============================================================================
 % 5. PRESENTATION DES DONNEES
@@ -267,7 +267,7 @@ Les outils UNIX (\texttt{sed}, \texttt{awk}, \texttt{sort}) excellent dans le fi
 
 \subsection{Fonctionnalit\'es d'\texttt{iragi} (\texttt{v0.6.4}) r\'eellement mobilis\'ees}
 \begin{enumerate}
-    \item \textbf{Inspection (\texttt{iragi.scan} et \texttt{iragi.scan\_csv\_stream})} : profile \texttt{data/raw/livraisons.csv} avant nettoyage puis certifie \texttt{livraisons\_clean.csv} apr\`es \texttt{clean\_data.sh}. En mode \texttt{extended} ($>50\,000$ lignes), le syst\`eme bascule automatiquement sur \texttt{scan\_csv\_stream(chunksize=50000)} pour contenir l'empreinte m\'emoire.
+    \item \textbf{Inspection (\texttt{iragi.scan} et \texttt{iragi.scan\_csv\_stream})} : profile \texttt{data/raw/livraisons.csv} avant nettoyage puis certifie \texttt{livraisons\_clean.csv} apr\`es \texttt{clean\_data.sh}. Au-del\`a de 50\,000 lignes, le syst\`eme bascule automatiquement sur \texttt{scan\_csv\_stream(chunksize=50000)} pour contenir l'empreinte m\'emoire.
     \item \textbf{Contrats m\'etier (\texttt{iragi.DataContract}, \texttt{validate\_contract})} : v\'erifie formellement les bornes r\'eglementaires (\texttt{poids} $\in [5,50]$, \texttt{distance} $\in [10,500]$, \texttt{temps} et \texttt{temps\_prevu} $\in [30,300]$, villes fran\c{c}aises, dates ISO, statuts).
     \item \textbf{D\'etection d'anomalies (\texttt{detect\_outliers\_modified\_zscore})} : d\'etecte les valeurs temporelles aberrantes via le Z-Score modifi\'e (m\'ediane MAD), insensible \`a l'asym\'etrie des distributions.
     \item \textbf{Quarantaine DLQ (\texttt{iragi.auto\_clean})} : isole les lignes fautives dans \texttt{quarantine\_livraisons.csv} avec \texttt{impute\_numeric="none"}, \'evitant l'imputation aveugle par moyenne.
@@ -302,7 +302,7 @@ Le sch\'ema relationnel (\texttt{sql/schema.sql}) d\'efinit trois tables avec cl
 % ============================================================================
 % 13. ANALYSES STATISTIQUES
 % ============================================================================
-\section{Analyses Statistiques (Mode EXAM : 2\,510 Livraisons Certifi\'ees)}
+\section{Analyses Statistiques (2\,510 Livraisons Certifi\'ees)}
 
 \begin{table}[H]
 \centering
@@ -394,7 +394,7 @@ L'ex\'ecution de \texttt{./bin/test.sh} valide l'ensemble du syst\`eme : tests u
 % ============================================================================
 \section{R\'esultats Exp\'erimentaux}
 
-\subsection{R\'esultats du nettoyage et de la certification \texttt{iragi} (Mode EXAM)}
+\subsection{R\'esultats du nettoyage et de la certification \texttt{iragi}}
 \begin{table}[H]
 \centering
 \small
@@ -432,7 +432,7 @@ Nantes & 245 & 26,29 & 152,21 & 142,16 & 54,11 & 47,98 & 8,57 \% \\
 Nice & 234 & 27,79 & 132,57 & 126,53 & 50,53 & 45,91 & 11,97 \% \\
 \bottomrule
 \end{tabularx}
-\caption{R\'esultats agr\'eg\'es par ville en mode EXAM (Source : \texttt{data/processed/agg\_par\_ville.csv}).}
+\caption{R\'esultats agr\'eg\'es par ville sur le jeu de donn\'ees (Source : \texttt{data/processed/agg\_par\_ville.csv}).}
 \end{table}
 
 \begin{table}[H]
@@ -451,8 +451,8 @@ Moto & 322 & 34,84 & 72,11 & 28,14 & 20,56 & 10,25 \% \\
 \caption{Comparaison des performances par type de v\'ehicule (Source : \texttt{agg\_par\_vehicule.csv}).}
 \end{table}
 
-\subsection{Validation de mont\'ee en charge en mode EXTENDED}
-Le mode \texttt{make generate-data MODE=extended} a \'et\'e ex\'ecut\'e sur la cible de 12\,000 livraisons/mois/ville sur 3 mois (\textbf{330\,078 lignes brutes} non vides, dont 329\,400 de base + 658 doublons + 10 lignes \`a espaces + 10 hors-contrats), puis assaini en \textbf{329\,410 livraisons propres} en 21 secondes avec bascule automatique sur \texttt{iragi.scan\_csv\_stream}.
+\subsection{Test compl\'ementaire de mont\'ee en charge (108\,000 livraisons/mois)}
+Afin de v\'erifier la robustesse de l'architecture au-del\`a du volume nominal, un essai de charge sur 3 mois (\textbf{330\,078 lignes brutes} non vides) a \'et\'e ex\'ecut\'e et assaini en \textbf{329\,410 livraisons propres} en 21 secondes gr\^ace \`a la bascule automatique sur \texttt{iragi.scan\_csv\_stream}.
 
 % ============================================================================
 % 18. DIFFICULTES RENCONTREES ET SOLUTIONS
@@ -461,7 +461,7 @@ Le mode \texttt{make generate-data MODE=extended} a \'et\'e ex\'ecut\'e sur la c
 \begin{itemize}
     \item \textbf{Sonde de sant\'e Traefik v3.2} : le conteneur \texttt{traefik} restait marqu\'e \emph{unhealthy} sans l'option explicite \texttt{--ping=true} ; son ajout dans \texttt{docker-compose.yml} a r\'esolu la d\'etection.
     \item \textbf{Droits UID/GID sur volumes partag\'es} : la cr\'eation de \texttt{appuser} (UID 1000) dans le \texttt{Dockerfile} aligne les permissions entre conteneur et h\^ote.
-    \item \textbf{Scalabilit\'e en mode EXTENDED} : l'usage de \texttt{iragi.scan\_csv\_stream} au-del\`a de 50\,000 lignes \'evite la saturation m\'emoire lors du profilage.
+    \item \textbf{Scalabilit\'e sur gros volumes} : l'usage de \texttt{iragi.scan\_csv\_stream} au-del\`a de 50\,000 lignes \'evite la saturation m\'emoire lors du profilage.
 \end{itemize}
 
 % ============================================================================
@@ -484,7 +484,7 @@ Les donn\'ees restent issues d'un g\'en\'erateur synth\'etique (non de flux GPS 
 % 21. CONCLUSION GENERALE
 % ============================================================================
 \section{Conclusion G\'en\'erale}
-Ce projet d\'emontre la synergie entre la sobri\'et\'e des pipelines UNIX, la robustesse de l'orchestration Docker/Traefik/PostgreSQL et la rigueur d'audit d'\texttt{iragi}. L'architecture r\'epond int\'egralement aux quatre phases de l'examen en mode \texttt{exam} tout en validant sa capacit\'e de passage \`a l'\'echelle en mode \texttt{extended}.
+Ce projet d\'emontre la synergie entre la sobri\'et\'e des pipelines UNIX, la robustesse de l'orchestration Docker/Traefik/PostgreSQL et la rigueur d'audit d'\texttt{iragi}. L'architecture r\'epond int\'egralement aux quatre phases du cahier des charges tout en d\'emontrant sa capacit\'e de passage \`a l'\'echelle.
 
 % ============================================================================
 % 22. ANNEXES TECHNIQUES
@@ -494,8 +494,8 @@ Ce projet d\'emontre la synergie entre la sobri\'et\'e des pipelines UNIX, la ro
 # Demarrer Docker + Traefik + PostgreSQL + Metabase
 ./bin/launch.sh
 
-# Mode EXAM (defaut) ou EXTENDED (12 000 livraisons/mois/ville)
-make generate-data MODE=exam
+# Generer les donnees conformes au cahier des charges
+make generate-data
 make pipeline && make charts && make report && make load-db
 
 # Tests TDD + ShellCheck + Sauvegarde SHA-256

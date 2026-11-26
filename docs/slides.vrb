@@ -1,7 +1,7 @@
 \frametitle{8. Guide des Commandes Exactes (D\'eploiement, Pipelines et Tests)}
 \begin{columns}[T]
         \begin{column}{0.48\textwidth}
-            \begin{block}{Infrastructure Docker \& Base de Donn\'ees}
+            \begin{block}{Infrastructure Docker \& PostgreSQL}
 \begin{verbatim}
 ./bin/launch.sh          # Build + Up + Validate
 docker compose ps        # Etat et healthchecks
@@ -15,8 +15,7 @@ docker compose down      # Arret (volumes gardes)
         \begin{column}{0.48\textwidth}
             \begin{exampleblock}{Pipelines, Rapports, Tests \& Sauvegarde}
 \begin{verbatim}
-make generate-data MODE=exam
-make generate-data MODE=extended
+make generate-data       # Jeu conforme examen
 make pipeline            # UNIX ETL + Audit iragi
 make charts && make report
 make pdf && make slides  # Rapports LaTeX
@@ -28,4 +27,4 @@ make pdf && make slides  # Rapports LaTeX
     \end{columns}
     \vspace{0.2cm}
     \centering
-    \small\textbf{Acc\`es Metabase (via Traefik) :} \texttt{http://metabase.localhost:8080} \hspace{0.6cm} \textbf{Dashboard Traefik :} \texttt{http://127.0.0.1:8081}
+    \small\textbf{Tableau de bord Metabase :} \texttt{http://metabase.localhost:8080/dashboard/2} \hspace{0.5cm} \textbf{Traefik :} \texttt{http://127.0.0.1:8081}
