@@ -36,6 +36,7 @@ EXPECTED_CHARTS = [
     "06_repartition_statuts.png",
     "07_performance_livreurs.png",
     "08_anomalies_avant_apres.png",
+    "09_impact_donnees_avant_apres_iragi.png",
 ]
 
 
@@ -141,6 +142,8 @@ def test_compiled_latex_report_exists() -> None:
     tex_text = (PROJECT_ROOT / "docs/rapport.tex").read_text(encoding="utf-8")
     assert "Lutumba Miteo Eric" in tex_text
     assert "08_anomalies_avant_apres.png" in tex_text
+    assert "09_impact_donnees_avant_apres_iragi.png" in tex_text
+    assert "youtu.be" in tex_text
     assert "Paris" in tex_text and "Strasbourg" in tex_text
     assert "bmad" not in tex_text.lower()
     for line in tex_text.splitlines():

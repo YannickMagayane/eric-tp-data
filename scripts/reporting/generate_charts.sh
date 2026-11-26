@@ -13,6 +13,7 @@ REQUIRED_DATS=(
     "${PROCESSED_DIR}/par_mois.dat"
     "${PROCESSED_DIR}/dist_temps.dat"
     "${PROCESSED_DIR}/distance_vs_temps.dat"
+    "${PROCESSED_DIR}/raw_distance_vs_temps.dat"
     "${PROCESSED_DIR}/par_statut.dat"
     "${PROCESSED_DIR}/perf_livreurs.dat"
     "${PROCESSED_DIR}/iragi_before_after.dat"
@@ -217,7 +218,46 @@ plot proc_dir . "/iragi_before_after.dat" using 2:xtic(1) lc rgb "#dc2626" title
      "" using ($0 - 0.25):2:(sprintf("%d", $2)) with labels offset 0,0.8 tc rgb "#991b1b" notitle, \
      "" using ($0):3:(sprintf("%d", $3)) with labels offset 0,0.8 tc rgb "#b45309" notitle, \
      "" using ($0 + 0.25):4:(sprintf("%d", $4)) with labels offset 0,0.8 tc rgb "#15803d" notitle
+
+# 9. Side-by-Side Data Impact: BEFORE Iragi (Raw with outliers) vs AFTER UNIX + Iragi Contract
+reset
+set terminal png size 1400,660 noenhanced
+set output vis_dir . "/09_impact_donnees_avant_apres_iragi.png"
+set multiplot layout 1,2 title "Impact reel sur les donnees : AVANT Iragi (Brut) vs APRES Pipeline UNIX + Contrat Iragi (Sept - Nov 2026)"
+
+set tmargin 5.2
+set bmargin 5.2
+set lmargin 10
+set rmargin 3
+set title "AVANT Iragi : Donnees brutes avec hors-contrats (>500km / >300min)" offset 0,0.8
+set xlabel "Distance (km)"
+set ylabel "Temps de livraison (minutes)"
+set xrange [0:900]
+set yrange [0:540]
+set grid
+set key outside top center horizontal
+set arrow 1 from 500,0 to 500,540 nohead dt 2 lw 2 lc rgb "#dc2626"
+set arrow 2 from 0,300 to 900,300 nohead dt 2 lw 2 lc rgb "#dc2626"
+plot proc_dir . "/raw_distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.55 lc rgb "#dc2626" title "Brut (incl. hors-contrats 820km/490min)"
+
+unset arrow 1
+unset arrow 2
+set title "APRES UNIX + Iragi : 2510 livraisons conformes (DLQ isolee)" offset 0,0.8
+set xlabel "Distance (km) [Contrat : 10..500 km]"
+set ylabel "Temps (minutes) [Contrat : 30..300 min]"
+set xrange [0:530]
+set yrange [0:330]
+set grid
+set fit quiet
+set fit logfile "/dev/null"
+g(x) = m*x + c
+fit g(x) proc_dir . "/distance_vs_temps.dat" using 1:2 via m,c
+set key outside top center horizontal
+plot proc_dir . "/distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.50 lc rgb "#0f766e" title "Certifiees (0 violation)", \
+     g(x) with lines lw 3 lc rgb "#1d4ed8" title sprintf("Tendance (r=0.9296)")
+
+unset multiplot
 EOF
 
 run_gnuplot_script "${GP_COMMANDS}" "${DATA_DIR}"
-log_info "${STAGE}" "All 8 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."
+log_info "${STAGE}" "All 9 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."

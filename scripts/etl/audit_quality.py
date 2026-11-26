@@ -229,6 +229,20 @@ def run_iragi_audit(
     normalized_df = _normalize_whitespace_columns(raw_df)
     missing_before = int(normalized_df.isna().sum().sum())
 
+    # Export raw distance/temps pairs (bounded sample on EXTENDED) for before/after visual comparison
+    raw_pairs = normalized_df[["distance", "temps"]].dropna()
+    if len(raw_pairs) > 5000:
+        out_of_bounds = raw_pairs[(raw_pairs["distance"] > 500) | (raw_pairs["temps"] > 300)]
+        sampled = raw_pairs.iloc[::25]
+        raw_pairs = pd.concat([sampled, out_of_bounds]).drop_duplicates()
+    raw_scatter_lines = ["# distance\ttemps"] + [
+        f"{int(row.distance)}\t{int(row.temps)}"
+        for row in raw_pairs.itertuples(index=False)
+    ]
+    (processed_dir / "raw_distance_vs_temps.dat").write_text(
+        "\n".join(raw_scatter_lines) + "\n", encoding="utf-8"
+    )
+
     contract = build_delivery_contract()
     pre_violations = iragi.validate_contract(normalized_df, contract)
     pre_violations_total = sum(v.failed_count for v in pre_violations)

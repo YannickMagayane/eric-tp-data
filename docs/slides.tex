@@ -176,15 +176,23 @@
 \end{frame}
 
 % ============================================================================
-% SLIDE 5 : GRAPHIQUE 8 - COMPARAISON ANOMALIES
+% SLIDE 5 : GRAPHIQUE 8 & 9 - COMPARAISON AVANT/APRES IRAGI
 % ============================================================================
-\begin{frame}{4. Preuve Visuelle : Brut vs Nettoyage Classique vs UNIX + \texttt{iragi}}
-    \centering
-    \includegraphics[height=0.68\textheight]{../data/visualizations/08_anomalies_avant_apres.png}
+\begin{frame}{4. Preuve Visuelle : Avant vs Apr\`es \texttt{iragi} sur les Donn\'ees}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{../data/visualizations/08_anomalies_avant_apres.png}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{../data/visualizations/09_impact_donnees_avant_apres_iragi.png}
+        \end{column}
+    \end{columns}
     \vspace{0.08cm}
-    \begin{block}{Justification du Gain de Qualit\'e}
+    \begin{block}{Justification sur les Donn\'ees}
         \scriptsize\justifying
-        Contrairement \`a un nettoyage classique na\"if qui laisse subsister 10 violations m\'etier, fabrique 3 valeurs par moyenne et ignore 139 erreurs HTTP 404 orphelines, l'alliance des filtres UNIX et d'\texttt{iragi} ram\`ene tous les d\'efauts non ma\^itris\'es \`a z\'ero.
+        \`A gauche, l'alliance UNIX + \texttt{iragi} \'elimine les 10 violations laiss\'ees par un script na\"if et les 139 appels HTTP 404 orphelins. \`A droite, la quarantaine DLQ bloque les points hors-contrat ($>500\text{ km} / >300\text{ min}$) qui d\'eforment les \'echelles et les moyennes.
     \end{block}
 \end{frame}
 
@@ -313,7 +321,12 @@ make pdf && make slides  # Rapports LaTeX
             \item \textbf{Validation rigoureuse} : \textbf{17/17 tests TDD passants}, \textbf{0 alerte \texttt{shellcheck}}, base PostgreSQL aliment\'ee, dashboard Metabase conforme \`a 100 \% et documentation synchronis\'ee.
         \end{itemize}
     \end{block}
-    \vspace{0.2cm}
+    \vspace{0.15cm}
+    \begin{block}{Pr\'esentation Vid\'eo (Livrable YouTube --- 10 \`a 15 min)}
+        \scriptsize\justifying
+        \textbf{Lien YouTube :} \texttt{[A COMPLETER : https://youtu.be/VOTRE\_LIEN\_YOUTUBE]}
+    \end{block}
+    \vspace{0.12cm}
     \centering
     \textbf{\textcolor{unilublue}{Merci de votre attention --- D\'emonstration en direct \& Questions}}
 \end{frame}
