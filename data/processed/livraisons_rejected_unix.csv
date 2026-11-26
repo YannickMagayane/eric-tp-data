@@ -1,0 +1,9 @@
+id,date,ville,poids,distance,temps,statut,reason
+,2026-10-28,Bordeaux,11.00,45,40,annule,missing_value
+2601,2026-13-45,Paris,12.40,100,80,livre,invalid_date
+2602,2026-10-12,Lyon,-4.50,85,60,livre,weight_out_of_range
+2603,2026-10-15,Marseille,75.00,140,110,retarde,weight_out_of_range
+2604,2026-10-18,Lille,15.00,820,490,retarde,distance_out_of_range
+2605,2026-10-20,,22.10,60,55,en_cours,missing_value
+2606,2026-10-22,Nantes,19.00,90,,livre,missing_value
+2607,2026-10-25,Nice,14.20,70,65,inconnu,invalid_status

@@ -1,0 +1,83 @@
+[
+  {
+    "ville": "Lyon",
+    "total_deliveries": 307,
+    "avg_poids": 27.94,
+    "avg_distance": 259.15,
+    "avg_temps": 141.73,
+    "avg_speed_kmh": 103.05,
+    "delay_rate_pct": 11.07
+  },
+  {
+    "ville": "Nantes",
+    "total_deliveries": 302,
+    "avg_poids": 27.94,
+    "avg_distance": 244.87,
+    "avg_temps": 135.86,
+    "avg_speed_kmh": 101.33,
+    "delay_rate_pct": 6.29
+  },
+  {
+    "ville": "Lille",
+    "total_deliveries": 292,
+    "avg_poids": 27.33,
+    "avg_distance": 273.98,
+    "avg_temps": 146.73,
+    "avg_speed_kmh": 105.85,
+    "delay_rate_pct": 15.41
+  },
+  {
+    "ville": "Toulouse",
+    "total_deliveries": 291,
+    "avg_poids": 26.98,
+    "avg_distance": 254.38,
+    "avg_temps": 138.19,
+    "avg_speed_kmh": 102.83,
+    "delay_rate_pct": 12.03
+  },
+  {
+    "ville": "Marseille",
+    "total_deliveries": 290,
+    "avg_poids": 26.26,
+    "avg_distance": 236.68,
+    "avg_temps": 129.21,
+    "avg_speed_kmh": 100.94,
+    "delay_rate_pct": 12.76
+  },
+  {
+    "ville": "Bordeaux",
+    "total_deliveries": 267,
+    "avg_poids": 26.83,
+    "avg_distance": 250.51,
+    "avg_temps": 135.24,
+    "avg_speed_kmh": 103.95,
+    "delay_rate_pct": 9.36
+  },
+  {
+    "ville": "Strasbourg",
+    "total_deliveries": 255,
+    "avg_poids": 27.31,
+    "avg_distance": 255.25,
+    "avg_temps": 140.26,
+    "avg_speed_kmh": 100.72,
+    "delay_rate_pct": 10.20
+  },
+  {
+    "ville": "Paris",
+    "total_deliveries": 254,
+    "avg_poids": 26.94,
+    "avg_distance": 253.54,
+    "avg_temps": 137.93,
+    "avg_speed_kmh": 103.47,
+    "delay_rate_pct": 12.60
+  },
+  {
+    "ville": "Nice",
+    "total_deliveries": 250,
+    "avg_poids": 27.08,
+    "avg_distance": 246.98,
+    "avg_temps": 134.04,
+    "avg_speed_kmh": 102.24,
+    "delay_rate_pct": 14.00
+  }
+]

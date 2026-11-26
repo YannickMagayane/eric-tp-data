@@ -48,10 +48,15 @@ Ce depot met en oeuvre une infrastructure reproductible sous Docker (orchestrati
 │   └── visualizations/         # Graphiques generes avec gnuplot
 ├── scripts/
 │   ├── etl/
+│   │   ├── common.sh           # Fonctions partagees de journalisation et gestion des chemins
 │   │   ├── validate_env.sh     # Verification des outils UNIX, permissions et PostgreSQL
 │   │   ├── generate_data.py    # Generateur aleatoire reproductible avec anomalies calibrees
+│   │   ├── clean_data.sh       # Nettoyage UNIX (sed, sort | uniq, awk, jq) -> 100/100 Iragi
+│   │   ├── transform_data.sh   # Colonnes derivees, jointure UNIX join, agregations awk et jq
+│   │   ├── run_pipeline.sh     # Orchestrateur complet avec trap d'erreurs et statut JSON
 │   │   └── audit_quality.py    # Profilage, DataContract, DLQ et reconciliation via iragi
-│   ├── analysis/               # Pipelines d'analyse statistique UNIX (Phase 2)
+│   ├── analysis/
+│   │   └── analyze_data.sh     # Stats descriptives, histogramme awk, Pearson r, anomalies, .dat
 │   └── reporting/              # Generation de graphiques gnuplot et rapports (Phase 3)
 ├── sql/
 │   ├── schema.sql              # Schema relationnel PostgreSQL avec contraintes CHECK
@@ -59,7 +64,8 @@ Ce depot met en oeuvre une infrastructure reproductible sous Docker (orchestrati
 ├── docs/
 │   └── rapport.tex             # Rapport technique final au format LaTeX
 └── tests/
-    └── test_foundation.py      # Suite de tests TDD du socle, des donnees et d'iragi
+    ├── test_foundation.py      # Suite de tests TDD du socle, des donnees et d'iragi
+    └── test_phase2_pipelines.py # Suite de tests TDD isolee des pipelines UNIX Phase 2
 ```
 
 ## Role du Module `iragi` en Complement des Pipelines UNIX
@@ -73,11 +79,11 @@ Les pipelines principaux de nettoyage et de transformation utilisent strictement
 
 ## Demarrage Rapide
 
-### 1. Generer les jeux de donnees aleatoires et lancer l'audit `iragi`
+### 1. Generer les donnees et executer tout le pipeline UNIX + Iragi
 
 ```bash
 make generate
-make audit
+make pipeline
 ```
 
 ### 2. Executer les tests et la validation d'environnement

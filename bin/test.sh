@@ -21,7 +21,7 @@ echo "[INFO] Running pytest suite..."
 
 if command -v shellcheck >/dev/null 2>&1; then
     echo "[INFO] Running shellcheck on shell scripts..."
-    shellcheck bin/*.sh scripts/etl/*.sh
+    shellcheck -x bin/*.sh scripts/etl/*.sh scripts/analysis/*.sh
 else
     echo "[INFO] shellcheck not installed on host (available inside Docker dev image)."
 fi

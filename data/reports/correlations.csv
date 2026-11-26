@@ -1,0 +1,4 @@
+pair,pearson_r,sample_size
+distance_vs_temps,0.9671,2508
+poids_vs_temps,-0.0036,2508
+distance_vs_speed_kmh,0.7785,2508

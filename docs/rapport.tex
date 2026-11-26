@@ -40,7 +40,13 @@ En compl\'ement des pipelines UNIX natifs, le module \texttt{iragi} assure :
 \end{enumerate}
 
 \section{Description des Pipelines UNIX}
-\emph{Section compl\'et\'ee lors de l'impl\'ementation de la Phase 2 (\texttt{clean\_data.sh}, \texttt{transform\_data.sh}, \texttt{analyze\_data.sh}, \texttt{run\_pipeline.sh}).}
+La Phase 2 impl\'emente une cha\^ine modulaire strictement conforme \`a la philosophie des filtres UNIX (\texttt{LC\_ALL=C}, \texttt{set -euo pipefail}) :
+\begin{enumerate}
+    \item \textbf{Nettoyage (\texttt{scripts/etl/clean\_data.sh})} : suppression des lignes vides et normalisation des espaces via \texttt{sed}, d\'eduplication exacte par \texttt{sort | uniq}, validation des types, dates ISO et bornes m\'etier en \texttt{awk} (atteignant un score certifi\'e de \texttt{100.0/100} sous \texttt{iragi.scan}), extraction de \texttt{livreurs.json} via \texttt{jq} et structuration de \texttt{access.log}.
+    \item \textbf{Transformation (\texttt{scripts/etl/transform\_data.sh})} : calcul des colonnes d\'eriv\'ees (\texttt{speed\_kmh}, \texttt{year\_month}) en \texttt{awk}, jointure relationnelle par ville avec la flotte de livreurs via la commande UNIX \texttt{join}, agr\'egations multi-axes (\texttt{group by} ville, mois, statut) et export JSON typ\'e avec \texttt{jq}.
+    \item \textbf{Analyse (\texttt{scripts/analysis/analyze\_data.sh})} : calcul exact de la moyenne, m\'ediane, minimum, maximum et \'ecart-type, g\'en\'eration d'un histogramme fréquentiel des dur\'ees en \texttt{awk}, calcul du coefficient de corr\'elation de Pearson $r$, consolidation des anomalies (donn\'ees brutes, vitesses extr\^emes, codes HTTP \texttt{4xx}/\texttt{5xx}) et pr\'eparation des fichiers \texttt{.dat} pour \texttt{gnuplot}.
+    \item \textbf{Orchestration (\texttt{scripts/etl/run\_pipeline.sh})} : ex\'ecution s\'equentielle avec capture d'erreurs (\texttt{trap ERR}), journalisation horodat\'ee (\texttt{pipeline.log}) et rapport d'\'etat JSON (\texttt{pipeline\_status.json}).
+\end{enumerate}
 
 \section{R\'esultats, Visualisations et Analyses}
 \emph{Section compl\'et\'ee lors de la Phase 3 avec l'int\'egration automatique des graphiques \texttt{gnuplot} et des m\'etriques cl\'es.}
