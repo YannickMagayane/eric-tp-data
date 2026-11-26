@@ -37,6 +37,7 @@ EXPECTED_CHARTS = [
     "04_distance_vs_temps.png",
     "05_performance_livreurs.png",
     "06_iragi_avant_apres.png",
+    "07_impact_sans_vs_avec_iragi.png",
 ]
 
 
@@ -129,15 +130,27 @@ def test_generated_markdown_and_html_reports_match_real_data() -> None:
 
 
 def test_compiled_latex_report_exists() -> None:
-    """Verify ``docs/rapport.tex`` compiles into a valid non-empty PDF document.
+    """Verify ``.gitignore``, LaTeX cover/title rules, and compiled ``docs/rapport.pdf``.
 
-    :raises AssertionError: If ``docs/rapport.pdf`` is missing or lacks a PDF header.
+    :raises AssertionError: If ``.gitignore``, cover metadata, title constraint, or PDF fails.
 
     Example:
         >>> test_compiled_latex_report_exists()
     """
+    gitignore_path = PROJECT_ROOT / ".gitignore"
+    assert gitignore_path.is_file(), "Missing .gitignore"
+    gitignore_text = gitignore_path.read_text(encoding="utf-8")
+    assert "_bmad" in gitignore_text, "_bmad folder must be listed in .gitignore"
+
+    tex_text = (PROJECT_ROOT / "docs/rapport.tex").read_text(encoding="utf-8")
+    assert "Lutumba Miteo Eric" in tex_text
+    assert "07_impact_sans_vs_avec_iragi.png" in tex_text
+    for line in tex_text.splitlines():
+        if "PROJET FINAL" in line or "Analyse de Donn" in line:
+            assert "iragi" not in line.lower(), "Report title must not contain 'iragi'"
+
     pdf_path = PROJECT_ROOT / "docs/rapport.pdf"
     assert pdf_path.is_file(), "Missing compiled docs/rapport.pdf"
     pdf_bytes = pdf_path.read_bytes()
-    assert len(pdf_bytes) > 10_000
+    assert len(pdf_bytes) > 20_000
     assert pdf_bytes[:4] == b"%PDF"

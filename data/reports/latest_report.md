@@ -1,6 +1,6 @@
 # Rapport d'Analyse Logistique — Pipeline UNIX & Gouvernance Iragi
 
-**Horodatage de generation** : 2026-11-26 15:18:59 UTC  
+**Horodatage de generation** : 2026-11-26 15:32:09 UTC  
 **Statut d'orchestration** : `SUCCESS`  
 **Version d'audit `iragi`** : `0.6.4`
 
@@ -75,6 +75,7 @@ Ces **8 enregistrements corrompus** ont ete isoles en *Dead-Letter Queue* dans `
 4. `../visualizations/04_distance_vs_temps.png` — Nuage de points et regression lineaire Distance vs Temps
 5. `../visualizations/05_performance_livreurs.png` — Note moyenne vs Experience des 35 livreurs
 6. `../visualizations/06_iragi_avant_apres.png` — Bilan d'audit `iragi` Avant vs Apres nettoyage UNIX
+7. `../visualizations/07_impact_sans_vs_avec_iragi.png` — Comparaison directe SANS nettoyage (brut) vs AVEC pipeline UNIX + contrat `iragi`
 
 ---
 

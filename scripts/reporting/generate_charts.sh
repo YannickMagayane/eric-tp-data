@@ -13,6 +13,7 @@ REQUIRED_DATS=(
     "${PROCESSED_DIR}/par_date.dat"
     "${PROCESSED_DIR}/dist_temps.dat"
     "${PROCESSED_DIR}/distance_vs_temps.dat"
+    "${PROCESSED_DIR}/raw_distance_vs_temps.dat"
     "${PROCESSED_DIR}/perf_livreurs.dat"
     "${PROCESSED_DIR}/iragi_before_after.dat"
 )
@@ -122,7 +123,7 @@ plot proc_dir . "/perf_livreurs.dat" using 3:4 with points pt 7 ps 1.4 lc rgb "#
 
 # 6. Iragi Before vs After UNIX Remediation
 reset
-set terminal png size 1100,600
+set terminal png size 1100,560 noenhanced
 set output vis_dir . "/06_iragi_avant_apres.png"
 set title "Audit Iragi : Anomalies detectees AVANT vs APRES le pipeline UNIX"
 set style data histograms
@@ -131,10 +132,44 @@ set style fill solid 0.85 border -1
 set ylabel "Nombre d'anomalies / enregistrements affectes"
 set grid ytics
 set yrange [0:25]
-set xtics rotate by -15
 plot proc_dir . "/iragi_before_after.dat" using 2:xtic(1) title "Avant (data/raw : score 99.7/100)" lc rgb "#dc2626", \
      "" using 3 title "Apres clean_data.sh (certifie Iragi : 100.0/100)" lc rgb "#16a34a"
+
+# 7. Side-by-Side Comparison: WITHOUT vs WITH UNIX + Iragi Governance
+reset
+set terminal png size 1280,540 noenhanced
+set output vis_dir . "/07_impact_sans_vs_avec_iragi.png"
+set multiplot layout 1,2 title "Comparaison des donnees reelles : SANS nettoyage (Brut) vs AVEC Pipeline UNIX + Iragi"
+
+# Left panel: Raw uncleaned data with contract boundary box and outlier (820, 490)
+set title "SANS Iragi / Brut (n=2536, hors-contrat visibles)"
+set xlabel "Distance (km)"
+set ylabel "Temps (minutes)"
+set xrange [0:900]
+set yrange [0:550]
+set grid
+set arrow 1 from 500,0 to 500,550 nohead dt 2 lw 2 lc rgb "#dc2626"
+set arrow 2 from 0,300 to 900,300 nohead dt 2 lw 2 lc rgb "#dc2626"
+plot proc_dir . "/raw_distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.45 lc rgb "#dc2626" title "Brut (incl. aberrant 820km/490min)"
+
+# Right panel: Clean data certified 100/100 by Iragi DataContract
+unset arrow 1
+unset arrow 2
+set title "AVEC UNIX + Contrat Iragi (n=2508, score 100/100)"
+set xlabel "Distance (km) [contrat 10..500]"
+set ylabel "Temps (minutes) [contrat 30..300]"
+set xrange [0:550]
+set yrange [0:330]
+set grid
+set fit quiet
+set fit logfile "/dev/null"
+g(x) = m*x + c
+fit g(x) proc_dir . "/distance_vs_temps.dat" using 1:2 via m,c
+plot proc_dir . "/distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.45 lc rgb "#0f766e" title "Valides (0 violation)", \
+     g(x) with lines lw 2 lc rgb "#1d4ed8" title "Tendance (r=0.9671)"
+
+unset multiplot
 EOF
 
 run_gnuplot_script "${GP_COMMANDS}" "${DATA_DIR}"
-log_info "${STAGE}" "All 6 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."
+log_info "${STAGE}" "All 7 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."

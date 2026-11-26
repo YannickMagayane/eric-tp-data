@@ -179,6 +179,7 @@ Ces **{before["quarantined_rows_count"]} enregistrements corrompus** ont ete iso
 4. `../visualizations/04_distance_vs_temps.png` — Nuage de points et regression lineaire Distance vs Temps
 5. `../visualizations/05_performance_livreurs.png` — Note moyenne vs Experience des 35 livreurs
 6. `../visualizations/06_iragi_avant_apres.png` — Bilan d'audit `iragi` Avant vs Apres nettoyage UNIX
+7. `../visualizations/07_impact_sans_vs_avec_iragi.png` — Comparaison directe SANS nettoyage (brut) vs AVEC pipeline UNIX + contrat `iragi`
 
 ---
 
@@ -223,6 +224,7 @@ def render_html_dashboard(ctx: dict[str, Any]) -> str:
         ("04_distance_vs_temps.png", "Correlation Distance vs Temps (r = 0.9671)"),
         ("05_performance_livreurs.png", "Experience vs Note des 35 livreurs"),
         ("06_iragi_avant_apres.png", "Intervention Iragi : Avant vs Apres UNIX"),
+        ("07_impact_sans_vs_avec_iragi.png", "Comparaison directe : SANS vs AVEC Iragi"),
     ]
     charts_html = "\n".join(
         f"<figure class='bg-white rounded-lg shadow p-4 border border-slate-200'>"

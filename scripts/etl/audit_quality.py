@@ -141,11 +141,11 @@ def _write_before_after_dat(
         >>> _write_before_after_dat(Path("/tmp/iragi_ba.dat"), 20, 9, 3, 8, 0, 0)
     """
     lines = [
-        "# indicator\tavant_nettoyage\tapres_nettoyage",
-        f"Doublons\t{duplicates_before}\t0",
-        f"Violations_Contrat\t{violations_before}\t{violations_after}",
-        f"Lignes_Quarantaine\t{quarantine_before}\t0",
-        f"Cellules_Manquantes\t{missing_before}\t{missing_after}",
+        '# indicator\tavant_nettoyage\tapres_nettoyage',
+        f'"Doublons"\t{duplicates_before}\t0',
+        f'"Violations Contrat"\t{violations_before}\t{violations_after}',
+        f'"Quarantaine DLQ"\t{quarantine_before}\t0',
+        f'"Cellules Vides"\t{missing_before}\t{missing_after}',
     ]
     dat_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -182,6 +182,16 @@ def run_iragi_audit(
     raw_df = pd.read_csv(csv_path, skip_blank_lines=True)
     normalized_df = _normalize_whitespace_columns(raw_df)
     missing_before = int(normalized_df.isna().sum().sum())
+
+    # Export raw numeric distance/temps pairs (including outliers) for visual comparison
+    raw_numeric_pairs = normalized_df[["distance", "temps"]].dropna()
+    raw_scatter_lines = ["# distance\ttemps"] + [
+        f"{int(row.distance)}\t{int(row.temps)}"
+        for row in raw_numeric_pairs.itertuples(index=False)
+    ]
+    (processed_dir / "raw_distance_vs_temps.dat").write_text(
+        "\n".join(raw_scatter_lines) + "\n", encoding="utf-8"
+    )
 
     contract = build_delivery_contract()
     pre_violations = iragi.validate_contract(normalized_df, contract)

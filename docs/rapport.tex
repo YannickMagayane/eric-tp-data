@@ -1,228 +1,382 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
 \usepackage{geometry}
 \usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{colortbl}
 \usepackage{graphicx}
 \usepackage{float}
-\usepackage{hyperref}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
 \usepackage{listings}
 
+\geometry{top=2.5cm,bottom=2.5cm,left=2.2cm,right=2.2cm,headheight=15pt}
+
+% Color palette
+\definecolor{unilublue}{RGB}{15,44,89}
+\definecolor{accentblue}{RGB}{29,78,216}
+\definecolor{tealaccent}{RGB}{15,118,110}
+\definecolor{slatebg}{RGB}{241,245,249}
+\definecolor{slateborder}{RGB}{203,213,225}
+\definecolor{rowalt}{RGB}{248,250,252}
+
+% French labels without requiring texlive-lang-french
 \renewcommand{\contentsname}{Table des mati\`eres}
 \renewcommand{\figurename}{Figure}
 \renewcommand{\tablename}{Tableau}
 
-\geometry{margin=2.3cm}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.28}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue!60!black,
-    urlcolor=blue!60!black
+    linkcolor=unilublue,
+    urlcolor=accentblue,
+    pdftitle={Projet Final - Analyse de Donnees avec Pipeline UNIX},
+    pdfauthor={Lutumba Miteo Eric}
 }
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\textcolor{unilublue}{\textbf{Syst\`emes UNIX --- Projet Final}}}
+\fancyhead[R]{\footnotesize\textcolor{unilublue}{Lutumba Miteo Eric (M1 Informatique)}}
+\fancyfoot[C]{\footnotesize Page \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
 
 \lstset{
     basicstyle=\ttfamily\footnotesize,
-    backgroundcolor=\color{gray!8},
+    backgroundcolor=\color{slatebg},
+    rulecolor=\color{slateborder},
     frame=single,
     breaklines=true,
     columns=fullflexible
 }
 
-\title{\textbf{PROJET FINAL --- SYST\`EMES UNIX}\\Analyse de Donn\'ees Logistiques par Pipelines UNIX et Gouvernance de Qualit\'e avec \texttt{iragi}}
-\author{M1 Informatique --- Facult\'e des Sciences\\Universit\'e de Lubumbashi\\Enseignant : Prof. Patrick Mukala}
-\date{D\'ecembre 2026}
-
 \begin{document}
 
-\maketitle
+% ============================================================================
+% COVER PAGE
+% ============================================================================
+\begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+        % Top institutional bar
+        \fill[unilublue] (current page.north west) rectangle ([yshift=-1.4cm]current page.north east);
+        \fill[accentblue] ([yshift=-1.4cm]current page.north west) rectangle ([yshift=-1.58cm]current page.north east);
+        % Bottom subtle bar
+        \fill[unilublue] (current page.south west) rectangle ([yshift=0.9cm]current page.south east);
+        % Subtle left vertical accent line
+        \draw[slateborder, line width=1.2pt] ([xshift=1.5cm,yshift=-2.3cm]current page.north west) -- ([xshift=1.5cm,yshift=1.6cm]current page.south west);
+    \end{tikzpicture}
+
+    \vspace*{0.8cm}
+    \begin{center}
+        {\LARGE\bfseries\textcolor{unilublue}{UNIVERSIT\'E DE LUBUMBASHI}}\\[0.25cm]
+        {\large\textsc{Facult\'e des Sciences}}\\[0.12cm]
+        {\large D\'epartement d'Informatique}\\[0.5cm]
+        \textcolor{slateborder}{\rule{0.55\textwidth}{0.8pt}}\\[0.45cm]
+        {\Large\bfseries Syst\`emes UNIX}\\[0.15cm]
+        {\normalsize Master 1 Informatique --- Ann\'ee Acad\'emique 2025--2026}
+
+        \vspace{1.6cm}
+
+        % Main Title Card (strictly without mentioning iragi in the title)
+        \begin{tikzpicture}
+            \node[
+                fill=slatebg,
+                draw=unilublue,
+                line width=1.4pt,
+                rounded corners=6pt,
+                inner xsep=24pt,
+                inner ysep=22pt,
+                text width=0.84\textwidth,
+                align=center
+            ] {
+                {\normalsize\bfseries\textcolor{accentblue}{RAPPORT TECHNIQUE --- PROJET FINAL}}\\[0.5cm]
+                {\fontsize{21}{28}\selectfont\bfseries\textcolor{unilublue}{Analyse de Donn\'ees avec Pipeline UNIX}\par}
+                \vspace{0.35cm}
+                {\large\itshape D\'eploiement, Traitement, Visualisation et Reporting}
+            };
+        \end{tikzpicture}
+
+        \vspace{1.8cm}
+
+        % Author & Supervisor Metadata Box
+        \begin{tikzpicture}
+            \node[
+                fill=white,
+                draw=slateborder,
+                line width=1pt,
+                rounded corners=4pt,
+                inner xsep=18pt,
+                inner ysep=14pt,
+                text width=0.80\textwidth
+            ] {
+                \renewcommand{\arraystretch}{1.45}
+                \begin{tabularx}{\linewidth}{@{}>{\bfseries\color{unilublue}}l X@{}}
+                    \'Etudiant : & \textbf{Lutumba Miteo Eric} \\
+                    Promotion : & M1 Informatique \\
+                    Enseignant : & Prof. Patrick Mukala \\
+                    Environnement : & Docker Multi-Stage, Traefik v3, Bash/AWK/jq, PostgreSQL 16, Gnuplot \\
+                    Date de remise : & 15 d\'ecembre 2026 \\
+                \end{tabularx}
+            };
+        \end{tikzpicture}
+
+        \vfill
+        {\small\textcolor{unilublue}{Facult\'e des Sciences --- Laboratoire d'Ing\'enierie des Syst\`emes UNIX}}
+        \vspace*{0.5cm}
+    \end{center}
+\end{titlepage}
+
+% ============================================================================
+% TABLE OF CONTENTS
+% ============================================================================
 \tableofcontents
 \newpage
 
-\section{Introduction et Architecture du Syst\`eme}
+% ============================================================================
+% SECTION 1 : ARCHITECTURE
+% ============================================================================
+\section{Architecture du Syst\`eme et Choix Techniques}
 
-Ce rapport pr\'esente la conception, l'impl\'ementation et les r\'esultats r\'eels d'une plateforme reproductible d'analyse de donn\'ees logistiques combinant la philosophie native des pipelines UNIX et l'audit contractuel de qualit\'e propuls\'e par la biblioth\`eque Python \texttt{iragi} (\texttt{v0.6.4}).
+Dans le cadre de cette mission d'analyse logistique, nous avons con\c{c}u une infrastructure reproductible sous Docker permettant d'ing\'erer, nettoyer, croiser et visualiser trois sources h\'et\'erog\`enes : les livraisons (\texttt{livraisons.csv}), la flotte de livreurs (\texttt{livreurs.json}) et les journaux du serveur HTTP (\texttt{access.log}).
 
-\subsection{Architecture Conteneuris\'ee sous Docker et Traefik}
-Conform\'ement aux exigences d'isolation et de reproductibilit\'e, l'environnement repose sur quatre services orchestr\'es dans \texttt{docker-compose.yml}, tous dot\'es de contr\^oles de sant\'e (\texttt{healthcheck}) :
-\begin{itemize}
-    \item \textbf{\texttt{traefik} (Traefik v3.2)} : unique reverse proxy assurant le routage HTTP vers l'interface décisionnelle (\texttt{http://metabase.localhost:8080}).
-    \item \textbf{\texttt{dev} (Debian Bookworm / Python 3.14)} : image construite en \emph{multi-stage build} et ex\'ecut\'ee sous un utilisateur non-root (\texttt{appuser}, UID 1000). Elle embarque les filtres UNIX (\texttt{bash}, \texttt{sed}, \texttt{gawk}, \texttt{sort}, \texttt{uniq}, \texttt{join}, \texttt{cut}, \texttt{jq}), \texttt{gnuplot-nox}, \texttt{postgresql-client}, \texttt{shellcheck} et \texttt{iragi}.
-    \item \textbf{\texttt{db} (PostgreSQL 16)} : stockage relationnel typ\'e (\texttt{couriers}, \texttt{deliveries}, \texttt{web\_access\_logs}) initialis\'e via \texttt{sql/schema.sql} avec contraintes \texttt{CHECK} strictes.
-    \item \textbf{\texttt{dashboard} (Metabase)} : tableau de bord analytique aliment\'e par \texttt{scripts/etl/load\_postgres.sh} et \texttt{sql/queries.sql}.
-\end{itemize}
-
-\subsection{Justification des Choix Techniques}
-\begin{enumerate}
-    \item \textbf{S\'eparation des responsabilit\'es UNIX / \texttt{iragi}} : les transformations principales utilisent exclusivement les flux standards UNIX (\texttt{stdin}/\texttt{stdout}, complexit\'e lin\'eaire et empreinte m\'emoire minimale), tandis qu'\texttt{iragi} agit en amont et en aval comme tiers certificateur ind\'ependant.
-    \item \textbf{D\'eterminisme et suret\'e d'ex\'ecution} : tous les scripts shell partagent \texttt{scripts/etl/common.sh}, imposant \texttt{set -euo pipefail} et \texttt{export LC\_ALL=C} afin d'\'eviter toute erreur silencieuse ou divergence de s\'eparateur d\'ecimal.
-    \item \textbf{Approche TDD et Sauvegarde} : les 3 phases sont couvertes par 13 tests automatis\'es isol\'es (\texttt{bin/test.sh}) et les donn\'ees critiques sont archiv\'ees avec empreinte SHA-256 (\texttt{bin/backup.sh}).
-\end{enumerate}
-
-\section{Description des Pipelines UNIX}
-
-Le jeu de donn\'ees analys\'e dans \texttt{data/raw/} comprend \textbf{2\,536 enregistrements bruts} dans \texttt{livraisons.csv} (2\,542 lignes physiques incluant l'en-t\^ete et 5 lignes vides), \textbf{35 profils de livreurs} dans \texttt{livreurs.json} et \textbf{1\,200 entr\'ees HTTP Apache} dans \texttt{access.log}.
-
-\begin{enumerate}
-    \item \textbf{Pipeline de nettoyage (\texttt{scripts/etl/clean\_data.sh})} :
-    \begin{itemize}
-        \item \texttt{sed} supprime les 5 lignes vides et normalise les espaces parasites sur 8 enregistrements autrement valides ;
-        \item \texttt{sort | uniq} \'elimine exactement 20 doublons ;
-        \item \texttt{awk} contr\^ole la pr\'esence des 7 champs, le format ISO \texttt{YYYY-MM-DD}, l'appartenance aux 9 villes et 4 statuts, ainsi que les bornes (\texttt{poids} $\in [5,50]$, \texttt{distance} $\in [10,500]$, \texttt{temps} $\in [30,300]$), isolant 8 lignes invalides dans \texttt{livraisons\_rejected\_unix.csv} ;
-        \item \texttt{jq} convertit \texttt{livreurs.json} en \texttt{livreurs\_clean.csv}.
-    \end{itemize}
-    \item \textbf{Pipeline de transformation (\texttt{scripts/etl/transform\_data.sh})} :
-    \begin{itemize}
-        \item Calcul en \texttt{awk} de la vitesse moyenne (\texttt{speed\_kmh}) et du mois (\texttt{year\_month}) ;
-        \item Jointure relationnelle par ville avec les indicateurs des livreurs via l'utilitaire natif \texttt{join} vers \texttt{livraisons\_enriched.csv} ;
-        \item Agr\'egations \texttt{group by} en \texttt{awk} par ville, mois et statut, puis conversion JSON typ\'ee (\texttt{agg\_par\_ville.json}) avec \texttt{jq}.
-    \end{itemize}
-    \item \textbf{Pipeline d'analyse et Orchestration (\texttt{analyze\_data.sh} \& \texttt{run\_pipeline.sh})} :
-    calcul des statistiques descriptives, histogramme fr\'equentiel en \texttt{awk}, corr\'elations de Pearson $r$, consolidation des anomalies et g\'en\'eration des flux \texttt{.dat} pour \texttt{gnuplot}, sous supervision d'un \texttt{trap ERR} produisant \texttt{pipeline\_status.json}.
-\end{enumerate}
-
-\section{Intervention d'\texttt{iragi} AVANT et APR\`ES les Pipelines UNIX}
-
-L'apport majeur de notre architecture r\'eside dans la double intervention du module \texttt{iragi} (\texttt{scripts/etl/audit\_quality.py}) :
-
-\subsection{Intervention AVANT le nettoyage (\texttt{data/raw/livraisons.csv})}
-Avant toute manipulation shell, \texttt{iragi.scan} profile le fichier brut et lui attribue un score explicable de \textbf{99,70 / 100} sur 2\,536 lignes. Le contrat m\'etier \texttt{iragi.DataContract} d\'etecte imm\'ediatement \textbf{9 violations unitaires r\'eparties sur 8 lignes corrompues} :
-\begin{itemize}
-    \item \texttt{id} manquant (1 cas, Bordeaux) et \texttt{ville} manquante (1 cas, \texttt{id=2605}) ;
-    \item \texttt{date} hors calendrier ISO (\texttt{2026-13-45}, \texttt{id=2601}) ;
-    \item \texttt{poids} hors bornes $[5, 50]$ kg (\texttt{-4.50 kg} \`a Lyon et \texttt{75.00 kg} \`a Marseille) ;
-    \item \texttt{distance} et \texttt{temps} hors bornes (\texttt{820 km / 490 min} \`a Lille, \texttt{temps} vide \`a Nantes) ;
-    \item \texttt{statut} non autoris\'e (\texttt{inconnu} \`a Nice).
-\end{itemize}
-L'appel \`a \texttt{iragi.auto\_clean(..., contract\_action="quarantine")} supprime les 20 doublons et place ces 8 enregistrements en \emph{Dead-Letter Queue} dans \texttt{quarantine\_livraisons.csv}.
-
-\subsection{Intervention APR\`ES le nettoyage UNIX (\texttt{livraisons\_clean.csv})}
-Une fois \texttt{clean\_data.sh} ex\'ecut\'e, \texttt{iragi} r\'e-inspecte le fichier produit par les filtres UNIX et ex\'ecute \texttt{iragi.compare\_scans(raw\_scan, unix\_scan)} :
+\subsection{Orchestration Conteneuris\'ee (Docker \& Traefik)}
+L'environnement d\'efini dans \texttt{docker-compose.yml} isole quatre services interconnect\'es sur le r\'eseau priv\'e \texttt{pipeline\_net}, chacun supervis\'e par un \texttt{healthcheck} automatique :
 
 \begin{table}[H]
 \centering
-\begin{tabular}{lccc}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{2.3cm} p{4.6cm} X@{}}
 \toprule
-\textbf{Crit\`ere de Gouvernance} & \textbf{AVANT (\texttt{data/raw})} & \textbf{APR\`ES (\texttt{clean\_data.sh})} & \textbf{Validation \texttt{iragi}} \\
+\rowcolor{slatebg} Service & Image / Base & R\^ole dans l'architecture \\
 \midrule
-Lignes analys\'ees & 2\,536 & 2\,508 & Parit\'e exacte (\texttt{2508 == 2508}) \\
-Score \texttt{iragi.scan} (/100) & 99,70 & \textbf{100,00} & \texttt{score\_delta = +0,30} \\
-Doublons exacts & 20 & 0 & \'Elimination totale \\
-Cellules manquantes & 3 & 0 & \texttt{missing\_delta = -3} \\
-Violations \texttt{DataContract} & 9 (sur 8 lignes) & \textbf{0} & Conformit\'e 100 \% \\
-Outliers Z-Score modifi\'e (\texttt{temps}) & --- & 0 & Distribution maîtris\'ee \\
+\texttt{traefik} & \texttt{traefik:v3.2} & Unique reverse proxy HTTP routant proprement le tableau de bord (\texttt{metabase.localhost:8080}). \\
+\rowcolor{rowalt} \texttt{dev} & {\footnotesize\texttt{python:3.14-slim-bookworm}} & Conteneur construit en \emph{multi-stage build}, ex\'ecut\'e sous l'utilisateur non-root \texttt{appuser} (UID 1000), incluant \texttt{bash}, \texttt{sed}, \texttt{gawk}, \texttt{sort}, \texttt{uniq}, \texttt{join}, \texttt{jq}, \texttt{gnuplot-nox}, \texttt{shellcheck} et \texttt{iragi}. \\
+\texttt{db} & \texttt{postgres:16-alpine} & Base relationnelle persistante initialis\'ee par \texttt{sql/schema.sql} avec contraintes d'int\'egrit\'e \texttt{CHECK}. \\
+\rowcolor{rowalt} \texttt{dashboard} & \texttt{metabase/metabase} & Plateforme BI connect\'ee \`a PostgreSQL pour l'exploration visuelle interactive. \\
 \bottomrule
-\end{tabular}
-\caption{Comparaison certifi\'ee par \texttt{iragi} avant et apr\`es le pipeline de nettoyage UNIX.}
+\end{tabularx}
+\caption{Services conteneuris\'es de la plateforme d'analyse logistique.}
 \end{table}
 
-Enfin, \texttt{iragi.reconcile} (avec \texttt{key\_transform=r"(\textbackslash d+)"}) croise les 2\,508 livraisons valides avec les URL \texttt{/api/livraisons/LIV-<id>} de \texttt{access.log} : \textbf{825 livraisons} sont r\'econcili\'ees avec le trafic web (31,87 \% du catalogue) et \textbf{81 requ\^etes HTTP 404 orphelines} sont formellement identifi\'ees.
+\subsection{Justification des Choix d'Ing\'enierie}
+\begin{itemize}
+    \item \textbf{Philosophie UNIX pure pour l'ETL} : les transformations reposent sur la composition de filtres standards (\texttt{sed}, \texttt{sort}, \texttt{uniq}, \texttt{awk}, \texttt{join}, \texttt{jq}) garantissant une lecture en flux continu, une faible empreinte m\'emoire et une portabilit\'e POSIX.
+    \item \textbf{Fiabilit\'e et d\'eterminisme} : un module shell partag\'e (\texttt{scripts/etl/common.sh}) impose \texttt{set -euo pipefail} et \texttt{export LC\_ALL=C} afin d'emp\^echer toute erreur silencieuse ou conflit de s\'eparateur d\'ecimal.
+    \item \textbf{Points d'entr\'ee unifi\'es et TDD} : les op\'erations critiques sont regroup\'ees dans \texttt{bin/} (\texttt{launch.sh}, \texttt{test.sh}, \texttt{backup.sh} avec somme SHA-256) et valid\'ees par \textbf{13 tests automatis\'es} (\texttt{pytest}) ainsi que par l'analyseur statique \texttt{shellcheck} (z\'ero alerte).
+\end{itemize}
+
+% ============================================================================
+% SECTION 2 : PIPELINES UNIX
+% ============================================================================
+\section{Description D\'etaill\'ee des Pipelines UNIX}
+
+Le jeu de donn\'ees r\'eel stock\'e dans \texttt{data/raw/} totalise \textbf{2\,536 enregistrements bruts} dans \texttt{livraisons.csv} (2\,542 lignes physiques en comptant l'en-t\^ete et 5 lignes vides), \textbf{35 livreurs} dans \texttt{livreurs.json} et \textbf{1\,200 requ\^etes HTTP Apache} dans \texttt{access.log}.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.5cm} p{3.4cm} X@{}}
+\toprule
+\rowcolor{slatebg} Script Pipeline & Outils UNIX Utilis\'es & Op\'erations R\'ealis\'ees et Sorties Produites \\
+\midrule
+\texttt{clean\_data.sh} & \texttt{sed}, \texttt{sort}, \texttt{uniq}, \texttt{awk}, \texttt{jq} & Supprime les 5 lignes vides, nettoie les espaces parasites sur 8 lignes valides, \'elimine 20 doublons exacts, rejette 8 lignes hors bornes vers \texttt{livraisons\_rejected\_unix.csv} et produit \textbf{2\,508 lignes propres} (\texttt{livraisons\_clean.csv}), \texttt{livreurs\_clean.csv} et \texttt{access\_clean.csv}. \\
+\rowcolor{rowalt} \texttt{transform\_data.sh} & \texttt{awk}, \texttt{sort}, \texttt{join}, \texttt{jq} & Calcule \texttt{speed\_kmh} et \texttt{year\_month}, effectue une jointure relationnelle par ville avec les indicateurs des livreurs via \texttt{join}, agr\`ege par ville/mois/statut et convertit en JSON typ\'e (\texttt{agg\_par\_ville.json}). \\
+\texttt{analyze\_data.sh} & \texttt{cut}, \texttt{sort -n}, \texttt{uniq -c}, \texttt{awk} & Calcule moyenne, m\'ediane, min, max et \'ecart-type, construit l'histogramme des dur\'ees, calcule le $r$ de Pearson, consolide 227 anomalies et g\'en\`ere les fichiers \texttt{.dat} pour \texttt{gnuplot}. \\
+\rowcolor{rowalt} \texttt{run\_pipeline.sh} & \texttt{bash}, \texttt{trap ERR}, \texttt{jq} & Orchestre toute la cha\^ine dans l'ordre, capture les codes de retour, journalise dans \texttt{pipeline.log} et g\'en\`ere \texttt{pipeline\_status.json}. \\
+\bottomrule
+\end{tabularx}
+\caption{Synth\`ese fonctionnelle des quatre scripts de pipelines UNIX.}
+\end{table}
+
+% ============================================================================
+% SECTION 3 : MODULE IRAGI ET RESOLUTION DU PROBLEME DES DONNEES
+% ============================================================================
+\section{Gouvernance de Qualit\'e avec \texttt{iragi} : Diagnostic et R\'esolution}
+
+\subsection{Pr\'esentation et Architecture du Module \texttt{iragi}}
+Afin de ne pas s'appuyer sur une v\'erification manuelle approximative, nous avons int\'egr\'e en compl\'ement des pipelines UNIX la biblioth\`eque Python modulaire \textbf{\texttt{iragi}} (\texttt{pip install iragi}, version \texttt{0.6.4}, impl\'ement\'ee dans \texttt{scripts/etl/audit\_quality.py}). Tandis que les scripts Bash/AWK assurent la transformation haute performance en ligne de commande, \texttt{iragi} intervient comme \textbf{moteur formel d'audit avant et apr\`es traitement} \`a travers cinq briques compl\'ementaires :
+
+\begin{enumerate}
+    \item \textbf{\texttt{iragi.scan}} : inspecte un fichier CSV ou un DataFrame sans le modifier, inf\`ere le typage des colonnes, mesure les valeurs manquantes/doublons et calcule un \emph{Quality Score} explicable sur 100.
+    \item \textbf{\texttt{iragi.DataContract} \& \texttt{iragi.validate\_contract}} : d\'eclarent formellement les r\`egles m\'etier du cahier des charges (\texttt{require\_not\_null}, \texttt{require\_positive}, \texttt{require\_range}, \texttt{require\_regex} avec protection anti-ReDoS).
+    \item \textbf{\texttt{iragi.auto\_clean(..., contract\_action="quarantine")}} : d\'eduplique et place automatiquement en \emph{Dead-Letter Queue} (\texttt{quarantine\_livraisons.csv}) tout enregistrement violant le contrat, sans jamais pratiquer d'imputation aveugle (\texttt{impute\_numeric="none"}).
+    \item \textbf{\texttt{iragi.compare\_scans}} : compare math\'ematiquement l'audit initial et l'audit post-pipeline UNIX (\texttt{score\_delta}, \texttt{missing\_delta}) pour certifier le gain de qualit\'e.
+    \item \textbf{\texttt{iragi.reconcile}} : r\'econcilie des sources aux cl\'es h\'et\'erog\`enes gr\^ace \`a l'extraction par expression r\'eguli\`ere (\texttt{key\_transform=r"(\textbackslash d+)"}), reliant ici l'\texttt{id} entier de \texttt{livraisons.csv} aux URL \texttt{/api/livraisons/LIV-<id>} de \texttt{access.log}.
+\end{enumerate}
+
+\subsection{Comment \texttt{iragi} et le Pipeline UNIX ont R\'esolu les Probl\`emes des Donn\'ees}
+Sur le fichier brut \texttt{data/raw/livraisons.csv}, \texttt{iragi} a mis en \'evidence quatre familles de pathologies qui faussaient les statistiques et les graphiques si elles n'\'etaient pas corrig\'ees :
+\begin{itemize}
+    \item \textbf{Biais volum\'etrique par doublons et lignes vides} : 20 lignes dupliqu\'ees gonflaient artificiellement les totaux par ville, accompagn\'ees de 5 lignes vides et de 8 lignes comportant des espaces autour des virgules (\texttt{"  Paris  "} au lieu de \texttt{"Paris"}).
+    \item \textbf{Valeurs impossibles et hors-contrat (8 violations sur 8 lignes)} : \texttt{iragi.DataContract} a identifi\'e un identifiant manquant \`a Bordeaux, une ville vide (\texttt{id=2605}), une date calendaire inexistante (\texttt{2026-13-45}), un poids n\'egatif (\texttt{-4,50 kg} \`a Lyon), une surcharge hors bar\`eme (\texttt{75,00 kg} \`a Marseille), un trajet aberrant (\texttt{820 km} en \texttt{490 min} \`a Lille), une dur\'ee manquante \`a Nantes et un statut inconnu (\texttt{inconnu} \`a Nice).
+    \item \textbf{D\'esynchronisation entre logs HTTP et base de livraisons} : \texttt{iragi.reconcile} a r\'ev\'el\'e 81 requ\^etes HTTP \texttt{404} interrogeant des identifiants \texttt{LIV-3000+} absents du r\'ef\'erentiel de livraisons.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{4.9cm} c c >{\bfseries\color{tealaccent}}X@{}}
+\toprule
+\rowcolor{slatebg} Indicateur Diagnostiqu\'e par \texttt{iragi} & AVANT (\texttt{raw}) & APR\`ES (\texttt{clean}) & Bilan de R\'esolution \\
+\midrule
+Enregistrements analys\'es & 2\,536 & 2\,508 & Parit\'e exacte UNIX = Iragi (2\,508) \\
+\rowcolor{rowalt} Score \texttt{iragi.scan} (/100) & 99,70 & 100,00 & +0,30 pt (score maximal atteint) \\
+Doublons exacts d\'etect\'es & 20 & 0 & 100 \% \'elimin\'es via \texttt{sort | uniq} \\
+\rowcolor{rowalt} Cellules vides / manquantes & 3 & 0 & \texttt{missing\_delta = -3} cellules \\
+Violations du \texttt{DataContract} & 8 & 0 & 100 \% bloqu\'ees et filtr\'ees \\
+\rowcolor{rowalt} Lignes en Quarantaine DLQ & 8 & 0 (flux propre) & Isol\'ees dans \texttt{quarantine\_livraisons.csv} \\
+Outliers Z-Score modifi\'e (\texttt{temps}) & 1 (490 min) & 0 & Distribution temporelle saine \\
+\bottomrule
+\end{tabularx}
+\caption{Certification comparative \texttt{iragi} avant et apr\`es l'ex\'ecution du pipeline UNIX.}
+\end{table}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.88\textwidth]{../data/visualizations/06_iragi_avant_apres.png}
-    \caption{Bilan visuel de l'audit \texttt{iragi} avant et apr\`es le pipeline UNIX.}
+    \includegraphics[width=0.80\textwidth]{../data/visualizations/06_iragi_avant_apres.png}
+    \caption{D\'ecompte des anomalies d\'etect\'ees par \texttt{iragi} avant et apr\`es \texttt{clean\_data.sh}.}
 \end{figure}
 
-\section{R\'esultats Statistiques et Analyses Logistiques}
+\textbf{Explication de la Figure 1 (\texttt{06\_iragi\_avant\_apres.png})} : cet histogramme group\'e illustre l'extinction compl\`ete des quatre cat\'egories de d\'efauts apr\`es le passage dans \texttt{clean\_data.sh}. Les barres rouges mat\'erialisent l'\'etat brut diagnostiqu\'e par \texttt{iragi} (20 doublons, 8 violations de contrat mises en quarantaine et 3 cellules manquantes), tandis que l'absence totale de barres vertes confirme que \texttt{livraisons\_clean.csv} atteint \textbf{0 anomalie et 100,0/100}.
 
-\subsection{Statistiques Descriptives et Corr\'elations}
-Sur les \textbf{2\,508 livraisons valid\'ees} (dont 68,26 \% \texttt{livre}, 14,39 \% \texttt{en\_cours}, 11,48 \% \texttt{retarde} et 5,86 \% \texttt{annule}), le pipeline \texttt{analyze\_data.sh} obtient les param\`etres suivants :
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{../data/visualizations/07_impact_sans_vs_avec_iragi.png}
+    \caption{Comparaison directe des donn\'ees r\'eelles : SANS rem\'ediation (gauche) vs AVEC pipeline UNIX et contrat \texttt{iragi} (droite).}
+\end{figure}
+
+\textbf{Explication de la Figure 2 (\texttt{07\_impact\_sans\_vs\_avec\_iragi.png} --- Avec vs Sans \texttt{iragi})} : ce graphique double met en \'evidence l'impact visuel et statistique concret sur nos donn\'ees :
+\begin{itemize}
+    \item \textbf{\`A gauche (SANS \texttt{iragi} / donn\'ees brutes)} : les lignes pointill\'ees rouges marquent les plafonds contractuels ($500\text{ km}$ et $300\text{ min}$). L'enregistrement corrompu \texttt{(820 km, 490 min)} sort largement du cadre autoris\'e, \'etire les axes de plus de 60 \% et biaise la moyenne ainsi que la pente de r\'egression, tandis que 20 doublons se superposent invisiblement.
+    \item \textbf{\`A droite (AVEC pipeline UNIX certifi\'e par \texttt{iragi})} : apr\`es quarantaine des hors-contrats et d\'eduplication, les \textbf{2\,508 livraisons valides} s'inscrivent strictement dans le domaine m\'etier $[10, 500]\text{ km} \times [30, 300]\text{ min}$, r\'ev\'elant une tendance lin\'eaire nette ($r = 0,9671$).
+\end{itemize}
+
+\newpage
+% ============================================================================
+% SECTION 4 : RESULTATS ET EXPLICATION DES VISUALISATIONS METIER
+% ============================================================================
+\section{R\'esultats Analytiques et Interpr\'etation des Graphiques}
+
+\subsection{Statistiques Descriptives et Corr\'elations sur les Donn\'ees Propres}
+Sur les 2\,508 livraisons certifi\'ees, la r\'epartition par statut s'\'etablit \`a \textbf{68,26 \%} livr\'ees (\texttt{1\,712}), \textbf{14,39 \%} en cours (\texttt{361}), \textbf{11,48 \%} retard\'ees (\texttt{288}) et \textbf{5,86 \%} annul\'ees (\texttt{147}).
 
 \begin{table}[H]
 \centering
-\begin{tabular}{lcccccc}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.4cm} Y Y Y Y Y Y@{}}
 \toprule
-\textbf{Indicateur} & \textbf{Effectif} & \textbf{Moyenne} & \textbf{M\'ediane} & \textbf{Min} & \textbf{Max} & \textbf{\'Ecart-type} \\
+\rowcolor{slatebg} Variable Analys\'ee & Effectif & Moyenne & M\'ediane & Minimum & Maximum & \'Ecart-type \\
 \midrule
 Poids (kg) & 2\,508 & 27,19 & 26,70 & 5,02 & 49,97 & 13,14 \\
-Distance (km) & 2\,508 & 252,91 & 251,00 & 10,00 & 500,00 & 141,53 \\
+\rowcolor{rowalt} Distance (km) & 2\,508 & 252,91 & 251,00 & 10,00 & 500,00 & 141,53 \\
 Temps (min) & 2\,508 & 137,75 & 135,00 & 30,00 & 298,00 & 65,27 \\
-Vitesse (km/h) & 2\,508 & 102,72 & 105,33 & 20,00 & 149,54 & 24,44 \\
+\rowcolor{rowalt} Vitesse (km/h) & 2\,508 & 102,72 & 105,33 & 20,00 & 149,54 & 24,44 \\
 \bottomrule
-\end{tabular}
-\caption{Statistiques descriptives calcul\'ees par \texttt{analyze\_data.sh}.}
+\end{tabularx}
+\caption{Statistiques descriptives calcul\'ees par \texttt{scripts/analysis/analyze\_data.sh}.}
 \end{table}
-
-Les coefficients de corr\'elation de Pearson confirment deux enseignements majeurs :
-\begin{itemize}
-    \item \textbf{Distance vs Temps ($r = 0,9671$)} : corr\'elation positive tr\`es forte, mod\'elis\'ee par la droite de r\'egression lin\'eaire de la Figure~\ref{fig:dist_temps}.
-    \item \textbf{Poids vs Temps ($r = -0,0036$)} : ind\'ependance statistique compl\`ete ; la masse des colis (5 \`a 50 kg) ne d\'egrade pas la dur\'ee de parcours.
-\end{itemize}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{../data/visualizations/04_distance_vs_temps.png}
-    \caption{Nuage de points et r\'egression lin\'eaire Distance vs Temps ($r = 0,9671$).}
-    \label{fig:dist_temps}
+    \caption{Relation lin\'eaire entre la distance parcourue et le temps de livraison ($r = 0,9671$).}
 \end{figure}
 
-\subsection{Analyse G\'eographique, Temporelle et Flotte de Livreurs}
+\textbf{Explication de la Figure 3 (\texttt{04\_distance\_vs\_temps.png})} : l'ajustement par moindres carr\'es converge vers la droite $\text{Temps} = 0,4460 \times \text{Distance} + 24,96\text{ min}$. L'ordonn\'ee \`a l'origine d'environ \textbf{25 minutes} repr\'esente le temps incompressible de prise en charge et de remise du colis, tandis que le coefficient de Pearson $r = 0,9671$ prouve que la distance est le facteur d\'eterminant du d\'elai, contrairement au poids du colis dont la corr\'elation avec la dur\'ee est nulle ($r = -0,0036$).
+
+\subsection{Performances G\'eographiques par Ville de Destination}
 
 \begin{table}[H]
 \centering
-\begin{tabular}{lccccc}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{2.5cm} Y Y Y Y Y >{\bfseries}Y@{}}
 \toprule
-\textbf{Ville} & \textbf{Livraisons} & \textbf{Distance moy. (km)} & \textbf{Dur\'ee moy. (min)} & \textbf{Vitesse moy. (km/h)} & \textbf{Taux de retard} \\
+\rowcolor{slatebg} Ville & Volume & Poids (kg) & Dist. (km) & Dur\'ee (min) & Vitesse (km/h) & Retard \\
 \midrule
-Lyon & 307 & 259,15 & 141,73 & 103,05 & 11,07 \% \\
-Nantes & 302 & 244,87 & 135,86 & 101,33 & \textbf{6,29 \%} \\
-Lille & 292 & 273,98 & 146,73 & 105,85 & \textbf{15,41 \%} \\
-Toulouse & 291 & 254,38 & 138,19 & 102,83 & 12,03 \% \\
-Marseille & 290 & 236,68 & 129,21 & 100,94 & 12,76 \% \\
-Bordeaux & 267 & 250,51 & 135,24 & 103,95 & 9,36 \% \\
-Strasbourg & 255 & 255,25 & 140,26 & 100,72 & 10,20 \% \\
-Paris & 254 & 253,54 & 137,93 & 103,47 & 12,60 \% \\
-Nice & 250 & 246,98 & 134,04 & 102,24 & 14,00 \% \\
+Lyon & 307 & 27,94 & 259,15 & 141,73 & 103,05 & 11,07 \% \\
+\rowcolor{rowalt} Nantes & 302 & 27,94 & 244,87 & 135,86 & 101,33 & \textcolor{tealaccent}{6,29 \%} \\
+Lille & 292 & 27,33 & 273,98 & 146,73 & 105,85 & \textcolor{red!75!black}{15,41 \%} \\
+\rowcolor{rowalt} Toulouse & 291 & 26,98 & 254,38 & 138,19 & 102,83 & 12,03 \% \\
+Marseille & 290 & 26,26 & 236,68 & 129,21 & 100,94 & 12,76 \% \\
+\rowcolor{rowalt} Bordeaux & 267 & 26,83 & 250,51 & 135,24 & 103,95 & 9,36 \% \\
+Strasbourg & 255 & 27,31 & 255,25 & 140,26 & 100,72 & 10,20 \% \\
+\rowcolor{rowalt} Paris & 254 & 26,94 & 253,54 & 137,93 & 103,47 & 12,60 \% \\
+Nice & 250 & 27,08 & 246,98 & 134,04 & 102,24 & \textcolor{red!75!black}{14,00 \%} \\
 \bottomrule
-\end{tabular}
-\caption{Agr\'egation des performances par ville de destination (\texttt{agg\_par\_ville.csv}).}
+\end{tabularx}
+\caption{Performances compar\'ees des neuf villes de destination (\texttt{agg\_par\_ville.csv}).}
 \end{table}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{../data/visualizations/01_livraisons_par_ville.png}
-    \caption{Volume de livraisons et taux de retard par ville.}
+    \caption{Volume de livraisons (barres bleues) et taux de retard (courbe rouge) par ville.}
 \end{figure}
 
-Sur le plan temporel, l'activit\'e culmine en octobre (\textbf{890 livraisons}), mais la proportion de retards s'accro\^it en novembre (101 retards sur 782 livraisons, soit \textbf{12,92 \%} contre 10,29 \% en septembre). La distribution des dur\'ees reste homog\`ene entre 30 et 210 minutes (environ 13,5 \% \`a 14,4 \% par tranche de 30 minutes) avant de d\'ecro\^itre fortement au-del\`a de 240 minutes (6,62 \% cumul\'es).
+\textbf{Explication de la Figure 4 (\texttt{01\_livraisons\_par\_ville.png})} : le double axe ordonn\'ee montre que le volume d'activit\'e n'explique pas \`a lui seul les retards. Bien que \textbf{Lyon} (307 colis) et \textbf{Nantes} (302 colis) traitent les plus forts volumes, Nantes maintient le taux de retard le plus bas du r\'eseau (\textbf{6,29 \%}), alors que \textbf{Lille} atteint \textbf{15,41 \%} de retard en raison de la distance moyenne la plus \'elev\'ee (273,98 km) et que \textbf{Nice} monte \`a \textbf{14,00 \%} malgr\'e le plus faible volume (250 colis).
+
+\subsection{Dynamique Temporelle, Distribution des Dur\'ees et Flotte de Livreurs}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{../data/visualizations/02_evolution_temporelle.png}
-    \caption{\'Evolution quotidienne des livraisons sur 90 jours.}
+    \includegraphics[width=0.86\textwidth]{../data/visualizations/02_evolution_temporelle.png}
+    \caption{\'Evolution quotidienne du nombre de livraisons entre septembre et novembre 2026.}
 \end{figure}
+
+\textbf{Explication de la Figure 5 (\texttt{02\_evolution\_temporelle.png})} : la s\'erie quotidienne oscille autour de 28 livraisons par jour avec une mont\'ee de charge en octobre (\textbf{890 livraisons} mensuelles contre 836 en septembre et 782 en novembre). Le croisement mensuel (\texttt{agg\_par\_mois.csv}) r\'ev\`ele toutefois que la part relative des retards grimpe \`a \textbf{12,92 \%} en novembre (101 retards), signalant une tension saisonni\`ere de fin d'automne.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{../data/visualizations/03_distribution_temps.png}
-    \caption{Histogramme des temps de livraison par tranches de 30 minutes.}
+    \includegraphics[width=0.86\textwidth]{../data/visualizations/03_distribution_temps.png}
+    \caption{Distribution fr\'equentielle des dur\'ees de livraison par tranches de 30 minutes.}
 \end{figure}
+
+\textbf{Explication de la Figure 6 (\texttt{03\_distribution\_temps.png})} : l'histogramme calcul\'e en \texttt{awk} montre un r\'egime quasi uniforme sur les six premi\`eres tranches de 30 \`a 209 minutes (339 \`a 361 livraisons par tranche, soit environ 83,7 \% du trafic livr\'e en moins de 3h30), suivi d'une d\'ecroissance rapide au-del\`a de 210 minutes et de seulement 38 livraisons (1,52 \%) entre 270 et 300 minutes.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{../data/visualizations/05_performance_livreurs.png}
-    \caption{R\'epartition de l'exp\'erience et des notes moyennes des 35 livreurs.}
+    \includegraphics[width=0.86\textwidth]{../data/visualizations/05_performance_livreurs.png}
+    \caption{Croisement de l'exp\'erience (ann\'ees) et de la note moyenne (/5) des 35 livreurs.}
 \end{figure}
 
-\section{Difficult\'es Rencontr\'ees, Recommandations et Livrable Vid\'eo}
+\textbf{Explication de la Figure 7 (\texttt{05\_performance\_livreurs.png})} : l'analyse des 35 livreurs issus de \texttt{livreurs.json} indique une flotte exp\'eriment\'ee couvrant 0 \`a 30 ans d'anciennet\'e avec des notes comprises entre 2,5 et 5,0/5. L'absence de d\'egradation de note chez les profils juniors montre une bonne homog\'en\'eit\'e op\'erationnelle, mais la r\'epartition par ville (jointure \texttt{join}) justifie un r\'e\'equilibrage vers Lille et Nice.
 
-\subsection{Difficult\'es Techniques et Solutions Apport\'ees}
-\begin{itemize}
-    \item \textbf{Ex\'ecution sans privil\`eges root et montage de volumes} : l'alignement de \texttt{appuser} (UID/GID 1000) dans le \texttt{Dockerfile} multi-stage garantit l'\'ecriture fluide dans \texttt{data/} sans conflit de permissions h\^ote/conteneur.
-    \item \textbf{Jointure UNIX sans perte de lignes} : l'usage de \texttt{join -t',' -a 1 -e '0'} sur des flux pr\'ealablement tri\'es sous \texttt{LC\_ALL=C} pr\'eserve 100 \% des livraisons m\^eme en cas d'asym\'etrie de couverture par ville.
-    \item \textbf{Protection contre l'imputation aveugle} : dans \texttt{iragi.auto\_clean}, la d\'esactivation explicite de l'imputation statistique (\texttt{impute\_numeric="none"}) permet de diriger toute valeur critique manquante vers la quarantaine DLQ plut\^ot que de masquer une erreur source.
-\end{itemize}
+% ============================================================================
+% SECTION 5 : DIFFICULTES, RECOMMANDATIONS ET LIVRABLES
+% ============================================================================
+\section{Difficult\'es Rencontr\'ees, Recommandations et Conclusion}
 
-\subsection{Recommandations Op\'erationnelles}
+\subsection{Difficult\'es Techniques et Solutions Mises en \OE{}uvre}
 \begin{enumerate}
-    \item \textbf{Renforcer la capacit\'e sur Lille (15,41 \% de retard) et Nice (14,00 \%)} en répliquant l'allocation observ\'ee \`a Nantes (6,29 \% de retard pour 302 livraisons).
-    \item \textbf{D\'eployer \texttt{iragi.DataContract} en porte d'entr\'ee API} pour bloquer avant ingestion les dates erron\'ees et valeurs hors bornes.
-    \item \textbf{Investiguer les 81 appels HTTP 404 orphelins} mis en \'evidence par \texttt{iragi.reconcile} dans \texttt{access.log}.
+    \item \textbf{Droits d'\'ecriture Docker sans root} : la cr\'eation de \texttt{appuser} (UID/GID 1000) dans l'image multi-stage \'evite tout blocage de permissions sur les volumes partag\'es.
+    \item \textbf{Jointure relationnelle UNIX robuste} : l'utilisation de \texttt{join -t',' -a 1 -e '0'} apr\`es tri lexicographique sous \texttt{LC\_ALL=C} garantit qu'aucune livraison n'est perdue lors de l'enrichissement par ville.
+    \item \textbf{Quarantaine plut\^ot qu'imputation destructrice} : en d\'esactivant l'imputation par moyenne dans \texttt{iragi.auto\_clean}, les lignes \`a champs critiques manquants sont isol\'ees proprement en DLQ sans fausser les m\'ediane et corr\'elations.
 \end{enumerate}
 
-\subsection{Lien de la D\'emonstration Vid\'eo}
+\subsection{Recommandations Strat\'egiques}
 \begin{itemize}
-    \item Pr\'esentation et d\'emonstration compl\`ete du syst\`eme (YouTube) : \emph{Lien \`a ins\'erer lors de la publication de l'enregistrement OBS Studio (10--15 minutes)}.
+    \item \textbf{Cibler prioritairement Lille (15,41 \% de retard) et Nice (14,00 \%)} en r\'eallouant des v\'ehicules rapides sur les trajets d\'epassant 250 km selon le mod\`ele de Nantes (6,29 \%).
+    \item \textbf{Brancher \texttt{iragi.DataContract} d\`es l'API d'entr\'ee} afin de rejeter en temps r\'eel les dates invalides et poids n\'egatifs avant l'\'ecriture dans le Data Lake.
+    \item \textbf{Corriger les 81 appels HTTP 404 orphelins} d\'etect\'es par \texttt{iragi.reconcile} dans \texttt{access.log}.
+\end{itemize}
+
+\subsection{Ressources et D\'emonstration Vid\'eo}
+\begin{itemize}
+    \item \textbf{Ex\'ecution compl\`ete en une commande} : \texttt{make pipeline \&\& make charts \&\& make report \&\& make pdf}
+    \item \textbf{Lien YouTube de la pr\'esentation vid\'eo (10--15 min)} : \emph{\`A renseigner apr\`es publication de l'enregistrement OBS Studio.}
 \end{itemize}
 
 \end{document}
