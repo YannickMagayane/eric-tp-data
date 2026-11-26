@@ -53,19 +53,25 @@ Ce depot met en oeuvre une infrastructure reproductible sous Docker (orchestrati
 │   │   ├── generate_data.py    # Generateur aleatoire reproductible avec anomalies calibrees
 │   │   ├── clean_data.sh       # Nettoyage UNIX (sed, sort | uniq, awk, jq) -> 100/100 Iragi
 │   │   ├── transform_data.sh   # Colonnes derivees, jointure UNIX join, agregations awk et jq
+│   │   ├── load_postgres.sh    # Chargement transactionnel PostgreSQL pour Metabase
 │   │   ├── run_pipeline.sh     # Orchestrateur complet avec trap d'erreurs et statut JSON
-│   │   └── audit_quality.py    # Profilage, DataContract, DLQ et reconciliation via iragi
+│   │   └── audit_quality.py    # Audit Iragi AVANT (data/raw) et APRES (clean_data.sh) + DLQ
 │   ├── analysis/
 │   │   └── analyze_data.sh     # Stats descriptives, histogramme awk, Pearson r, anomalies, .dat
-│   └── reporting/              # Generation de graphiques gnuplot et rapports (Phase 3)
+│   └── reporting/
+│       ├── generate_charts.sh  # Generation des 6 graphiques PNG via gnuplot sur donnees reelles
+│       ├── generate_report.sh  # Generation horodatee des rapports Markdown et HTML TailwindCSS
+│       └── render_report.py    # Moteur de synthese dynamique sans aucune valeur codee en dur
 ├── sql/
 │   ├── schema.sql              # Schema relationnel PostgreSQL avec contraintes CHECK
 │   └── queries.sql             # Requetes analytiques pour Metabase et reporting
 ├── docs/
-│   └── rapport.tex             # Rapport technique final au format LaTeX
+│   ├── rapport.tex             # Source LaTeX complete avec tableaux reels et figures gnuplot
+│   └── rapport.pdf             # Rapport technique compile au format PDF
 └── tests/
     ├── test_foundation.py      # Suite de tests TDD du socle, des donnees et d'iragi
-    └── test_phase2_pipelines.py # Suite de tests TDD isolee des pipelines UNIX Phase 2
+    ├── test_phase2_pipelines.py # Suite de tests TDD isolee des pipelines UNIX Phase 2
+    └── test_phase3_reporting.py # Suite de tests TDD Phase 3 (Avant/Apres Iragi, gnuplot, PDF)
 ```
 
 ## Role du Module `iragi` en Complement des Pipelines UNIX

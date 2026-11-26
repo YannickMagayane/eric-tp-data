@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Analytique — Pipeline UNIX &amp; Iragi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <header class="bg-slate-900 text-white rounded-xl p-6 shadow">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-slate-400">Projet Final Systemes UNIX — M1 Informatique</p>
+          <h1 class="text-2xl font-bold mt-1">Analyse Logistique par Pipelines UNIX &amp; Audit Iragi (0.6.4)</h1>
+        </div>
+        <div class="text-sm text-slate-300">
+          Genere le : <span class="font-mono">2026-11-26 15:18:59 UTC</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-lg p-5 shadow border border-slate-200">
+        <p class="text-xs uppercase text-slate-500">Score Iragi Avant -&gt; Apres</p>
+        <p class="text-2xl font-bold text-emerald-600 mt-1">99.7 -&gt; 100.0 / 100</p>
+        <p class="text-xs text-slate-500 mt-1">Gain certifie : +0.3 pt (0 violation restante)</p>
+      </div>
+      <div class="bg-white rounded-lg p-5 shadow border border-slate-200">
+        <p class="text-xs uppercase text-slate-500">Livraisons Valides</p>
+        <p class="text-2xl font-bold text-slate-800 mt-1">2508 / 2536</p>
+        <p class="text-xs text-slate-500 mt-1">20 doublons supprimes, 8 en quarantaine DLQ</p>
+      </div>
+      <div class="bg-white rounded-lg p-5 shadow border border-slate-200">
+        <p class="text-xs uppercase text-slate-500">Correlation Distance / Temps</p>
+        <p class="text-2xl font-bold text-indigo-600 mt-1">r = 0.9671</p>
+        <p class="text-xs text-slate-500 mt-1">Poids vs Temps : r = -0.0036</p>
+      </div>
+      <div class="bg-white rounded-lg p-5 shadow border border-slate-200">
+        <p class="text-xs uppercase text-slate-500">Reconciliation Logs HTTP</p>
+        <p class="text-2xl font-bold text-amber-600 mt-1">825 rapprochees</p>
+        <p class="text-xs text-slate-500 mt-1">81 appels 404 orphelins detectes</p>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <figure class='bg-white rounded-lg shadow p-4 border border-slate-200'><img src='../visualizations/01_livraisons_par_ville.png' alt='Livraisons et taux de retard par ville' class='w-full h-auto rounded'><figcaption class='mt-2 text-sm text-slate-600 font-medium'>Livraisons et taux de retard par ville</figcaption></figure>
+<figure class='bg-white rounded-lg shadow p-4 border border-slate-200'><img src='../visualizations/02_evolution_temporelle.png' alt='Evolution quotidienne sur 3 mois' class='w-full h-auto rounded'><figcaption class='mt-2 text-sm text-slate-600 font-medium'>Evolution quotidienne sur 3 mois</figcaption></figure>
+<figure class='bg-white rounded-lg shadow p-4 border border-slate-200'><img src='../visualizations/03_distribution_temps.png' alt='Distribution des durees de livraison' class='w-full h-auto rounded'><figcaption class='mt-2 text-sm text-slate-600 font-medium'>Distribution des durees de livraison</figcaption></figure>
+<figure class='bg-white rounded-lg shadow p-4 border border-slate-200'><img src='../visualizations/04_distance_vs_temps.png' alt='Correlation Distance vs Temps (r = 0.9671)' class='w-full h-auto rounded'><figcaption class='mt-2 text-sm text-slate-600 font-medium'>Correlation Distance vs Temps (r = 0.9671)</figcaption></figure>
+<figure class='bg-white rounded-lg shadow p-4 border border-slate-200'><img src='../visualizations/05_performance_livreurs.png' alt='Experience vs Note des 35 livreurs' class='w-full h-auto rounded'><figcaption class='mt-2 text-sm text-slate-600 font-medium'>Experience vs Note des 35 livreurs</figcaption></figure>
+<figure class='bg-white rounded-lg shadow p-4 border border-slate-200'><img src='../visualizations/06_iragi_avant_apres.png' alt='Intervention Iragi : Avant vs Apres UNIX' class='w-full h-auto rounded'><figcaption class='mt-2 text-sm text-slate-600 font-medium'>Intervention Iragi : Avant vs Apres UNIX</figcaption></figure>
+    </section>
+
+    <section class="bg-white rounded-lg shadow border border-slate-200 p-6">
+      <h2 class="text-lg font-bold mb-4">Synthese par Ville de Destination</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-100 text-slate-700 uppercase text-xs">
+            <tr>
+              <th class="py-2 px-3">Ville</th>
+              <th class="py-2 px-3 text-right">Volume</th>
+              <th class="py-2 px-3 text-right">Distance moy.</th>
+              <th class="py-2 px-3 text-right">Duree moy.</th>
+              <th class="py-2 px-3 text-right">Taux de retard</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Lyon</td><td class='py-2 px-3 text-right'>307</td><td class='py-2 px-3 text-right'>259.15 km</td><td class='py-2 px-3 text-right'>141.73 min</td><td class='py-2 px-3 text-right font-semibold'>11.07 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Nantes</td><td class='py-2 px-3 text-right'>302</td><td class='py-2 px-3 text-right'>244.87 km</td><td class='py-2 px-3 text-right'>135.86 min</td><td class='py-2 px-3 text-right font-semibold'>6.29 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Lille</td><td class='py-2 px-3 text-right'>292</td><td class='py-2 px-3 text-right'>273.98 km</td><td class='py-2 px-3 text-right'>146.73 min</td><td class='py-2 px-3 text-right font-semibold'>15.41 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Toulouse</td><td class='py-2 px-3 text-right'>291</td><td class='py-2 px-3 text-right'>254.38 km</td><td class='py-2 px-3 text-right'>138.19 min</td><td class='py-2 px-3 text-right font-semibold'>12.03 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Marseille</td><td class='py-2 px-3 text-right'>290</td><td class='py-2 px-3 text-right'>236.68 km</td><td class='py-2 px-3 text-right'>129.21 min</td><td class='py-2 px-3 text-right font-semibold'>12.76 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Bordeaux</td><td class='py-2 px-3 text-right'>267</td><td class='py-2 px-3 text-right'>250.51 km</td><td class='py-2 px-3 text-right'>135.24 min</td><td class='py-2 px-3 text-right font-semibold'>9.36 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Strasbourg</td><td class='py-2 px-3 text-right'>255</td><td class='py-2 px-3 text-right'>255.25 km</td><td class='py-2 px-3 text-right'>140.26 min</td><td class='py-2 px-3 text-right font-semibold'>10.20 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Paris</td><td class='py-2 px-3 text-right'>254</td><td class='py-2 px-3 text-right'>253.54 km</td><td class='py-2 px-3 text-right'>137.93 min</td><td class='py-2 px-3 text-right font-semibold'>12.60 %</td></tr>
+<tr class='border-b border-slate-200'><td class='py-2 px-3 font-medium'>Nice</td><td class='py-2 px-3 text-right'>250</td><td class='py-2 px-3 text-right'>246.98 km</td><td class='py-2 px-3 text-right'>134.04 min</td><td class='py-2 px-3 text-right font-semibold'>14.00 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

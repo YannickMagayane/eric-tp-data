@@ -21,7 +21,10 @@ echo "[INFO] Running pytest suite..."
 
 if command -v shellcheck >/dev/null 2>&1; then
     echo "[INFO] Running shellcheck on shell scripts..."
-    shellcheck -x bin/*.sh scripts/etl/*.sh scripts/analysis/*.sh
+    shellcheck -x bin/*.sh scripts/etl/*.sh scripts/analysis/*.sh scripts/reporting/*.sh
+elif command -v docker >/dev/null 2>&1 && docker image inspect eric-dev >/dev/null 2>&1; then
+    echo "[INFO] Running shellcheck via Docker dev container..."
+    docker compose run --rm --no-deps -T dev shellcheck -x bin/*.sh scripts/etl/*.sh scripts/analysis/*.sh scripts/reporting/*.sh
 else
     echo "[INFO] shellcheck not installed on host (available inside Docker dev image)."
 fi

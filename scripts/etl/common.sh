@@ -4,13 +4,14 @@
 set -euo pipefail
 export LC_ALL=C
 
+export PROJECT_DIR
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-DATA_DIR="${DATA_DIR:-${PROJECT_DIR}/data}"
-RAW_DIR="${DATA_DIR}/raw"
-PROCESSED_DIR="${DATA_DIR}/processed"
-REPORTS_DIR="${DATA_DIR}/reports"
-VISUALIZATIONS_DIR="${DATA_DIR}/visualizations"
-PIPELINE_LOG="${REPORTS_DIR}/pipeline.log"
+export DATA_DIR="${DATA_DIR:-${PROJECT_DIR}/data}"
+export RAW_DIR="${DATA_DIR}/raw"
+export PROCESSED_DIR="${DATA_DIR}/processed"
+export REPORTS_DIR="${DATA_DIR}/reports"
+export VISUALIZATIONS_DIR="${DATA_DIR}/visualizations"
+export PIPELINE_LOG="${REPORTS_DIR}/pipeline.log"
 
 ensure_pipeline_dirs() {
     mkdir -p "${PROCESSED_DIR}" "${REPORTS_DIR}" "${VISUALIZATIONS_DIR}"
