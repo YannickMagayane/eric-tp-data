@@ -16,17 +16,17 @@ Une entreprise de logistique opere sur neuf grandes villes francaises (**Paris, 
 ## 3. Objectifs
 
 - Deployer un environnement reproductible et isole sous Docker avec utilisateur non-root (`appuser`, UID 1000) et reverse proxy **Traefik**.
-- Respecter strictement le cahier des charges de l'examen en mode **EXAM** tout en offrant un mode **EXTENDED** pour tester la montee en charge (12 000 livraisons/mois/ville).
+- Respecter strictement le cahier des charges de l'examen (9 villes francaises, 3 mois, 1 000 a 5 000 livraisons, 20 a 50 livreurs, 500 a 2 000 logs HTTP).
 - Orchestrer des pipelines UNIX modulaires, deterministes (`LC_ALL=C`, `set -euo pipefail`) et traces de bout en bout.
 - Garantir la qualite metier et la reconciliation inter-sources via **`iragi`**.
-- Alimenter **PostgreSQL 16** et **Metabase**, generer 8 graphiques **`gnuplot`** et compiler un rapport universitaire LaTeX/PDF.
+- Alimenter **PostgreSQL 16** et **Metabase**, generer 10 graphiques **`gnuplot`** et compiler un rapport universitaire LaTeX/PDF.
 
 ## 4. Fonctionnalites
 
-- Generation synthetique realiste en deux modes (`MODE=exam` et `MODE=extended`).
+- Generation synthetique conforme au cahier des charges (`make generate-data`).
 - Nettoyage, enrichissement, jointure UNIX `join`, agregations multi-axes et calcul de statistiques (moyenne, mediane, quartiles Q1/Q3, IQR, ecart-type, correlations de Pearson).
 - Audit 3 voies `iragi` (Brut vs Approche Classique Naive vs Pipeline UNIX + `iragi`), quarantaine *Dead-Letter Queue* (`quarantine_livraisons.csv`) et reconciliation logs HTTP / livraisons.
-- Chargement transactionnel PostgreSQL, dashboard Metabase derriere Traefik, rapports Markdown/HTML horodates, 8 graphiques PNG, tests TDD (`pytest`) et analyse statique (`shellcheck`).
+- Chargement transactionnel PostgreSQL, dashboard Metabase derriere Traefik, rapports Markdown/HTML horodates, 10 graphiques PNG, tests TDD (`pytest`) et analyse statique (`shellcheck`).
 
 ## 5. Architecture Globale
 
@@ -89,7 +89,6 @@ Les services Docker utilisent des valeurs par defaut coherentes dans `docker-com
 - `TRAEFIK_HTTP_PORT` : `8080` (point d'entree HTTP Traefik)
 - `TRAEFIK_DASHBOARD_PORT` : `8081` (interface d'administration Traefik)
 - `POSTGRES_USER` : `logistics` | `POSTGRES_DB` : `logistics_db` | `PGPORT` : `5432`
-- `MODE` (`Makefile`) : `exam` (par defaut) ou `extended`
 
 ## 10. Structure des Repertoires
 
@@ -118,11 +117,15 @@ Les services Docker utilisent des valeurs par defaut coherentes dans `docker-com
 │   ├── schema.sql                      # Schema PostgreSQL (couriers, deliveries, web_access_logs, iragi_audit_metrics)
 │   └── queries.sql                     # Requetes SQL analytiques pour Metabase
 ├── docs/
-│   ├── GUIDE_INSTALLATION_UTILISATION.md
-│   ├── SCRIPT_VIDEO_DEMO.md            # Trame de presentation pour la video YouTube
-│   ├── rapport.tex / rapport.pdf       # Rapport universitaire LaTeX et PDF compile
-│   └── slides.tex / slides.pdf         # Presentation Beamer PDF (10 diapositives)
-└── tests/                              # Suites TDD (foundation, phase2, phase3, phase4_e2e)
+│   ├── GUIDE_INSTALLATION_UTILISATION.md  # Guide detaille d'installation et d'utilisation
+│   ├── SCRIPT_VIDEO_DEMO.md               # Trame de presentation pour la video YouTube
+│   ├── rapport.tex / rapport.pdf          # Rapport universitaire LaTeX et PDF compile
+│   └── slides.tex / slides.pdf            # Presentation Beamer PDF (10 diapositives)
+└── tests/
+    ├── test_foundation.py                 # Tests infrastructure Docker, Traefik, donnees et iragi
+    ├── test_phase2_pipelines.py           # Tests pipelines UNIX (clean, transform, analyze, run)
+    ├── test_phase3_reporting.py           # Tests gnuplot, rapports MD/HTML, LaTeX et certification iragi
+    └── test_phase4_e2e.py                 # Tests bout-en-bout PostgreSQL, Metabase et livrables
 ```
 
 ## 11. Organisation des Donnees et Tracabilite
@@ -136,19 +139,13 @@ Les services Docker utilisent des valeurs par defaut coherentes dans `docker-com
 5. **Resultats analytiques et tracabilite (`data/reports/`)** : `stats_descriptives.csv`, `correlations.csv`, `anomalies.csv`, `iragi_audit.json`, `pipeline_status.json`, `pipeline.log` et `lineage_manifest.json` (empreintes SHA-256 a chaque etape).
 6. **Chargement PostgreSQL & Metabase** : `scripts/etl/load_postgres.sh` peuple les tables `couriers`, `deliveries` et `web_access_logs` dans `db`, interrogees directement par Metabase.
 
-## 12. Generation des Donnees (Modes EXAM et EXTENDED)
+## 12. Generation des Donnees
 
-Les donnees sont **synthetiques** (les coefficients de variation simules ne constituent pas des statistiques officielles).
+Les donnees sont **synthetiques** et conformes aux specifications de l'examen (9 villes francaises sur 3 mois : `livraisons.csv`, `livreurs.json` et `access.log`).
 
 ```bash
-# Mode A : EXAM (par defaut - conforme au cahier des charges : 1000-5000 livraisons, 9 villes FR, 3 mois)
-make generate-data MODE=exam
-
-# Mode B : EXTENDED (montee en charge : 12 000 livraisons/mois/ville = ~324 000 sur 3 mois)
-make generate-data MODE=extended
-
-# Personnalisation des parametres en mode EXTENDED :
-make generate-data MODE=extended MONTHS=3 PER_CITY_MONTH=12000 SEED=2026
+# Generer le jeu de donnees conforme au cahier des charges
+make generate-data
 ```
 
 ## 13. Lancement et Gestion de Docker (Commandes Exactes)
@@ -225,13 +222,11 @@ make load-db
 ## 18. Utilisation d'`iragi`
 
 `iragi` (`v0.6.4`) complete les filtres UNIX sans les remplacer :
-- **Inspection (`iragi.scan` / `iragi.scan_csv_stream`)** : calcule un score de qualite explicable sur 100 avant et apres nettoyage (streaming automatique au-dela de 50 000 lignes en mode `extended`).
+- **Inspection (`iragi.scan` / `iragi.scan_csv_stream`)** : calcule un score de qualite explicable sur 100 avant et apres nettoyage.
 - **Contrat metier (`iragi.DataContract`, `validate_contract`)** : verifie les bornes et formats reglementaires (villes francaises, dates ISO, poids 5..50 kg, distance 10..500 km, temps/temps prevu 30..300 min, statuts).
 - **Quarantaine DLQ (`iragi.auto_clean(..., contract_action="quarantine")`)** : isole les lignes invalides dans `data/processed/quarantine_livraisons.csv` sans imputation aveugle.
 - **Outliers (`detect_outliers_modified_zscore`)** : detection robuste basee sur la mediane (MAD).
 - **Reconciliation (`iragi.reconcile`)** : rapprochement par regex `r"(\d+)"` entre `livraisons.csv` et `access.log`.
-
-**Limites d'`iragi`** : `auto_clean` et `validate_contract` chargent un DataFrame Pandas en memoire ; pour des flux massifs (> 50 000 lignes), le filtrage initial reste plus rapide et sobre en memoire avec `awk`/`sed`/`sort` en flux, tandis qu'`iragi.scan_csv_stream` assure le profilage borne.
 
 ## 19. Execution des Tests
 
@@ -243,7 +238,7 @@ make load-db
 ## 20. Generation des Graphiques et Rapports
 
 ```bash
-make charts   # Genere les 8 PNG dans data/visualizations/
+make charts   # Genere les 10 PNG dans data/visualizations/
 make report   # Genere data/reports/latest_report.md et dashboard_report.html
 make pdf      # Compile docs/rapport.pdf
 make slides   # Compile docs/slides.pdf
@@ -262,17 +257,7 @@ Exporte un dump SQL `pg_dump` de PostgreSQL, archive `data/` et `sql/` dans `bac
 - **`metabase.localhost` non resolu par le navigateur** : ajoutez `127.0.0.1 metabase.localhost` dans `/etc/hosts` ou testez avec `curl -H "Host: metabase.localhost" http://127.0.0.1:8080/api/health`.
 - **Conflit de port 8080** : lancez avec `TRAEFIK_HTTP_PORT=8090 docker compose up -d`.
 
-## 23. Limites du Projet
-
-- Les jeux de donnees sont synthetiques (regles metier simulees pour reproduire des distributions plausibles).
-- Le tableau de bord Metabase est deja provisionne automatiquement (`http://metabase.localhost:8080/dashboard/2`, compte `eric.lutumba@unilu.ac.cd` / `UnixPipeline2026!`) ; seule l'activation d'un lien de partage public ou l'export PDF dans l'interface web reste a la main de l'utilisateur.
-
-## 24. Perspectives d'Evolution
-
-- Planification automatique des pipelines UNIX via `cron` ou un ordonnanceur (Airflow / Dagster) pour une execution quotidienne.
-- Integration continue (CI/CD) executant automatiquement `shellcheck`, `./bin/test.sh` et la compilation LaTeX a chaque mise a jour du depot.
-
-## 25. Conclusion et Bilan de l'Apport d'`iragi`
+## 23. Conclusion et Bilan de l'Apport d'`iragi`
 
 Ce projet demontre la synergie entre une infrastructure UNIX/Docker robuste et une gouvernance rigoureuse de la qualite des donnees. Tandis que les scripts UNIX (`sed`, `awk`, `sort`, `uniq`, `join`, `jq`) assurent le traitement rapide des fichiers texte, **`iragi` (`0.6.4`)** a joue le role de controleur qualite et de certificateur dans `scripts/etl/audit_quality.py` sur cinq points precis :
 
