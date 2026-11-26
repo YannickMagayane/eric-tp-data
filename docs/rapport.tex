@@ -381,7 +381,23 @@ L'asym\'etrie entre moyenne (136,00 km) et m\'ediane (53,00 km) de la distance s
 % 15. DASHBOARD METABASE
 % ============================================================================
 \section{Dashboard Metabase}
-Metabase est d\'eploy\'e dans le conteneur \texttt{dashboard}, expos\'e via Traefik sur \texttt{http://metabase.localhost:8080} et connect\'e \`a \texttt{db:5432/logistics\_db}. Six requ\^etes SQL pr\'etes \`a l'emploi (\texttt{sql/queries.sql}) couvrent les indicateurs attendus : volume et retard par ville, \'evolution mensuelle, statuts, comparaison des v\'ehicules, performance des livreurs et anomalies HTTP.
+Metabase est d\'eploy\'e dans le conteneur \texttt{dashboard}, expos\'e via Traefik et connect\'e \`a la base \texttt{db:5432/logistics\_db} (35 livreurs, 2\,510 livraisons, 1\,200 journaux HTTP).
+
+\begin{itemize}
+    \item \textbf{URL du tableau de bord} : \url{http://metabase.localhost:8080/dashboard/2}
+    \item \textbf{Identifiants administrateur Metabase} : \texttt{eric.lutumba@unilu.ac.cd} / \texttt{UnixPipeline2026!}
+    \item \textbf{Interface Traefik (supervision)} : \url{http://127.0.0.1:8081}
+\end{itemize}
+
+Six cartes SQL natives issues de \texttt{sql/queries.sql} ont \'et\'e cr\'e\'ees et \'epingl\'ees sur le tableau de bord :
+\begin{enumerate}
+    \item \textbf{Livraisons et Retard par Ville} (\texttt{bar}) ;
+    \item \textbf{\'Evolution Mensuelle des Livraisons} (\texttt{bar}) ;
+    \item \textbf{R\'epartition des Statuts} (\texttt{pie}) ;
+    \item \textbf{Comparaison par Type de V\'ehicule} (\texttt{table}) ;
+    \item \textbf{Performance des Livreurs} (\texttt{table}) ;
+    \item \textbf{Anomalies HTTP Apache (\texttt{access.log})} (\texttt{bar}).
+\end{enumerate}
 
 % ============================================================================
 % 16. TESTS ET VALIDATION

@@ -234,22 +234,29 @@
 % ============================================================================
 \begin{frame}{7. Exploitation BI sous Metabase et PostgreSQL 16}
     \begin{columns}[T]
-        \begin{column}{0.48\textwidth}
-            \begin{block}{Int\'egration R\'ealis\'ee (Phase 3)}
-                \justifying
-                Conform\'ement au cahier des charges, Metabase est d\'eploy\'e sous Docker, expos\'e via Traefik (\texttt{http://metabase.localhost:8080/dashboard/2}) et connect\'e \`a PostgreSQL (\texttt{db:5432/logistics\_db}) aliment\'e par \texttt{load\_postgres.sh} (35 livreurs, 2\,510 livraisons, 1\,200 logs HTTP).
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Acc\`es \& Identifiants Metabase}
+                \justifying\scriptsize
+                Metabase est expos\'e via Traefik et connect\'e \`a \texttt{db:5432/logistics\_db} (35 livreurs, 2\,510 livraisons, 1\,200 logs HTTP) :
+                \begin{itemize}
+                    \item \textbf{Dashboard :} \texttt{http://metabase.localhost:8080/dashboard/2}
+                    \item \textbf{Email admin :} \texttt{eric.lutumba@unilu.ac.cd}
+                    \item \textbf{Mot de passe :} \texttt{UnixPipeline2026!}
+                    \item \textbf{Traefik UI :} \texttt{http://127.0.0.1:8081}
+                \end{itemize}
             \end{block}
         \end{column}
-        \begin{column}{0.48\textwidth}
-            \begin{exampleblock}{6 Questions SQL \& Partage Dashboard}
-                \justifying
-                \begin{itemize}
-                    \item Livraisons et taux de retard par ville ;
-                    \item \'Evolution mensuelle des exp\'editions ;
-                    \item R\'epartition des statuts et comparaison des v\'ehicules ;
-                    \item Performance des livreurs et anomalies HTTP ;
-                    \item Partage du tableau de bord par lien public ou export PDF.
-                \end{itemize}
+        \begin{column}{0.50\textwidth}
+            \begin{exampleblock}{6 Cartes SQL Natives \'Epingl\'ees}
+                \justifying\scriptsize
+                \begin{enumerate}
+                    \item Livraisons et Retard par Ville (\texttt{bar})
+                    \item \'Evolution Mensuelle des Livraisons (\texttt{bar})
+                    \item R\'epartition des Statuts (\texttt{pie})
+                    \item Comparaison par Type de V\'ehicule (\texttt{table})
+                    \item Performance des Livreurs (\texttt{table})
+                    \item Anomalies HTTP Apache (\texttt{access.log}) (\texttt{bar})
+                \end{enumerate}
             \end{exampleblock}
         \end{column}
     \end{columns}
