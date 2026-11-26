@@ -249,38 +249,71 @@ def provision_metabase_dashboard(
             "bar",
             "SELECT categorie, donnees_brutes, approche_classique_naive, pipeline_unix_iragi FROM iragi_audit_metrics;",
             {"row": 18, "col": 0, "size_x": 14, "size_y": 6},
+            "Compare le nombre d'anomalies detectees sur les donnees brutes (35 doublons, 12 violations, 3 cellules manquantes, 139 appels HTTP 404 orphelins), avec un nettoyage classique naif (10 violations conservees, 3 imputations aveugles) et apres le pipeline UNIX + iragi (0 anomalie restante).",
         ),
         (
             "Certification Qualite Iragi & DLQ",
             "table",
             "SELECT MAX(score_avant) AS score_brut_100, MAX(score_apres) AS score_certifie_100, MAX(quarantaine_dlq) AS lignes_quarantaine_dlq, MAX(orphelins_http_404) AS appels_http_404_orphelins FROM iragi_audit_metrics;",
             {"row": 18, "col": 14, "size_x": 10, "size_y": 6},
+            "Synthese de certification iragi : score de qualite avant (99,29/100) vs apres (99,75/100), 10 lignes isolees en quarantaine DLQ sans imputation par la moyenne, et 139 appels HTTP 404 orphelins reconcilies.",
         ),
     ]
 
     dashcards = []
     created_cards = []
-    for idx, (title, display, sql_text, layout) in enumerate(questions, start=1):
+    for idx, item in enumerate(questions, start=1):
+        title, display, sql_text, layout = item[:4]
+        description = item[4] if len(item) > 4 else ""
+        card_payload = {
+            "name": title,
+            "display": display,
+            "visualization_settings": {},
+            "dataset_query": {
+                "type": "native",
+                "database": db_id,
+                "native": {"query": sql_text},
+            },
+        }
+        if description:
+            card_payload["description"] = description
         card = _api_request(
             base_url,
             host_header,
             "/api/card",
             method="POST",
             session_token=session_id,
-            payload={
-                "name": title,
-                "display": display,
-                "visualization_settings": {},
-                "dataset_query": {
-                    "type": "native",
-                    "database": db_id,
-                    "native": {"query": sql_text},
-                },
-            },
+            payload=card_payload,
         )
         card_id = int(card["id"])
         created_cards.append({"id": card_id, "name": title, "display": display})
         dashcards.append({"id": -idx, "card_id": card_id, **layout})
+
+    iragi_explanation_md = (
+        "### Lecture des Indicateurs iragi (v0.6.4) & DLQ\n\n"
+        "- **Audit Iragi : Brut vs Classique vs UNIX+Iragi** : montre comment le pipeline UNIX (`sed`, `awk`, `sort`, `uniq`) controle par `iragi` elimine **100 %** des anomalies metier (0 doublon, 0 violation de contrat, 0 cellule manquante), alors qu'un nettoyage classique naif laisse passer **10 violations** et fausse les statistiques par imputation aveugle.\n"
+        "- **Certification Qualite Iragi & DLQ** : atteste de l'amelioration objective du score (`99,29 -> 99,75 / 100`), de l'isolation de **10 lignes fautives** dans `quarantine_livraisons.csv` (Dead-Letter Queue) avec parite exacte (`2 510 == 2 510`), et de la detection par `iragi.reconcile` de **751 livraisons suivies** et **139 appels HTTP 404 orphelins**."
+    )
+    dashcards.append(
+        {
+            "id": -(len(questions) + 1),
+            "card_id": None,
+            "row": 24,
+            "col": 0,
+            "size_x": 24,
+            "size_y": 5,
+            "visualization_settings": {
+                "virtual_card": {
+                    "name": None,
+                    "display": "text",
+                    "visualization_settings": {},
+                    "dataset_query": {},
+                    "archived": False,
+                },
+                "text": iragi_explanation_md,
+            },
+        }
+    )
 
     _api_request(
         base_url,

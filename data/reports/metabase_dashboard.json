@@ -5,42 +5,42 @@
   "dashboard_id": 2,
   "cards": [
     {
-      "id": 46,
+      "id": 54,
       "name": "Livraisons et Retard par Ville",
       "display": "bar"
     },
     {
-      "id": 47,
+      "id": 55,
       "name": "Evolution Mensuelle des Livraisons",
       "display": "bar"
     },
     {
-      "id": 48,
+      "id": 56,
       "name": "Repartition des Statuts",
       "display": "pie"
     },
     {
-      "id": 49,
+      "id": 57,
       "name": "Comparaison par Type de Vehicule",
       "display": "table"
     },
     {
-      "id": 50,
+      "id": 58,
       "name": "Performance des Livreurs",
       "display": "table"
     },
     {
-      "id": 51,
+      "id": 59,
       "name": "Anomalies HTTP Apache (access.log)",
       "display": "bar"
     },
     {
-      "id": 52,
+      "id": 60,
       "name": "Audit Iragi : Brut vs Classique vs UNIX+Iragi",
       "display": "bar"
     },
     {
-      "id": 53,
+      "id": 61,
       "name": "Certification Qualite Iragi & DLQ",
       "display": "table"
     }
