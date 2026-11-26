@@ -1,10 +1,26 @@
 {
+  "mode": "exam",
   "seed": 2026,
+  "months": 3,
+  "start_date": "2026-09-01",
+  "end_date": "2026-11-29",
   "couriers_count": 35,
   "access_logs_count": 1200,
+  "simulation_disclaimer": "Synthetic data with configurable simulation coefficients; not official statistics.",
   "deliveries_base_rows": 2500,
-  "injected_duplicates": 20,
-  "injected_whitespace_rows": 8,
-  "injected_invalid_rows": 8,
-  "injected_blank_lines": 5
+  "city_base_counts": {
+    "Paris": 375,
+    "Lyon": 319,
+    "Marseille": 306,
+    "Lille": 264,
+    "Bordeaux": 256,
+    "Toulouse": 267,
+    "Nantes": 244,
+    "Nice": 233,
+    "Strasbourg": 236
+  },
+  "injected_duplicates": 35,
+  "injected_whitespace_rows": 10,
+  "injected_invalid_rows": 10,
+  "injected_blank_lines": 6
 }

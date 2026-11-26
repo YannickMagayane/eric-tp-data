@@ -1,10 +1,10 @@
-# ville	total_deliveries	avg_temps	delay_rate_pct
-Lyon	307	141.73	11.07
-Nantes	302	135.86	6.29
-Lille	292	146.73	15.41
-Toulouse	291	138.19	12.03
-Marseille	290	129.21	12.76
-Bordeaux	267	135.24	9.36
-Strasbourg	255	140.26	10.20
-Paris	254	137.93	12.60
-Nice	250	134.04	14.00
+# ville	total_deliveries	avg_temps	delay_rate_pct	avg_cout
+Paris	377	90.96	14.59	36.67
+Lyon	320	131.01	11.88	45.67
+Marseille	307	139.18	11.40	48.80
+Toulouse	268	131.46	7.46	46.76
+Lille	265	130.29	10.57	46.14
+Bordeaux	257	144.07	14.40	48.89
+Nantes	245	142.16	8.57	47.98
+Strasbourg	237	137.09	6.75	47.15
+Nice	234	126.53	11.97	45.91

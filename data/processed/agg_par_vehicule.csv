@@ -1,0 +1,5 @@
+type_vehicule,total_deliveries,avg_poids,avg_distance,avg_temps,avg_speed_kmh,avg_cout,delay_rate_pct
+Camionnette,1027,24.74,124.02,117.15,50.49,42.11,12.46
+Fourgon,998,35.93,197.57,157.45,64.97,62.33,10.02
+Moto,322,16.43,34.84,72.11,28.14,20.56,10.25
+Velo,163,10.05,34.29,134.90,15.09,14.36,10.43

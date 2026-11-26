@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase 2 - Task 5: End-to-end ETL & analysis orchestrator with error traps and status report.
+# Phase 2 - Task 5: End-to-end ETL & analysis orchestrator with lineage traceability and error traps.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/etl/common.sh
@@ -9,6 +9,7 @@ STAGE="ORCHESTRATOR"
 ensure_pipeline_dirs
 
 STATUS_JSON="${REPORTS_DIR}/pipeline_status.json"
+LINEAGE_JSON="${REPORTS_DIR}/lineage_manifest.json"
 STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 CURRENT_STEP="initialization"
 
@@ -18,12 +19,20 @@ write_status_report() {
     local completed_at
     completed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+    local raw_rows=0
     local clean_rows=0
+    local enriched_rows=0
     local rejected_rows=0
     local anomalies_count=0
 
+    if [[ -f "${RAW_DIR}/livraisons.csv" ]]; then
+        raw_rows=$(( $(sed '/^[[:space:]]*$/d' "${RAW_DIR}/livraisons.csv" | wc -l) - 1 ))
+    fi
     if [[ -f "${PROCESSED_DIR}/livraisons_clean.csv" ]]; then
         clean_rows=$(( $(wc -l < "${PROCESSED_DIR}/livraisons_clean.csv") - 1 ))
+    fi
+    if [[ -f "${PROCESSED_DIR}/livraisons_enriched.csv" ]]; then
+        enriched_rows=$(( $(wc -l < "${PROCESSED_DIR}/livraisons_enriched.csv") - 1 ))
     fi
     if [[ -f "${PROCESSED_DIR}/livraisons_rejected_unix.csv" ]]; then
         rejected_rows=$(( $(wc -l < "${PROCESSED_DIR}/livraisons_rejected_unix.csv") - 1 ))
@@ -38,7 +47,9 @@ write_status_report() {
         --arg started "${STARTED_AT}" \
         --arg completed "${completed_at}" \
         --argjson code "${exit_code}" \
+        --argjson raw "${raw_rows}" \
         --argjson clean "${clean_rows}" \
+        --argjson enriched "${enriched_rows}" \
         --argjson rejected "${rejected_rows}" \
         --argjson anomalies "${anomalies_count}" \
         '{
@@ -47,10 +58,33 @@ write_status_report() {
             exit_code: $code,
             started_at: $started,
             completed_at: $completed,
+            raw_rows: $raw,
             clean_rows: $clean,
+            enriched_rows: $enriched,
             rejected_rows: $rejected,
             anomalies_count: $anomalies
         }' > "${STATUS_JSON}"
+}
+
+write_lineage_manifest() {
+    local raw_sha="" clean_sha="" enriched_sha=""
+    [[ -f "${RAW_DIR}/livraisons.csv" ]] && raw_sha="$(sha256sum "${RAW_DIR}/livraisons.csv" | cut -d' ' -f1)"
+    [[ -f "${PROCESSED_DIR}/livraisons_clean.csv" ]] && clean_sha="$(sha256sum "${PROCESSED_DIR}/livraisons_clean.csv" | cut -d' ' -f1)"
+    [[ -f "${PROCESSED_DIR}/livraisons_enriched.csv" ]] && enriched_sha="$(sha256sum "${PROCESSED_DIR}/livraisons_enriched.csv" | cut -d' ' -f1)"
+
+    jq -n \
+        --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        --arg raw_sha "${raw_sha}" \
+        --arg clean_sha "${clean_sha}" \
+        --arg enriched_sha "${enriched_sha}" \
+        '{
+            generated_at: $ts,
+            stages: [
+                {stage: "raw", file: "data/raw/livraisons.csv", sha256: $raw_sha},
+                {stage: "clean_unix", file: "data/processed/livraisons_clean.csv", sha256: $clean_sha},
+                {stage: "transform_unix", file: "data/processed/livraisons_enriched.csv", sha256: $enriched_sha}
+            ]
+        }' > "${LINEAGE_JSON}"
 }
 
 on_error() {
@@ -95,6 +129,7 @@ run_iragi_audit(
 "
 fi
 
+write_lineage_manifest
 CURRENT_STEP="completed"
 write_status_report "SUCCESS" 0
 log_info "${STAGE}" "Pipeline completed successfully. Status saved to ${STATUS_JSON}."

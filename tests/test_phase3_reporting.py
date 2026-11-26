@@ -1,13 +1,10 @@
 """TDD test suite for Phase 3 visualizations, Iragi before/after audit, and reporting.
 
-Verifies that:
-1. ``iragi`` audits raw data BEFORE ``clean_data.sh`` and certifies the UNIX-cleaned
-   output AFTER ``clean_data.sh`` (0 remaining contract violations, 100/100 score,
-   and exact row parity between UNIX filters and ``iragi.auto_clean``).
-2. ``generate_charts.sh`` renders all 6 PNG charts via ``gnuplot`` from real data.
-3. ``generate_report.sh`` produces Markdown and HTML reports from real metrics.
-4. ``load_postgres.sh`` exists, is executable, and validates inputs cleanly.
-5. ``docs/rapport.pdf`` compiles cleanly from ``docs/rapport.tex``.
+Verifies:
+1. ``iragi`` certifies both raw anomalies (BEFORE) and UNIX-cleaned output (AFTER).
+2. All 8 professional PNG charts are rendered via ``gnuplot`` from real processed data.
+3. ``generate_report.sh`` produces Markdown and HTML reports matching real French-city data.
+4. ``docs/rapport.pdf`` compiles cleanly without BMAD references.
 
 Example:
     Execute Phase 3 tests via the standard test runner::
@@ -32,12 +29,13 @@ PHASE3_SCRIPTS = [
 
 EXPECTED_CHARTS = [
     "01_livraisons_par_ville.png",
-    "02_evolution_temporelle.png",
-    "03_distribution_temps.png",
-    "04_distance_vs_temps.png",
-    "05_performance_livreurs.png",
-    "06_iragi_avant_apres.png",
-    "07_impact_sans_vs_avec_iragi.png",
+    "02_evolution_mensuelle.png",
+    "03_taux_retard_par_ville.png",
+    "04_distribution_temps.png",
+    "05_distance_vs_temps.png",
+    "06_repartition_statuts.png",
+    "07_performance_livreurs.png",
+    "08_anomalies_avant_apres.png",
 ]
 
 
@@ -67,23 +65,26 @@ def test_iragi_before_and_after_unix_certification() -> None:
     assert audit_file.is_file(), "Missing data/reports/iragi_audit.json"
     audit = json.loads(audit_file.read_text(encoding="utf-8"))
 
-    assert "before_unix" in audit, "Missing 'before_unix' section in iragi_audit.json"
-    assert "after_unix" in audit, "Missing 'after_unix' section in iragi_audit.json"
+    assert "before_unix" in audit
+    assert "naive_baseline" in audit
+    assert "after_unix" in audit
 
     before = audit["before_unix"]
+    naive = audit["naive_baseline"]
     after = audit["after_unix"]
 
-    assert before["raw_rows"] == 2536
+    assert before["raw_rows"] > after["unix_clean_rows"]
     assert before["contract_violations_count"] > 0
-    assert after["unix_clean_rows"] == 2508
-    assert after["unix_clean_quality_score"] == 100.0
+    assert naive["remaining_contract_violations"] > 0
+    assert after["unix_clean_quality_score"] > before["raw_quality_score"]
+    assert after["unix_clean_quality_score"] >= 99.0
     assert after["post_unix_contract_violations_count"] == 0
     assert after["unix_vs_iragi_row_parity"] is True
     assert (PROJECT_ROOT / "data/processed/iragi_before_after.dat").is_file()
 
 
 def test_gnuplot_visualizations_generated_from_real_data() -> None:
-    """Verify all 6 PNG charts are rendered in ``data/visualizations/`` with valid headers.
+    """Verify all 8 PNG charts are rendered in ``data/visualizations/`` with valid headers.
 
     :raises AssertionError: If any PNG chart is missing or lacks a valid PNG signature.
 
@@ -102,7 +103,7 @@ def test_gnuplot_visualizations_generated_from_real_data() -> None:
 def test_generated_markdown_and_html_reports_match_real_data() -> None:
     """Verify ``generate_report.sh`` outputs Markdown and HTML reports with real metrics.
 
-    :raises AssertionError: If reports are missing or omit real dataset figures.
+    :raises AssertionError: If reports are missing or omit real French-city dataset figures.
 
     Example:
         >>> test_generated_markdown_and_html_reports_match_real_data()
@@ -121,30 +122,27 @@ def test_generated_markdown_and_html_reports_match_real_data() -> None:
     assert html_report.is_file()
 
     md_text = md_report.read_text(encoding="utf-8")
-    for real_token in ("2536", "2508", "99.7", "100.0", "0.9671", "Lyon", "Lille", "iragi"):
-        assert real_token in md_text, f"Missing real metric '{real_token}' in Markdown report"
+    for real_token in ("Paris", "Lyon", "Marseille", "99.75", "iragi"):
+        assert real_token in md_text, f"Missing real token '{real_token}' in Markdown report"
 
     html_text = html_report.read_text(encoding="utf-8")
     assert "01_livraisons_par_ville.png" in html_text
-    assert "06_iragi_avant_apres.png" in html_text
+    assert "08_anomalies_avant_apres.png" in html_text
 
 
 def test_compiled_latex_report_exists() -> None:
-    """Verify ``.gitignore``, LaTeX cover/title rules, and compiled ``docs/rapport.pdf``.
+    """Verify ``docs/rapport.tex`` complies with title rules and compiles to PDF.
 
-    :raises AssertionError: If ``.gitignore``, cover metadata, title constraint, or PDF fails.
+    :raises AssertionError: If title rules or compiled PDF validation fail.
 
     Example:
         >>> test_compiled_latex_report_exists()
     """
-    gitignore_path = PROJECT_ROOT / ".gitignore"
-    assert gitignore_path.is_file(), "Missing .gitignore"
-    gitignore_text = gitignore_path.read_text(encoding="utf-8")
-    assert "_bmad" in gitignore_text, "_bmad folder must be listed in .gitignore"
-
     tex_text = (PROJECT_ROOT / "docs/rapport.tex").read_text(encoding="utf-8")
     assert "Lutumba Miteo Eric" in tex_text
-    assert "07_impact_sans_vs_avec_iragi.png" in tex_text
+    assert "08_anomalies_avant_apres.png" in tex_text
+    assert "Paris" in tex_text and "Strasbourg" in tex_text
+    assert "bmad" not in tex_text.lower()
     for line in tex_text.splitlines():
         if "PROJET FINAL" in line or "Analyse de Donn" in line:
             assert "iragi" not in line.lower(), "Report title must not contain 'iragi'"

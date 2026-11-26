@@ -2,9 +2,11 @@
   "status": "SUCCESS",
   "last_step": "completed",
   "exit_code": 0,
-  "started_at": "2026-11-26T15:00:20Z",
-  "completed_at": "2026-11-26T15:00:21Z",
-  "clean_rows": 2508,
-  "rejected_rows": 8,
-  "anomalies_count": 227
+  "started_at": "2026-11-26T17:12:51Z",
+  "completed_at": "2026-11-26T17:12:53Z",
+  "raw_rows": 2555,
+  "clean_rows": 2510,
+  "enriched_rows": 2510,
+  "rejected_rows": 10,
+  "anomalies_count": 441
 }

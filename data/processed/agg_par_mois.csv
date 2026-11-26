@@ -1,4 +1,4 @@
-year_month,total_deliveries,avg_temps,completed_count,delayed_count,cancelled_count
-2026-09,836,138.11,579,86,52
-2026-10,890,138.83,614,101,50
-2026-11,782,136.14,519,101,45
+year_month,total_deliveries,avg_temps,avg_cout,completed_count,delayed_count,cancelled_count
+2026-09,846,127.74,45.14,596,103,48
+2026-10,856,127.03,45.20,608,83,49
+2026-11,808,131.00,46.46,566,92,49

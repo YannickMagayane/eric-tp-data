@@ -1,9 +1,10 @@
 services:
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3.6
     container_name: unix_pipeline_traefik
     command:
       - "--api.insecure=true"
+      - "--ping=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
@@ -16,7 +17,7 @@ services:
       - pipeline_net
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
       retries: 3
     restart: unless-stopped
@@ -48,6 +49,7 @@ services:
     tty: true
     stdin_open: true
     environment:
+      PYTHONPATH: /workspace
       PGHOST: db
       PGPORT: 5432
       PGUSER: ${POSTGRES_USER:-logistics}
@@ -55,7 +57,6 @@ services:
       PGDATABASE: ${POSTGRES_DB:-logistics_db}
     volumes:
       - .:/workspace
-      - pipeline_data:/workspace/data_volume
     depends_on:
       db:
         condition: service_healthy
@@ -72,7 +73,7 @@ services:
     container_name: unix_pipeline_metabase
     environment:
       MB_DB_FILE: /metabase-data/metabase.db
-      JAVA_TIMEZONE: Africa/Lubumbashi
+      JAVA_TIMEZONE: Europe/Paris
     volumes:
       - metabase_data:/metabase-data
     depends_on:
@@ -87,14 +88,14 @@ services:
       - pipeline_net
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/health || exit 1"]
-      interval: 30s
+      interval: 20s
       timeout: 10s
-      retries: 5
+      retries: 10
+      start_period: 60s
     restart: unless-stopped
 
 volumes:
   pgdata:
-  pipeline_data:
   metabase_data:
 
 networks:

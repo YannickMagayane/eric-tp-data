@@ -2,9 +2,9 @@
 
 Reads actual files produced by Phase 2 and ``iragi`` (``iragi_audit.json``,
 ``pipeline_status.json``, ``stats_descriptives.csv``, ``correlations.csv``,
-``agg_par_ville.csv``, ``agg_par_mois.csv``, ``agg_par_statut.csv``, and
-``anomalies.csv``) to generate timestamped technical reports with zero
-hardcoded metrics.
+``agg_par_ville.csv``, ``agg_par_mois.csv``, ``agg_par_statut.csv``,
+``agg_par_vehicule.csv``, and ``anomalies.csv``) to generate timestamped
+technical reports with zero hardcoded metrics.
 
 Example:
     Generate Markdown and HTML reports from ``data/``::
@@ -60,6 +60,7 @@ def collect_real_metrics(data_dir: Path = Path("data")) -> dict[str, Any]:
     cities = _read_csv_rows(processed / "agg_par_ville.csv")
     months = _read_csv_rows(processed / "agg_par_mois.csv")
     statuses = _read_csv_rows(processed / "agg_par_statut.csv")
+    vehicles = _read_csv_rows(processed / "agg_par_vehicule.csv")
     anomalies = _read_csv_rows(reports / "anomalies.csv")
 
     top_volume_city = cities[0]
@@ -81,6 +82,7 @@ def collect_real_metrics(data_dir: Path = Path("data")) -> dict[str, Any]:
         "cities": cities,
         "months": months,
         "statuses": statuses,
+        "vehicles": vehicles,
         "top_volume_city": top_volume_city,
         "worst_delay_city": worst_delay_city,
         "best_delay_city": best_delay_city,
@@ -103,16 +105,21 @@ def render_markdown_report(ctx: dict[str, Any]) -> str:
     """
     ir = ctx["iragi"]
     before = ir["before_unix"]
+    naive = ir["naive_baseline"]
     after = ir["after_unix"]
 
     city_lines = "\n".join(
         f"| {c['ville']} | {c['total_deliveries']} | {c['avg_poids']} | {c['avg_distance']} "
-        f"| {c['avg_temps']} | {c['avg_speed_kmh']} | {c['delay_rate_pct']} % |"
+        f"| {c['avg_temps']} | {c['avg_speed_kmh']} | {c['avg_cout']} EUR | {c['delay_rate_pct']} % |"
         for c in ctx["cities"]
     )
     stat_lines = "\n".join(
-        f"| {s['metric']} | {s['count']} | {s['mean']} | {s['median']} | {s['min']} | {s['max']} | {s['stddev']} |"
+        f"| {s['metric']} | {s['count']} | {s['mean']} | {s['median']} | {s['q1']} | {s['q3']} | {s['iqr']} | {s['min']} | {s['max']} | {s['stddev']} |"
         for s in ctx["stats"]
+    )
+    vehicle_lines = "\n".join(
+        f"| {v['type_vehicule']} | {v['total_deliveries']} | {v['avg_distance']} km | {v['avg_temps']} min | {v['avg_speed_kmh']} km/h | {v['avg_cout']} EUR | {v['delay_rate_pct']} % |"
+        for v in ctx["vehicles"]
     )
     violation_lines = "\n".join(
         f"- Colonne `{v['column']}` (regle `{v['rule']}`) : **{v['failed_count']}** violation(s) detectee(s)"
@@ -127,72 +134,77 @@ def render_markdown_report(ctx: dict[str, Any]) -> str:
 
 ---
 
-## 1. Intervention d'`iragi` AVANT et APRES le Pipeline UNIX
+## 1. Comparaison : Brut vs Approche Classique vs Pipeline UNIX + Iragi
 
-Le projet combine les filtres UNIX natifs (`sed`, `sort | uniq`, `awk`, `join`, `jq`) et la bibliotheque Python **`iragi`** afin de certifier mathematiquement la qualite des donnees d'un bout a l'autre.
-
-| Indicateur d'Audit | AVANT (`data/raw/livraisons.csv`) | APRES (`clean_data.sh` certifie par `iragi`) | Evolution |
+| Indicateur d'Audit | 1. Brut (`data/raw`) | 2. Approche Classique Naive | 3. Pipeline UNIX + `iragi` |
 | :--- | :---: | :---: | :---: |
-| Enregistrements analyses | {before["raw_rows"]} | {after["unix_clean_rows"]} | -28 lignes non conformes/doublons |
-| Score de qualite `iragi.scan` (/100) | **{before["raw_quality_score"]}** | **{after["unix_clean_quality_score"]}** | **+{after["quality_score_delta"]} pt** |
-| Doublons exacts | {before["duplicates_detected"]} | 0 | -100 % |
-| Cellules vides / manquantes | {before["missing_cells_count"]} | 0 | {after["missing_delta"]} |
-| Violations du `DataContract` | {before["contract_violations_count"]} | {after["post_unix_contract_violations_count"]} | -100 % |
-| Parite exacte `UNIX == iragi.auto_clean` | — | `{after["unix_vs_iragi_row_parity"]}` ({after["unix_clean_rows"]} = {after["iragi_clean_rows"]}) | Concordance totale |
+| Enregistrements retenus | {before["raw_rows"]} | {naive["rows_retained"]} | **{after["unix_clean_rows"]}** |
+| Score de qualite `iragi.scan` (/100) | {before["raw_quality_score"]} | Non certifie | **{after["unix_clean_quality_score"]}** (+{after["quality_score_delta"]} pts) |
+| Doublons actifs | {before["duplicates_detected"]} | 0 | **0** |
+| Violations du `DataContract` | {before["contract_violations_count"]} | **{naive["remaining_contract_violations"]}** (non filtrees) | **{after["post_unix_contract_violations_count"]}** |
+| Tracabilite Quarantaine DLQ | Aucune | Aucune (imputation aveugle) | **{before["quarantined_rows_count"]} lignes isolees** |
+| Orphelins HTTP `404` non reconcilies | {ir["orphan_http_delivery_calls"]} | {naive["unreconciled_http_orphans"]} | **0 ignore ({ir["orphan_http_delivery_calls"]} identifies)** |
 
 ### Detail des violations detectees AVANT nettoyage (`iragi.DataContract`)
 {violation_lines}
 
-Ces **{before["quarantined_rows_count"]} enregistrements corrompus** ont ete isoles en *Dead-Letter Queue* dans `data/processed/quarantine_livraisons.csv` par `iragi.auto_clean(contract_action="quarantine")`, en parfaite concordance avec les {ctx["raw_anomalies"]} rejets traces par `clean_data.sh`.
-
 ### Reconciliation Inter-Sources (`iragi.reconcile` : CSV vs Logs Apache)
-- Livraisons rapprochees avec les appels `/api/livraisons/LIV-<id>` de `access.log` : **{ir["log_matched_deliveries"]}** (taux de couverture catalogue : **{round(ir["log_reconciliation_match_rate"] * 100, 2)} %**).
+- Livraisons rapprochees avec les appels `/api/livraisons/LIV-<id>` de `access.log` : **{ir["log_matched_deliveries"]}** (couverture : **{round(ir["log_reconciliation_match_rate"] * 100, 2)} %**).
 - Requetes HTTP `404` orphelines pointant vers des identifiants inexistants : **{ir["orphan_http_delivery_calls"]}**.
 
 ---
 
-## 2. Statistiques Descriptives et Correlations (2 508 Livraisons Valides)
+## 2. Statistiques Descriptives, Quartiles et Correlations ({after["unix_clean_rows"]} Livraisons)
 
-| Variable | Effectif | Moyenne | Mediane | Min | Max | Ecart-type |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Variable | Effectif | Moyenne | Mediane | Q1 | Q3 | IQR | Min | Max | Ecart-type |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 {stat_lines}
 
-- **Correlation Distance vs Temps** : `r = {ctx["corr_map"]["distance_vs_temps"]}` — relation lineaire tres forte ; l'eloignement explique directement la duree d'acheminement.
-- **Correlation Poids vs Temps** : `r = {ctx["corr_map"]["poids_vs_temps"]}` — absence totale d'impact du poids du colis sur le temps de livraison.
-- **Correlation Distance vs Vitesse** : `r = {ctx["corr_map"]["distance_vs_speed_kmh"]}` — les longues liaisons interurbaines beneficient d'une vitesse moyenne superieure.
+- **Correlation Distance vs Temps** : `r = {ctx["corr_map"]["distance_vs_temps"]}` (association lineaire forte ; une correlation n'implique pas a elle seule une causalite unique sans controle des facteurs trafic/vehicule).
+- **Correlation Poids vs Temps** : `r = {ctx["corr_map"]["poids_vs_temps"]}`.
+- **Correlation Distance vs Cout** : `r = {ctx["corr_map"]["distance_vs_cout"]}`.
 
 ---
 
-## 3. Performances par Ville de Destination
+## 3. Performances par Ville de Destination (9 Villes)
 
-| Ville | Livraisons | Poids moy. (kg) | Distance moy. (km) | Duree moy. (min) | Vitesse moy. (km/h) | Taux de retard |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Ville | Livraisons | Poids moy. (kg) | Distance moy. (km) | Duree moy. (min) | Vitesse moy. (km/h) | Cout moy. | Taux de retard |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 {city_lines}
 
 ---
 
-## 4. Visualisations Generees (`gnuplot`)
+## 4. Comparaison par Type de Vehicule
 
-1. `../visualizations/01_livraisons_par_ville.png` — Volume et taux de retard par ville
-2. `../visualizations/02_evolution_temporelle.png` — Serie temporelle quotidienne (90 jours)
-3. `../visualizations/03_distribution_temps.png` — Histogramme des temps de livraison
-4. `../visualizations/04_distance_vs_temps.png` — Nuage de points et regression lineaire Distance vs Temps
-5. `../visualizations/05_performance_livreurs.png` — Note moyenne vs Experience des 35 livreurs
-6. `../visualizations/06_iragi_avant_apres.png` — Bilan d'audit `iragi` Avant vs Apres nettoyage UNIX
-7. `../visualizations/07_impact_sans_vs_avec_iragi.png` — Comparaison directe SANS nettoyage (brut) vs AVEC pipeline UNIX + contrat `iragi`
+| Vehicule | Livraisons | Distance moy. | Duree moy. | Vitesse moy. | Cout moy. | Taux de retard |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+{vehicle_lines}
 
 ---
 
-## 5. Recommandations Operationnelles Fondees sur les Donnees Reelles
+## 5. Visualisations Generees (`gnuplot`)
 
-1. **Prioriser les axes vers {ctx["worst_delay_city"]["ville"]} ({ctx["worst_delay_city"]["delay_rate_pct"]} % de retard) et Nice** : {ctx["worst_delay_city"]["ville"]} affiche la distance moyenne la plus longue ({ctx["worst_delay_city"]["avg_distance"]} km) et la duree moyenne maximale ({ctx["worst_delay_city"]["avg_temps"]} min). S'inspirer de l'organisation de **{ctx["best_delay_city"]["ville"]}** (seulement **{ctx["best_delay_city"]["delay_rate_pct"]} %** de retard pour {ctx["best_delay_city"]["total_deliveries"]} colis) en pre-positionnant des fourgons rapides sur les trajets > 250 km.
-2. **Bloquer en amont les saisies hors-contrat via `iragi.DataContract`** : integrer la validation contractuelle directement a l'ingestion API afin d'eliminer a la source les dates invalides, identifiants vides et poids negatifs avant meme l'ecriture dans `data/raw/`.
-3. **Corriger la synchronisation API identifiee par `iragi.reconcile`** : auditer le service web emettant les **{ir["orphan_http_delivery_calls"]} appels HTTP orphelins (`404`)** sur `/api/livraisons/LIV-*` parmi les {ctx["http_anomalies"]} erreurs HTTP journalisees dans `access.log`.
+1. `../visualizations/01_livraisons_par_ville.png` — Volume de livraisons par ville
+2. `../visualizations/02_evolution_mensuelle.png` — Evolution mensuelle des livraisons
+3. `../visualizations/03_taux_retard_par_ville.png` — Taux de retard par ville
+4. `../visualizations/04_distribution_temps.png` — Distribution des temps de livraison
+5. `../visualizations/05_distance_vs_temps.png` — Distance versus temps
+6. `../visualizations/06_repartition_statuts.png` — Repartition des statuts
+7. `../visualizations/07_performance_livreurs.png` — Performance des livreurs
+8. `../visualizations/08_anomalies_avant_apres.png` — Comparaison des anomalies avant et apres traitement
+
+---
+
+## 6. Recommandations Operationnelles
+
+1. **Renforcer le suivi des corridors vers {ctx["worst_delay_city"]["ville"]} ({ctx["worst_delay_city"]["delay_rate_pct"]} % de retard)** en comparant l'allocation flotte avec **{ctx["best_delay_city"]["ville"]}** (**{ctx["best_delay_city"]["delay_rate_pct"]} %**).
+2. **Appliquer `iragi.DataContract` en entree API** pour rejeter avant ingestion les dates invalides, poids negatifs et distances hors-contrat.
+3. **Auditer le service API emettant les {ir["orphan_http_delivery_calls"]} appels HTTP `404` orphelins** sur `/api/livraisons/LIV-*`.
 """
 
 
 def render_html_dashboard(ctx: dict[str, Any]) -> str:
-    """Build a self-contained TailwindCSS HTML report embedding gnuplot PNG charts.
+    """Build a self-contained TailwindCSS HTML report embedding all 8 gnuplot PNG charts.
 
     :param ctx: Metrics dictionary produced by :func:`collect_real_metrics`.
     :type ctx: dict[str, Any]
@@ -212,19 +224,21 @@ def render_html_dashboard(ctx: dict[str, Any]) -> str:
         f"<td class='py-2 px-3 text-right'>{c['total_deliveries']}</td>"
         f"<td class='py-2 px-3 text-right'>{c['avg_distance']} km</td>"
         f"<td class='py-2 px-3 text-right'>{c['avg_temps']} min</td>"
+        f"<td class='py-2 px-3 text-right'>{c['avg_cout']} EUR</td>"
         f"<td class='py-2 px-3 text-right font-semibold'>{c['delay_rate_pct']} %</td>"
         f"</tr>"
         for c in ctx["cities"]
     )
 
     charts = [
-        ("01_livraisons_par_ville.png", "Livraisons et taux de retard par ville"),
-        ("02_evolution_temporelle.png", "Evolution quotidienne sur 3 mois"),
-        ("03_distribution_temps.png", "Distribution des durees de livraison"),
-        ("04_distance_vs_temps.png", "Correlation Distance vs Temps (r = 0.9671)"),
-        ("05_performance_livreurs.png", "Experience vs Note des 35 livreurs"),
-        ("06_iragi_avant_apres.png", "Intervention Iragi : Avant vs Apres UNIX"),
-        ("07_impact_sans_vs_avec_iragi.png", "Comparaison directe : SANS vs AVEC Iragi"),
+        ("01_livraisons_par_ville.png", "1. Volume de livraisons par ville"),
+        ("02_evolution_mensuelle.png", "2. Evolution mensuelle des livraisons"),
+        ("03_taux_retard_par_ville.png", "3. Taux de retard par ville"),
+        ("04_distribution_temps.png", "4. Distribution des temps de livraison"),
+        ("05_distance_vs_temps.png", "5. Distance versus temps"),
+        ("06_repartition_statuts.png", "6. Repartition des statuts"),
+        ("07_performance_livreurs.png", "7. Performance des livreurs"),
+        ("08_anomalies_avant_apres.png", "8. Anomalies : Brut vs Classique vs UNIX + Iragi"),
     ]
     charts_html = "\n".join(
         f"<figure class='bg-white rounded-lg shadow p-4 border border-slate-200'>"
@@ -248,7 +262,7 @@ def render_html_dashboard(ctx: dict[str, Any]) -> str:
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <p class="text-xs uppercase tracking-widest text-slate-400">Projet Final Systemes UNIX — M1 Informatique</p>
-          <h1 class="text-2xl font-bold mt-1">Analyse Logistique par Pipelines UNIX &amp; Audit Iragi ({ir["iragi_version"]})</h1>
+          <h1 class="text-2xl font-bold mt-1">Analyse Logistique par Pipelines UNIX &amp; Gouvernance Iragi ({ir["iragi_version"]})</h1>
         </div>
         <div class="text-sm text-slate-300">
           Genere le : <span class="font-mono">{ctx["generated_at"]}</span>
@@ -270,7 +284,7 @@ def render_html_dashboard(ctx: dict[str, Any]) -> str:
       <div class="bg-white rounded-lg p-5 shadow border border-slate-200">
         <p class="text-xs uppercase text-slate-500">Correlation Distance / Temps</p>
         <p class="text-2xl font-bold text-indigo-600 mt-1">r = {ctx["corr_map"]["distance_vs_temps"]}</p>
-        <p class="text-xs text-slate-500 mt-1">Poids vs Temps : r = {ctx["corr_map"]["poids_vs_temps"]}</p>
+        <p class="text-xs text-slate-500 mt-1">Distance vs Cout : r = {ctx["corr_map"]["distance_vs_cout"]}</p>
       </div>
       <div class="bg-white rounded-lg p-5 shadow border border-slate-200">
         <p class="text-xs uppercase text-slate-500">Reconciliation Logs HTTP</p>
@@ -293,6 +307,7 @@ def render_html_dashboard(ctx: dict[str, Any]) -> str:
               <th class="py-2 px-3 text-right">Volume</th>
               <th class="py-2 px-3 text-right">Distance moy.</th>
               <th class="py-2 px-3 text-right">Duree moy.</th>
+              <th class="py-2 px-3 text-right">Cout moy.</th>
               <th class="py-2 px-3 text-right">Taux de retard</th>
             </tr>
           </thead>

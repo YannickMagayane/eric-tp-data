@@ -1,36 +1,36 @@
-# courier_id	ville	experience	note	vehicule
-1	Strasbourg	30	3.78	Velo
-2	Strasbourg	13	4.46	Fourgon
-3	Lille	0	4.04	Velo
-4	Nice	0	4.54	Fourgon
-5	Lille	12	3.13	Camionnette
-6	Lyon	23	3.35	Camionnette
-7	Marseille	28	4.11	Camionnette
-8	Toulouse	14	3.56	Fourgon
-9	Nice	27	2.79	Fourgon
-10	Bordeaux	27	3.55	Fourgon
-11	Paris	18	3.06	Moto
-12	Lyon	22	4.06	Fourgon
-13	Lille	27	4.71	Fourgon
-14	Strasbourg	8	3.90	Camionnette
-15	Nice	25	4.71	Fourgon
-16	Bordeaux	0	2.58	Fourgon
-17	Toulouse	29	3.00	Fourgon
-18	Nice	25	3.59	Velo
-19	Nice	29	4.53	Fourgon
-20	Bordeaux	14	4.80	Moto
-21	Lyon	20	3.17	Fourgon
-22	Lille	23	4.64	Moto
-23	Lyon	0	3.63	Velo
-24	Lille	3	4.05	Camionnette
-25	Marseille	0	3.28	Fourgon
-26	Strasbourg	7	3.68	Moto
-27	Bordeaux	2	3.54	Moto
-28	Bordeaux	16	3.53	Moto
-29	Nantes	0	4.90	Fourgon
-30	Toulouse	20	3.38	Velo
-31	Nice	10	4.21	Fourgon
-32	Nice	30	3.67	Moto
-33	Strasbourg	6	3.58	Camionnette
-34	Lille	21	4.28	Fourgon
-35	Marseille	1	4.12	Velo
+# courier_id	ville	experience	note	vehicule	deliveries_handled
+1	Paris	3	3.07	Velo	95
+2	Lyon	28	4.46	Fourgon	85
+3	Marseille	7	2.78	Camionnette	82
+4	Lille	14	3.08	Camionnette	69
+5	Bordeaux	12	3.33	Velo	56
+6	Toulouse	2	3.36	Fourgon	65
+7	Nantes	28	4.52	Camionnette	66
+8	Nice	27	4.58	Fourgon	65
+9	Strasbourg	12	4.23	Velo	79
+10	Paris	16	4.26	Fourgon	91
+11	Lyon	27	4.17	Velo	74
+12	Marseille	24	3.64	Velo	83
+13	Lille	15	3.30	Fourgon	65
+14	Bordeaux	22	4.68	Fourgon	84
+15	Toulouse	17	4.30	Fourgon	65
+16	Nantes	13	3.30	Velo	58
+17	Nice	20	4.53	Fourgon	59
+18	Strasbourg	6	3.10	Fourgon	83
+19	Paris	17	4.11	Camionnette	87
+20	Lyon	25	3.64	Camionnette	86
+21	Marseille	5	4.05	Velo	72
+22	Lille	28	4.32	Fourgon	72
+23	Bordeaux	14	4.34	Fourgon	60
+24	Toulouse	19	4.37	Velo	58
+25	Nantes	21	4.40	Velo	54
+26	Nice	21	4.16	Moto	54
+27	Strasbourg	15	3.92	Camionnette	75
+28	Paris	13	3.96	Camionnette	104
+29	Lyon	12	4.11	Fourgon	75
+30	Marseille	3	3.17	Camionnette	70
+31	Lille	24	4.78	Fourgon	59
+32	Bordeaux	21	3.77	Fourgon	57
+33	Toulouse	18	4.09	Moto	80
+34	Nantes	19	3.73	Velo	67
+35	Nice	1	2.81	Velo	56

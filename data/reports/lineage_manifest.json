@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-11-26T17:12:53Z",
+  "stages": [
+    {
+      "stage": "raw",
+      "file": "data/raw/livraisons.csv",
+      "sha256": "a4f64be8d0772e892d5c9ea33bbbe2191d09313c7b99637ae5ec9350fb32f8e1"
+    },
+    {
+      "stage": "clean_unix",
+      "file": "data/processed/livraisons_clean.csv",
+      "sha256": "da7d7a8352b5499e89c6c22af1ff26e6a0ba3350ebbc6d5a7c427603812f27bd"
+    },
+    {
+      "stage": "transform_unix",
+      "file": "data/processed/livraisons_enriched.csv",
+      "sha256": "c3b391403cd78a8ac052566e2239e88765382fc1406ab388d11999ec33b2aa56"
+    }
+  ]
+}

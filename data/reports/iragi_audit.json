@@ -2,11 +2,12 @@
   "iragi_version": "0.6.4",
   "before_unix": {
     "evaluated_file": "data/raw/livraisons.csv",
-    "raw_rows": 2536,
-    "raw_quality_score": 99.7,
-    "duplicates_detected": 20,
+    "scan_mode": "scan",
+    "raw_rows": 2555,
+    "raw_quality_score": 99.29,
+    "duplicates_detected": 35,
     "missing_cells_count": 3,
-    "contract_violations_count": 8,
+    "contract_violations_count": 12,
     "contract_violations": [
       {
         "column": "id",
@@ -26,15 +27,20 @@
       {
         "column": "poids",
         "rule": "range",
-        "failed_count": 2
+        "failed_count": 3
       },
       {
         "column": "distance",
         "rule": "range",
-        "failed_count": 1
+        "failed_count": 2
       },
       {
         "column": "temps",
+        "rule": "range",
+        "failed_count": 2
+      },
+      {
+        "column": "temps_prevu",
         "rule": "range",
         "failed_count": 1
       },
@@ -44,26 +50,35 @@
         "failed_count": 1
       }
     ],
-    "quarantined_rows_count": 8
+    "quarantined_rows_count": 10,
+    "raw_modified_zscore_time_outliers": 2
+  },
+  "naive_baseline": {
+    "description": "Dedup + blind mean/mode imputation without DataContract or DLQ",
+    "rows_retained": 2520,
+    "remaining_contract_violations": 10,
+    "fabricated_imputations_count": 3,
+    "dlq_quarantine_supported": false,
+    "unreconciled_http_orphans": 139
   },
   "after_unix": {
     "evaluated_file": "livraisons_clean.csv (UNIX clean_data.sh)",
-    "unix_clean_rows": 2508,
-    "iragi_clean_rows": 2508,
+    "unix_clean_rows": 2510,
+    "iragi_clean_rows": 2510,
     "unix_vs_iragi_row_parity": true,
-    "unix_clean_quality_score": 100.0,
-    "quality_score_delta": 0.3,
+    "unix_clean_quality_score": 99.75,
+    "quality_score_delta": 0.46,
     "missing_delta": -3,
     "post_unix_contract_violations_count": 0,
     "modified_zscore_time_outliers": 0
   },
-  "raw_rows": 2536,
-  "raw_quality_score": 99.7,
-  "clean_rows": 2508,
-  "clean_quality_score": 100.0,
-  "quality_score_delta": 0.3,
-  "duplicates_removed": 20,
-  "contract_violations_count": 8,
+  "raw_rows": 2555,
+  "raw_quality_score": 99.29,
+  "clean_rows": 2510,
+  "clean_quality_score": 99.75,
+  "quality_score_delta": 0.46,
+  "duplicates_removed": 35,
+  "contract_violations_count": 12,
   "contract_violations": [
     {
       "column": "id",
@@ -83,15 +98,20 @@
     {
       "column": "poids",
       "rule": "range",
-      "failed_count": 2
+      "failed_count": 3
     },
     {
       "column": "distance",
       "rule": "range",
-      "failed_count": 1
+      "failed_count": 2
     },
     {
       "column": "temps",
+      "rule": "range",
+      "failed_count": 2
+    },
+    {
+      "column": "temps_prevu",
       "rule": "range",
       "failed_count": 1
     },
@@ -101,9 +121,9 @@
       "failed_count": 1
     }
   ],
-  "quarantined_rows_count": 8,
+  "quarantined_rows_count": 10,
   "modified_zscore_time_outliers": 0,
-  "log_reconciliation_match_rate": 0.3187,
-  "log_matched_deliveries": 825,
-  "orphan_http_delivery_calls": 81
+  "log_reconciliation_match_rate": 0.2835,
+  "log_matched_deliveries": 751,
+  "orphan_http_delivery_calls": 139
 }

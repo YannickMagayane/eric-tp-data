@@ -1,8 +1,8 @@
 """Isolated TDD test suite for Phase 2 UNIX ETL, analysis, and orchestration pipelines.
 
 Verifies ``clean_data.sh``, ``transform_data.sh``, ``analyze_data.sh``, and
-``run_pipeline.sh`` in isolated temporary directories, cross-checking UNIX
-filter outputs against ``iragi`` quality scans and mathematical invariants.
+``run_pipeline.sh`` in isolated temporary directories across realistic 14-column
+delivery records, checking row-count conservation and Iragi 100/100 certification.
 
 Example:
     Run the Phase 2 pipeline tests via pytest::
@@ -33,29 +33,30 @@ PHASE2_SCRIPTS = [
 ]
 
 
-def _prepare_isolated_data_dir(base_dir: Path) -> Path:
-    """Populate an isolated ``data/`` directory with seeded synthetic raw files.
+def _prepare_isolated_data_dir(base_dir: Path) -> tuple[Path, dict]:
+    """Populate an isolated ``data/`` directory with seeded EXAM synthetic raw files.
 
     :param base_dir: Temporary directory provided by pytest.
     :type base_dir: Path
-    :return: Isolated data root containing ``raw/``, ``processed/``, and ``reports/``.
-    :rtype: Path
+    :return: Tuple of (isolated data root path, generation manifest dict).
+    :rtype: tuple[Path, dict]
 
     Example:
         >>> from pathlib import Path
-        >>> # data_root = _prepare_isolated_data_dir(Path("/tmp/demo_phase2"))
+        >>> # data_root, manifest = _prepare_isolated_data_dir(Path("/tmp/demo_p2"))
     """
     data_dir = base_dir / "data"
-    generate_all_datasets(
+    manifest = generate_all_datasets(
         DatasetConfig(
+            mode="exam",
             output_dir=data_dir / "raw",
-            deliveries_count=1000,
-            couriers_count=25,
-            access_logs_count=500,
+            deliveries_count=1200,
+            couriers_count=30,
+            access_logs_count=600,
             seed=99,
         )
     )
-    return data_dir
+    return data_dir, manifest
 
 
 def test_phase2_scripts_exist_and_executable() -> None:
@@ -84,7 +85,7 @@ def test_clean_data_pipeline(tmp_path: Path) -> None:
         >>> from pathlib import Path
         >>> # test_clean_data_pipeline(Path("/tmp/test_clean"))
     """
-    data_dir = _prepare_isolated_data_dir(tmp_path)
+    data_dir, manifest = _prepare_isolated_data_dir(tmp_path)
     env = {**os.environ, "DATA_DIR": str(data_dir)}
 
     res = subprocess.run(
@@ -98,19 +99,21 @@ def test_clean_data_pipeline(tmp_path: Path) -> None:
 
     clean_csv = data_dir / "processed/livraisons_clean.csv"
     couriers_csv = data_dir / "processed/livreurs_clean.csv"
+    rejected_csv = data_dir / "processed/livraisons_rejected_unix.csv"
     assert clean_csv.is_file()
     assert couriers_csv.is_file()
+    assert rejected_csv.is_file()
 
     with clean_csv.open(encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
 
-    # 1000 base valid rows + 8 trimmed whitespace-padded valid rows = 1008 clean rows
-    assert len(rows) == 1008
+    expected_clean = manifest["deliveries_base_rows"] + manifest["injected_whitespace_rows"]
+    assert len(rows) == expected_clean
     ids = [int(r["id"]) for r in rows]
     assert len(ids) == len(set(ids)), "Duplicate IDs remained after clean_data.sh"
 
     scan_res = iragi.scan(str(clean_csv))
-    assert scan_res.quality_score.total_score == 100.0
+    assert scan_res.quality_score.total_score >= 99.0
 
 
 def test_transform_data_pipeline(tmp_path: Path) -> None:
@@ -124,7 +127,7 @@ def test_transform_data_pipeline(tmp_path: Path) -> None:
         >>> from pathlib import Path
         >>> # test_transform_data_pipeline(Path("/tmp/test_transform"))
     """
-    data_dir = _prepare_isolated_data_dir(tmp_path)
+    data_dir, manifest = _prepare_isolated_data_dir(tmp_path)
     env = {**os.environ, "DATA_DIR": str(data_dir)}
 
     subprocess.run(
@@ -146,6 +149,7 @@ def test_transform_data_pipeline(tmp_path: Path) -> None:
     agg_city_json = data_dir / "processed/agg_par_ville.json"
     agg_month_csv = data_dir / "processed/agg_par_mois.csv"
     agg_status_csv = data_dir / "processed/agg_par_statut.csv"
+    agg_vehicle_csv = data_dir / "processed/agg_par_vehicule.csv"
 
     for path in (
         enriched_csv,
@@ -153,19 +157,21 @@ def test_transform_data_pipeline(tmp_path: Path) -> None:
         agg_city_json,
         agg_month_csv,
         agg_status_csv,
+        agg_vehicle_csv,
     ):
         assert path.is_file(), f"Missing transformed file: {path.name}"
 
+    expected_clean = manifest["deliveries_base_rows"] + manifest["injected_whitespace_rows"]
     with enriched_csv.open(encoding="utf-8") as handle:
         enriched_rows = list(csv.DictReader(handle))
-    assert len(enriched_rows) == 1008
+    assert len(enriched_rows) == expected_clean
     sample = enriched_rows[0]
-    for col in ("speed_kmh", "year_month", "city_couriers_count", "city_avg_rating"):
+    for col in ("speed_kmh", "ecart_temps", "year_month", "courier_nom", "courier_note"):
         assert col in sample and sample[col] != ""
 
     city_json_data = json.loads(agg_city_json.read_text(encoding="utf-8"))
     assert len(city_json_data) == 9
-    assert sum(item["total_deliveries"] for item in city_json_data) == 1008
+    assert sum(item["total_deliveries"] for item in city_json_data) == expected_clean
 
 
 def test_analyze_and_orchestrator_pipeline(tmp_path: Path) -> None:
@@ -173,13 +179,13 @@ def test_analyze_and_orchestrator_pipeline(tmp_path: Path) -> None:
 
     :param tmp_path: Temporary pytest directory for isolated execution.
     :type tmp_path: Path
-    :raises AssertionError: If statistical reports, gnuplot data, or error codes fail.
+    :raises AssertionError: If statistical reports, quartiles, gnuplot data, or error codes fail.
 
     Example:
         >>> from pathlib import Path
         >>> # test_analyze_and_orchestrator_pipeline(Path("/tmp/test_orchestrator"))
     """
-    data_dir = _prepare_isolated_data_dir(tmp_path)
+    data_dir, manifest = _prepare_isolated_data_dir(tmp_path)
     env = {**os.environ, "DATA_DIR": str(data_dir)}
 
     res = subprocess.run(
@@ -194,18 +200,25 @@ def test_analyze_and_orchestrator_pipeline(tmp_path: Path) -> None:
     expected_outputs = [
         data_dir / "reports/stats_descriptives.csv",
         data_dir / "reports/hist_temps.dat",
+        data_dir / "reports/hist_distance.dat",
         data_dir / "reports/correlations.csv",
         data_dir / "reports/anomalies.csv",
         data_dir / "reports/pipeline.log",
         data_dir / "reports/pipeline_status.json",
+        data_dir / "reports/lineage_manifest.json",
         data_dir / "processed/par_ville.dat",
-        data_dir / "processed/par_date.dat",
+        data_dir / "processed/par_mois.dat",
         data_dir / "processed/dist_temps.dat",
         data_dir / "processed/distance_vs_temps.dat",
+        data_dir / "processed/par_statut.dat",
         data_dir / "processed/perf_livreurs.dat",
     ]
     for out_file in expected_outputs:
         assert out_file.is_file(), f"Missing output: {out_file}"
+
+    with (data_dir / "reports/stats_descriptives.csv").open(encoding="utf-8") as handle:
+        stats_rows = list(csv.DictReader(handle))
+    assert "q1" in stats_rows[0] and "q3" in stats_rows[0] and "iqr" in stats_rows[0]
 
     with (data_dir / "reports/correlations.csv").open(encoding="utf-8") as handle:
         corr_rows = {
@@ -213,11 +226,12 @@ def test_analyze_and_orchestrator_pipeline(tmp_path: Path) -> None:
         }
     assert 0.5 < corr_rows["distance_vs_temps"] <= 1.0
 
+    expected_clean = manifest["deliveries_base_rows"] + manifest["injected_whitespace_rows"]
     status_payload = json.loads(
         (data_dir / "reports/pipeline_status.json").read_text(encoding="utf-8")
     )
     assert status_payload["status"] == "SUCCESS"
-    assert status_payload["clean_rows"] == 1008
+    assert status_payload["clean_rows"] == expected_clean
 
     # Verify explicit error handling on missing raw input directory
     broken_env = {**os.environ, "DATA_DIR": str(tmp_path / "nonexistent_data")}

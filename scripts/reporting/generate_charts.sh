@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase 3 - Task 1: Render 6 PNG analytical charts from real processed .dat files via gnuplot.
+# Phase 3 & 4: Render 8 clean, professional PNG charts via gnuplot from real processed data.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/etl/common.sh
@@ -10,10 +10,10 @@ ensure_pipeline_dirs
 
 REQUIRED_DATS=(
     "${PROCESSED_DIR}/par_ville.dat"
-    "${PROCESSED_DIR}/par_date.dat"
+    "${PROCESSED_DIR}/par_mois.dat"
     "${PROCESSED_DIR}/dist_temps.dat"
     "${PROCESSED_DIR}/distance_vs_temps.dat"
-    "${PROCESSED_DIR}/raw_distance_vs_temps.dat"
+    "${PROCESSED_DIR}/par_statut.dat"
     "${PROCESSED_DIR}/perf_livreurs.dat"
     "${PROCESSED_DIR}/iragi_before_after.dat"
 )
@@ -24,6 +24,9 @@ for dat_file in "${REQUIRED_DATS[@]}"; do
         exit 2
     fi
 done
+
+# Remove obsolete charts before rendering the 8 canonical charts
+rm -f "${VISUALIZATIONS_DIR}"/*.png
 
 run_gnuplot_script() {
     local gp_content="$1"
@@ -43,133 +46,170 @@ run_gnuplot_script() {
     fi
 }
 
-log_info "${STAGE}" "Rendering 6 PNG charts into ${VISUALIZATIONS_DIR} from real processed datasets..."
+log_info "${STAGE}" "Rendering 8 PNG charts into ${VISUALIZATIONS_DIR}..."
 
 read -r -d '' GP_COMMANDS << 'EOF' || true
 data_dir = system("echo $DATA_MOUNT")
 proc_dir = data_dir . "/processed"
 vis_dir  = data_dir . "/visualizations"
 
-# 1. Deliveries and Delay Rate per City
-set terminal png size 1100,650
+# 1. Deliveries per city
+set terminal png size 1200,660 noenhanced
 set output vis_dir . "/01_livraisons_par_ville.png"
-set title "Volume de livraisons et taux de retard (%) par ville"
-set style data histograms
-set style histogram cluster gap 1
+set title "Volume de livraisons par ville (Source: livraisons_clean.csv | Periode: Sept - Nov 2026)"
+set bmargin 7
+set lmargin 11
+set rmargin 5
+set tmargin 4
 set style fill solid 0.85 border -1
-set boxwidth 0.9
+set boxwidth 0.58
 set grid ytics
-set ylabel "Nombre de livraisons"
-set y2label "Taux de retard (%)"
-set y2tics 0, 2, 20
-set yrange [0:350]
-set y2range [0:20]
+set xlabel "Ville de destination (France)"
+set ylabel "Nombre de livraisons (colis)"
+set yrange [0:*]
+set offsets 0.5, 0.5, 15, 0
 set xtics rotate by -25
-plot proc_dir . "/par_ville.dat" using 2:xtic(1) title "Livraisons totales" lc rgb "#1d4ed8", \
-     "" using 4 axes x1y2 with linespoints lw 2 pt 7 lc rgb "#dc2626" title "Taux de retard (%)"
+set key top right
+plot proc_dir . "/par_ville.dat" using 0:2:xtic(1) with boxes lc rgb "#1d4ed8" title "Livraisons validees", \
+     "" using 0:2:(sprintf("%d", $2)) with labels offset 0,1.0 notitle
 
-# 2. Daily Evolution Over 3 Months
+# 2. Monthly evolution of deliveries
 reset
-set terminal png size 1100,600
+set terminal png size 1200,620 noenhanced
 set output vis_dir . "/02_evolution_temporelle.png"
-set title "Evolution quotidienne des livraisons (Septembre - Novembre 2026)"
-set xdata time
-set timefmt "%Y-%m-%d"
-set format x "%d/%m"
-set xlabel "Date"
-set ylabel "Livraisons par jour"
-set grid
-plot proc_dir . "/par_date.dat" using 1:2 with linespoints lw 2 pt 7 ps 0.7 lc rgb "#0f766e" title "Livraisons quotidiennes"
-
-# 3. Delivery Duration Histogram
-reset
-set terminal png size 1100,600
-set output vis_dir . "/03_distribution_temps.png"
-set title "Distribution des temps de livraison (tranches de 30 minutes)"
-set xlabel "Tranche de duree (minutes)"
-set ylabel "Nombre de livraisons"
+set output vis_dir . "/02_evolution_mensuelle.png"
+set title "Evolution mensuelle des livraisons (Source: agg_par_mois.csv | Periode: Sept - Nov 2026)"
+set bmargin 6
+set lmargin 11
+set rmargin 5
 set style fill solid 0.85 border -1
-set boxwidth 0.75
+set boxwidth 0.45
 set grid ytics
-set yrange [0:420]
-plot proc_dir . "/dist_temps.dat" using 3:xtic(1) with boxes lc rgb "#4338ca" title "Effectif par tranche"
+set xlabel "Mois d'expedition (YYYY-MM)"
+set ylabel "Volume mensuel (colis)"
+set yrange [0:*]
+set offsets 0.5, 0.5, 20, 0
+set key top right
+plot proc_dir . "/par_mois.dat" using 0:2:xtic(1) with boxes lc rgb "#0f766e" title "Total livraisons", \
+     "" using 0:4 with linespoints lw 3 pt 7 ps 1.3 lc rgb "#dc2626" title "Livraisons retardees", \
+     "" using 0:2:(sprintf("%d", $2)) with labels offset 0,1.0 notitle
 
-# 4. Distance vs Delivery Duration Scatter & Linear Trend
+# 3. Delay rate per city
 reset
-set terminal png size 1100,650
-set output vis_dir . "/04_distance_vs_temps.png"
-set title "Relation Distance vs Temps de livraison (r = 0.9671, n = 2508)"
+set terminal png size 1200,660 noenhanced
+set output vis_dir . "/03_taux_retard_par_ville.png"
+set title "Taux de retard (%) par ville (Source: agg_par_ville.csv | Periode: Sept - Nov 2026)"
+set bmargin 7
+set lmargin 11
+set rmargin 5
+set style fill solid 0.85 border -1
+set boxwidth 0.55
+set grid ytics
+set xlabel "Ville de destination (France)"
+set ylabel "Taux de retard (%)"
+set yrange [0:25]
+set xtics rotate by -25
+set key top right
+plot proc_dir . "/par_ville.dat" using 0:4:xtic(1) with boxes lc rgb "#dc2626" title "Taux de retard (%)", \
+     "" using 0:4:(sprintf("%.1f%%", $4)) with labels offset 0,1.0 notitle
+
+# 4. Delivery duration distribution
+reset
+set terminal png size 1200,640 noenhanced
+set output vis_dir . "/04_distribution_temps.png"
+set title "Distribution des temps de livraison (Source: livraisons_enriched.csv | Periode: Sept - Nov 2026)"
+set bmargin 6
+set lmargin 11
+set xlabel "Tranche de duree (minutes)"
+set ylabel "Nombre de livraisons (colis)"
+set style fill solid 0.85 border -1
+set boxwidth 0.68
+set grid ytics
+set yrange [0:*]
+set offsets 0.4, 0.4, 15, 0
+set key top right
+plot proc_dir . "/dist_temps.dat" using 0:3:xtic(1) with boxes lc rgb "#4338ca" title "Effectif par tranche de 30 min", \
+     "" using 0:3:(sprintf("%.1f%%", $4)) with labels offset 0,1.0 notitle
+
+# 5. Distance vs delivery duration
+reset
+set terminal png size 1200,640 noenhanced
+set output vis_dir . "/05_distance_vs_temps.png"
+set title "Relation Distance vs Temps de livraison (Source: livraisons_enriched.csv | Sept - Nov 2026)"
+set bmargin 5
+set lmargin 11
 set xlabel "Distance parcourue (km)"
 set ylabel "Temps de livraison (minutes)"
+set xrange [0:530]
+set yrange [0:330]
 set grid
 set fit quiet
 set fit logfile "/dev/null"
 f(x) = a*x + b
 fit f(x) proc_dir . "/distance_vs_temps.dat" using 1:2 via a,b
-plot proc_dir . "/distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.45 lc rgb "#64748b" title "Livraisons (n=2508)", \
-     f(x) with lines lw 3 lc rgb "#e11d48" title "Regression lineaire"
+set key top left
+plot proc_dir . "/distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.45 lc rgb "#64748b" title "Livraisons valides", \
+     f(x) with lines lw 3 lc rgb "#e11d48" title sprintf("Tendance lineaire : Temps = %.3f * Dist + %.1f", a, b)
 
-# 5. Courier Performance (Experience vs Rating)
+# 6. Status breakdown
 reset
-set terminal png size 1100,600
-set output vis_dir . "/05_performance_livreurs.png"
-set title "Performance de la flotte de livreurs : Note moyenne vs Experience (n = 35)"
-set xlabel "Annees d'experience"
-set ylabel "Note moyenne (/5)"
-set yrange [2.0:5.2]
-set xrange [-1:32]
-set grid
-plot proc_dir . "/perf_livreurs.dat" using 3:4 with points pt 7 ps 1.4 lc rgb "#d97706" title "Livreurs actifs"
-
-# 6. Iragi Before vs After UNIX Remediation
-reset
-set terminal png size 1100,560 noenhanced
-set output vis_dir . "/06_iragi_avant_apres.png"
-set title "Audit Iragi : Anomalies detectees AVANT vs APRES le pipeline UNIX"
-set style data histograms
-set style histogram cluster gap 1
+set terminal png size 1150,620 noenhanced
+set output vis_dir . "/06_repartition_statuts.png"
+set title "Repartition des statuts de livraison (Source: agg_par_statut.csv | Periode: Sept - Nov 2026)"
+set bmargin 5
+set lmargin 11
 set style fill solid 0.85 border -1
-set ylabel "Nombre d'anomalies / enregistrements affectes"
+set boxwidth 0.50
 set grid ytics
-set yrange [0:25]
-plot proc_dir . "/iragi_before_after.dat" using 2:xtic(1) title "Avant (data/raw : score 99.7/100)" lc rgb "#dc2626", \
-     "" using 3 title "Apres clean_data.sh (certifie Iragi : 100.0/100)" lc rgb "#16a34a"
+set xlabel "Statut de livraison"
+set ylabel "Pourcentage des livraisons (%)"
+set yrange [0:85]
+set key top right
+plot proc_dir . "/par_statut.dat" using 0:3:xtic(1) with boxes lc rgb "#0284c7" title "Part du trafic (%)", \
+     "" using 0:3:(sprintf("%.1f%% (%d)", $3, $2)) with labels offset 0,1.0 notitle
 
-# 7. Side-by-Side Comparison: WITHOUT vs WITH UNIX + Iragi Governance
+# 7. Courier performance (Experience vs Rating)
 reset
-set terminal png size 1280,540 noenhanced
-set output vis_dir . "/07_impact_sans_vs_avec_iragi.png"
-set multiplot layout 1,2 title "Comparaison des donnees reelles : SANS nettoyage (Brut) vs AVEC Pipeline UNIX + Iragi"
-
-# Left panel: Raw uncleaned data with contract boundary box and outlier (820, 490)
-set title "SANS Iragi / Brut (n=2536, hors-contrat visibles)"
-set xlabel "Distance (km)"
-set ylabel "Temps (minutes)"
-set xrange [0:900]
-set yrange [0:550]
+set terminal png size 1200,620 noenhanced
+set output vis_dir . "/07_performance_livreurs.png"
+set title "Performance des livreurs : Note moyenne vs Experience (Source: livreurs_clean.csv | Sept - Nov 2026)"
+set bmargin 5
+set lmargin 11
+set xlabel "Experience du livreur (annees)"
+set ylabel "Note moyenne (/5)"
+set yrange [2.0:5.4]
+set xrange [-1:31]
 set grid
-set arrow 1 from 500,0 to 500,550 nohead dt 2 lw 2 lc rgb "#dc2626"
-set arrow 2 from 0,300 to 900,300 nohead dt 2 lw 2 lc rgb "#dc2626"
-plot proc_dir . "/raw_distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.45 lc rgb "#dc2626" title "Brut (incl. aberrant 820km/490min)"
+set key bottom right
+plot proc_dir . "/perf_livreurs.dat" using 3:4 with points pt 7 ps 1.5 lc rgb "#d97706" title "Livreurs actifs"
 
-# Right panel: Clean data certified 100/100 by Iragi DataContract
-unset arrow 1
-unset arrow 2
-set title "AVEC UNIX + Contrat Iragi (n=2508, score 100/100)"
-set xlabel "Distance (km) [contrat 10..500]"
-set ylabel "Temps (minutes) [contrat 30..300]"
-set xrange [0:550]
-set yrange [0:330]
-set grid
-set fit quiet
-set fit logfile "/dev/null"
-g(x) = m*x + c
-fit g(x) proc_dir . "/distance_vs_temps.dat" using 1:2 via m,c
-plot proc_dir . "/distance_vs_temps.dat" using 1:2 with points pt 7 ps 0.45 lc rgb "#0f766e" title "Valides (0 violation)", \
-     g(x) with lines lw 2 lc rgb "#1d4ed8" title "Tendance (r=0.9671)"
-
-unset multiplot
+# 8. Anomalies before vs after treatment (Raw vs Classical Naive vs UNIX + Iragi)
+reset
+set terminal png size 1280,680 noenhanced
+set output vis_dir . "/08_anomalies_avant_apres.png"
+set title "Comparaison des anomalies : Brut vs Nettoyage Classique vs Pipeline UNIX + Iragi (Sept - Nov 2026)"
+set bmargin 6
+set lmargin 11
+set rmargin 5
+set tmargin 4
+set style data histograms
+set style histogram cluster gap 1.4
+set style fill solid 0.88 border -1
+set boxwidth 0.9
+set xlabel "Categorie d'anomalie / risque qualite"
+set ylabel "Nombre d'anomalies detectees"
+set grid ytics
+set yrange [0:*]
+set offsets 0, 0, 12, 0
+set key top right
+plot proc_dir . "/iragi_before_after.dat" using 2:xtic(1) lc rgb "#dc2626" title "1. Donnees brutes (data/raw)", \
+     "" using 3 lc rgb "#f59e0b" title "2. Nettoyage classique naif (sans DataContract/DLQ)", \
+     "" using 4 lc rgb "#16a34a" title "3. Pipeline UNIX + Iragi (score 100/100)", \
+     "" using ($0 - 0.25):2:(sprintf("%d", $2)) with labels offset 0,0.8 tc rgb "#991b1b" notitle, \
+     "" using ($0):3:(sprintf("%d", $3)) with labels offset 0,0.8 tc rgb "#b45309" notitle, \
+     "" using ($0 + 0.25):4:(sprintf("%d", $4)) with labels offset 0,0.8 tc rgb "#15803d" notitle
 EOF
 
 run_gnuplot_script "${GP_COMMANDS}" "${DATA_DIR}"
-log_info "${STAGE}" "All 7 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."
+rm -f "${VISUALIZATIONS_DIR}/02_evolution_temporelle.png"
+log_info "${STAGE}" "All 8 PNG charts successfully generated in ${VISUALIZATIONS_DIR}."
