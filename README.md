@@ -75,8 +75,9 @@ Une entreprise de logistique opere sur neuf grandes villes francaises (**Paris, 
 ## 8. Installation
 
 ```bash
-# Ouvrir le depot du projet
-cd /home/yannick-magayane/Bureau/projet/eric
+# Cloner le depot du projet et entrer dans le dossier
+git clone <URL_DU_DEPOT_GIT>
+cd eric
 
 # Construire et demarrer toute la stack Docker (Traefik, PostgreSQL, Metabase, dev)
 ./bin/launch.sh

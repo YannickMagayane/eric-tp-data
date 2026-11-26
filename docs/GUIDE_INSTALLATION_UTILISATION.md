@@ -53,6 +53,10 @@ docker compose down
 ## 4. Execution Complete Pas-a-Pas
 
 ```bash
+# 0. Cloner le depot et entrer dans le repertoire du projet
+git clone <URL_DU_DEPOT_GIT>
+cd eric
+
 # 1. Demarrer la stack Docker
 ./bin/launch.sh
 
@@ -63,7 +67,7 @@ make generate-data MODE=exam
 # 3. Executer le pipeline UNIX + audit iragi + tracabilite SHA-256
 make pipeline
 
-# 4. Generer les 8 graphiques gnuplot, rapports HTML/MD, rapport PDF et slides PDF
+# 4. Generer les 10 graphiques gnuplot, rapports HTML/MD, rapport PDF et slides PDF
 make charts
 make report
 make pdf
