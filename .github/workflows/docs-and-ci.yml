@@ -1,0 +1,74 @@
+name: CI and Auto-Update Documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-update-docs:
+    name: Validate Scripts, Run Tests, and Update Docs
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install UNIX, Gnuplot, ShellCheck, and LaTeX packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gawk \
+            gnuplot-nox \
+            jq \
+            shellcheck \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-lang-french
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Run ShellCheck on all shell scripts
+        run: shellcheck -x bin/*.sh scripts/etl/*.sh scripts/analysis/*.sh scripts/reporting/*.sh
+
+      - name: Run pipeline and reporting tests
+        run: pytest tests/test_foundation.py tests/test_phase2_pipelines.py tests/test_phase3_reporting.py -v
+
+      - name: Auto-update ordered repository tree in README.md
+        run: python3 -m scripts.reporting.update_readme_tree
+
+      - name: Recompile LaTeX report and Beamer slides
+        run: |
+          cd docs
+          pdflatex -interaction=nonstopmode rapport.tex >/dev/null
+          pdflatex -interaction=nonstopmode rapport.tex >/dev/null
+          pdflatex -interaction=nonstopmode slides.tex >/dev/null
+          pdflatex -interaction=nonstopmode slides.tex >/dev/null
+          rm -f *.aux *.log *.nav *.out *.snm *.toc *.vrb
+
+      - name: Commit and push updated documentation if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md docs/rapport.pdf docs/slides.pdf
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(ci): auto-update repository tree and PDF deliverables [skip ci]"
+            git push
+          else
+            echo "Documentation is already up to date."
+          fi

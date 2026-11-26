@@ -242,7 +242,7 @@ Aucune copie redondante inutile n'est conserv\'ee : chaque r\'epertoire de \text
     \item \texttt{data/raw/} : donn\'ees brutes d'entr\'ee et \texttt{generation\_manifest.json}.
     \item \texttt{data/processed/} : fichiers assainis (\texttt{livraisons\_clean.csv}, \texttt{livreurs\_clean.csv}, \texttt{access\_clean.csv}), rejets UNIX (\texttt{livraisons\_rejected\_unix.csv}), quarantaine DLQ (\texttt{quarantine\_livraisons.csv}), donn\'ees enrichies (\texttt{livraisons\_enriched.csv}), agr\'egations et flux \texttt{.dat}.
     \item \texttt{data/reports/} : audits JSON (\texttt{iragi\_audit.json}, \texttt{pipeline\_status.json}, \texttt{lineage\_manifest.json}), statistiques, corr\'elations, anomalies et rapports horodat\'es.
-    \item \texttt{data/visualizations/} : huit graphiques PNG g\'en\'er\'es par \texttt{gnuplot}.
+    \item \texttt{data/visualizations/} : dix graphiques PNG g\'en\'er\'es par \texttt{gnuplot}.
 \end{itemize}
 
 % ============================================================================
@@ -423,7 +423,7 @@ Six cartes SQL natives issues de \texttt{sql/queries.sql} et deux cartes d'audit
 % 16. TESTS ET VALIDATION
 % ============================================================================
 \section{Tests et Validation}
-L'ex\'ecution de \texttt{./bin/test.sh} valide l'ensemble du syst\`eme : tests unitaires et d'int\'egration \texttt{pytest} (couvrant le socle, les pipelines UNIX, les 8 graphiques, le PDF, le conteneur non-root UID 1000, l'ingestion r\'eelle PostgreSQL et la sonde HTTP Traefik/Metabase) ainsi que l'analyse statique \texttt{shellcheck} sans aucune erreur.
+L'ex\'ecution de \texttt{./bin/test.sh} valide l'ensemble du syst\`eme : tests unitaires et d'int\'egration \texttt{pytest} (couvrant le socle, les pipelines UNIX, les 10 graphiques, l'auto-g\'en\'eration de l'arborescence dans \texttt{README.md} via \texttt{update\_readme\_tree.py}, le PDF, le conteneur non-root UID 1000, l'ingestion r\'eelle PostgreSQL et la sonde HTTP Traefik/Metabase) ainsi que l'analyse statique \texttt{shellcheck} sans aucune erreur. De plus, le workflow GitHub Actions (\texttt{.github/workflows/docs-and-ci.yml}) ex\'ecute \texttt{shellcheck}, \texttt{pytest}, met \`a jour l'arborescence de \texttt{README.md} et recompile automatiquement les livrables PDF \`a chaque mise \`a jour de la branche \texttt{main}.
 
 % ============================================================================
 % 17. RESULTATS EXPERIMENTAUX
