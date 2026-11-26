@@ -18,20 +18,38 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect whether PDF sources changed
+        id: docs_changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "rebuild_pdf=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only HEAD~1 HEAD | grep -qE '^(docs/.*\.tex|data/visualizations/|scripts/reporting/)'; then
+            echo "rebuild_pdf=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "rebuild_pdf=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
 
-      - name: Install UNIX, Gnuplot, ShellCheck, and LaTeX packages
+      - name: Install UNIX, Gnuplot, and ShellCheck packages
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             gawk \
             gnuplot-nox \
             jq \
-            shellcheck \
+            shellcheck
+
+      - name: Install LaTeX packages (only when doc sources changed)
+        if: steps.docs_changes.outputs.rebuild_pdf == 'true'
+        run: |
+          sudo apt-get install -y --no-install-recommends \
             texlive-latex-base \
             texlive-latex-recommended \
             texlive-latex-extra \
@@ -53,7 +71,8 @@ jobs:
       - name: Auto-update ordered repository tree in README.md
         run: python3 -m scripts.reporting.update_readme_tree
 
-      - name: Recompile LaTeX report and Beamer slides
+      - name: Recompile LaTeX report and Beamer slides (only when doc sources changed)
+        if: steps.docs_changes.outputs.rebuild_pdf == 'true'
         run: |
           cd docs
           pdflatex -interaction=nonstopmode -halt-on-error rapport.tex
