@@ -1,6 +1,6 @@
 # Rapport d'Analyse Logistique — Pipeline UNIX & Gouvernance Iragi
 
-**Horodatage de generation** : 2026-11-26 19:10:25 UTC  
+**Horodatage de generation** : 2026-11-27 12:53:40 UTC  
 **Statut d'orchestration** : `SUCCESS`  
 **Version d'audit `iragi`** : `0.6.4`
 

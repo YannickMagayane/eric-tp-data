@@ -231,6 +231,8 @@ make load-db
 - **Outliers (`detect_outliers_modified_zscore`)** : detection robuste basee sur la mediane (MAD).
 - **Reconciliation (`iragi.reconcile`)** : rapprochement par regex `r"(\d+)"` entre `livraisons.csv` et `access.log`.
 
+**Pourquoi `iragi` et pas `pandas` seul ?** `pandas` est utilise en arriere-plan pour la manipulation tabulaire, mais il ne fournit nativement ni score de qualite normalise sur 100, ni contrat metier declaratif (`DataContract`), ni file de quarantaine DLQ, ni reconciliation regex inter-sources prets a l'emploi. Par ailleurs, contrairement a `pandas` qui charge toute la table en memoire vive, le gros du traitement reste assure par les filtres UNIX (`sed`, `awk`, `sort`, `join`, `jq`) en flux continu, tandis qu'`iragi` joue le role de certificateur qualite.
+
 ## 19. Execution des Tests
 
 ```bash

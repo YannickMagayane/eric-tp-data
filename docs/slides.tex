@@ -161,9 +161,9 @@
     \vspace{0.1cm}
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
-            \begin{alertblock}{Pourquoi UNIX seul ne suffit pas}
+            \begin{alertblock}{Pourquoi UNIX et \texttt{pandas} seuls ne suffisent pas}
                 \scriptsize\justifying
-                Les filtres textuels (\texttt{sed}, \texttt{awk}) ne produisent pas de score normalis\'e sur 100, ne g\`erent pas nativement une file de quarantaine DLQ sans imputation aveugle et ne r\'econcilient pas des cl\'es h\'et\'erog\`enes (\texttt{id} vs \texttt{/api/livraisons/LIV-<id>}).
+                Les filtres UNIX (\texttt{sed}, \texttt{awk}) traitent vite en flux, et \texttt{pandas} manipule les tables en m\'emoire, mais aucun des deux ne fournit nativement un score sur 100, un contrat m\'etier DLQ sans imputation ni la r\'econciliation regex (\texttt{id} vs \texttt{LIV-<id>}).
             \end{alertblock}
         \end{column}
         \begin{column}{0.48\textwidth}

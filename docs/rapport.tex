@@ -262,8 +262,8 @@ Tous les scripts sourcent \texttt{scripts/etl/common.sh} qui impose \texttt{set 
 % ============================================================================
 \section{Int\'egration et Justification Scientifique d'\texttt{iragi}}
 
-\subsection{Pourquoi les filtres UNIX classiques ne suffisent pas seuls}
-Les outils UNIX (\texttt{sed}, \texttt{awk}, \texttt{sort}) excellent dans le filtrage syntaxique ligne par ligne, mais ne fournissent nativement ni score de qualit\'e global normalis\'e, ni contrat m\'etier d\'eclaratif r\'eutilisable avec protection anti-ReDoS, ni m\'ecanisme structur\'e de quarantaine (\emph{Dead-Letter Queue}) compar\'e \`a un traitement na\"if, ni r\'econciliation floue/regex multi-sources.
+\subsection{Pourquoi les filtres UNIX et \texttt{pandas} seuls ne suffisent pas}
+Les outils UNIX (\texttt{sed}, \texttt{awk}, \texttt{sort}) excellent dans le filtrage syntaxique ligne par ligne en flux continu avec une empreinte m\'emoire minimale, mais ne fournissent nativement ni score de qualit\'e global normalis\'e, ni contrat m\'etier d\'eclaratif r\'eutilisable avec protection anti-ReDoS, ni m\'ecanisme structur\'e de quarantaine (\emph{Dead-Letter Queue}), ni r\'econciliation regex multi-sources. De son c\^ot\'e, \texttt{pandas} (utilis\'e comme support tabulaire interne) manipule les DataFrames en m\'emoire vive sans offrir d'audit chiffr\'e, de \texttt{DataContract} ni de DLQ pr\^ets \`a l'emploi. L'ajout d'\texttt{iragi} \'evite de r\'einventer un moteur de gouvernance complet tout en laissant le traitement principal aux filtres UNIX impos\'es par le cahier des charges.
 
 \subsection{Fonctionnalit\'es d'\texttt{iragi} (\texttt{v0.6.4}) r\'eellement mobilis\'ees}
 \begin{enumerate}
